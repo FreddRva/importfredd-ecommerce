@@ -321,8 +321,9 @@ func UpdateUserAsAdmin(db *pgxpool.Pool, email string) error {
 // GetAllUsers obtiene todos los usuarios para el panel de administración.
 func GetAllUsers(db *pgxpool.Pool) ([]models.User, error) {
 	query := `
-		SELECT id, email, COALESCE(nombre, ''), COALESCE(apellido, ''), is_admin, is_active, created_at
+		SELECT id, email, nombre, apellido, telefono, avatar, is_admin, is_verified, is_active, created_at, updated_at
 		FROM users
+		WHERE is_active = true
 		ORDER BY created_at DESC
 	`
 	rows, err := db.Query(context.Background(), query)
@@ -335,14 +336,31 @@ func GetAllUsers(db *pgxpool.Pool) ([]models.User, error) {
 	for rows.Next() {
 		var user models.User
 		err := rows.Scan(
-			&user.ID, &user.Email, &user.Nombre, &user.Apellido,
-			&user.IsAdmin, &user.IsActive, &user.CreatedAt,
+			&user.ID,
+			&user.Email,
+			&user.Nombre,
+			&user.Apellido,
+			&user.Telefono,
+			&user.Avatar,
+			&user.IsAdmin,
+			&user.IsVerified,
+			&user.IsActive,
+			&user.CreatedAt,
+			&user.UpdatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("error escaneando usuario: %w", err)
+			// Este log es importante para ver si falla el escaneo de una fila específica
+			fmt.Printf("Error escaneando fila de usuario: %v\n", err)
+			continue
 		}
 		users = append(users, user)
 	}
+
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("error iterando sobre los usuarios: %v", rows.Err())
+	}
+
+	fmt.Printf("GetAllUsers: Se encontraron y procesaron %d usuarios.\n", len(users))
 
 	return users, nil
 }
@@ -360,23 +378,6 @@ func UpdateUserStatus(db *pgxpool.Pool, userID int, isAdmin bool, isActive bool)
 	}
 	if cmd.RowsAffected() == 0 {
 		return fmt.Errorf("usuario no encontrado")
-	}
-	return nil
-}
-
-// DeleteUser "elimina" un usuario (soft delete).
-func DeleteUser(db *pgxpool.Pool, userID int) error {
-	query := `
-		UPDATE users
-		SET is_active = false, updated_at = NOW()
-		WHERE id = $1
-	`
-	cmd, err := db.Exec(context.Background(), query, userID)
-	if err != nil {
-		return fmt.Errorf("error eliminando usuario: %w", err)
-	}
-	if cmd.RowsAffected() == 0 {
-		return fmt.Errorf("usuario no encontrado para eliminar")
 	}
 	return nil
 }

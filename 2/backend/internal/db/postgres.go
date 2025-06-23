@@ -1284,3 +1284,13 @@ func GetCredentialByID(db *pgxpool.Pool, credentialID []byte) (*webauthn.Credent
 
 	return &cred, userID, nil
 }
+
+// Reactiva un usuario desactivado y actualiza el token de verificación
+func ReactivateUser(db *pgxpool.Pool, email, hashedCode string, expiresAt time.Time) error {
+	query := `UPDATE users SET is_active = TRUE, verification_token = $1, verification_token_expires_at = $2, updated_at = NOW() WHERE email = $3`
+	_, err := db.Exec(context.Background(), query, hashedCode, expiresAt, email)
+	if err != nil {
+		return fmt.Errorf("error reactivando usuario: %w", err)
+	}
+	return nil
+}

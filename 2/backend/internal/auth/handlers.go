@@ -61,6 +61,29 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	}
 	expiresAt := time.Now().Add(10 * time.Minute)
 
+	// Buscar usuario por email
+	user, err := db.GetUserByEmail(h.db, req.Email)
+	if err == nil && user != nil {
+		if user.IsActive {
+			c.JSON(http.StatusConflict, gin.H{"error": "Este correo ya está registrado."})
+			return
+		} else {
+			// Reactivar usuario y actualizar token
+			err = db.ReactivateUser(h.db, req.Email, hashedCode, expiresAt)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo reactivar el usuario."})
+				return
+			}
+			log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
+			c.JSON(http.StatusOK, gin.H{
+				"message":    "Código generado y usuario reactivado.",
+				"debug_code": code,
+			})
+			return
+		}
+	}
+
+	// Si no existe, crear usuario
 	_, err = db.CreateUser(h.db, req.Email, hashedCode, expiresAt)
 	if err != nil {
 		if err.Error() == "user already exists and is verified" {
@@ -70,7 +93,6 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando información."})
 		return
 	}
-
 	log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
 	c.JSON(http.StatusOK, gin.H{
 		"message":    "Código generado.",

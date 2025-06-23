@@ -457,7 +457,7 @@ func (h *AdminHandler) GetAllUsers(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo usuarios"})
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
 func (h *AdminHandler) UpdateUserStatus(c *gin.Context) {
@@ -516,12 +516,19 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// Podrías considerar un soft delete en lugar de un borrado físico
-	err = db.DeleteUser(h.DB, userID)
+	// Se realiza un "soft delete" estableciendo is_active = false
+	// Primero obtenemos el estado de 'is_admin' para no alterarlo.
+	user, err := db.GetUserByID(h.DB, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error eliminando usuario: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Usuario eliminado exitosamente"})
+	err = db.UpdateUserStatus(h.DB, userID, user.IsAdmin, false) // Se mantiene su rol de admin, pero se desactiva
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error desactivando usuario: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario desactivado exitosamente"})
 }
