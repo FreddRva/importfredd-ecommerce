@@ -172,6 +172,7 @@ type Order struct {
 	ShippingAddress *Address    `json:"shipping_address"`
 	BillingAddress  *Address    `json:"billing_address"`
 	Notes           string      `json:"notes"`
+	Tracking        string      `json:"tracking"`
 	CreatedAt       time.Time   `json:"created_at"`
 	UpdatedAt       time.Time   `json:"updated_at"`
 	Items           []OrderItem `json:"items,omitempty"`

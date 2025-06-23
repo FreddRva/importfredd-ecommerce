@@ -532,3 +532,82 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Usuario desactivado exitosamente"})
 }
+
+// ===== PEDIDOS (ORDERS) =====
+
+// Listar todos los pedidos (con paginación)
+func (h *AdminHandler) GetAllOrders(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+
+	orders, total, err := db.GetAllOrdersAdmin(h.DB, page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo pedidos: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"orders": orders,
+		"total":  total,
+		"page":   page,
+		"limit":  limit,
+	})
+}
+
+// Ver detalles de un pedido
+func (h *AdminHandler) GetOrderByID(c *gin.Context) {
+	orderID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de pedido inválido"})
+		return
+	}
+	order, err := db.GetOrderByIDAdmin(h.DB, orderID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Pedido no encontrado"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"order": order})
+}
+
+// Actualizar estado y número de tracking de un pedido
+func (h *AdminHandler) UpdateOrder(c *gin.Context) {
+	orderID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de pedido inválido"})
+		return
+	}
+	var req struct {
+		Status   string `json:"status"`
+		Tracking string `json:"tracking"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos: " + err.Error()})
+		return
+	}
+	if req.Status == "" && req.Tracking == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Debes enviar al menos un campo a actualizar (status o tracking)"})
+		return
+	}
+	if req.Status != "" {
+		err = db.UpdateOrderStatus(h.DB, orderID, req.Status)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando estado: " + err.Error()})
+			return
+		}
+	}
+	if req.Tracking != "" {
+		err = db.UpdateOrderTracking(h.DB, orderID, req.Tracking)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando tracking: " + err.Error()})
+			return
+		}
+	}
+	order, _ := db.GetOrderByIDAdmin(h.DB, orderID)
+	c.JSON(http.StatusOK, gin.H{"order": order, "message": "Pedido actualizado"})
+}

@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -481,6 +483,102 @@ func UpdateUserStatus(db *pgxpool.Pool, userID int, isAdmin bool, isActive bool)
 	}
 	if cmd.RowsAffected() == 0 {
 		return fmt.Errorf("usuario no encontrado")
+	}
+	return nil
+}
+
+// ===== PEDIDOS (ORDERS) =====
+
+// Listar todos los pedidos con paginación
+func GetAllOrdersAdmin(db *pgxpool.Pool, page, limit int) ([]models.Order, int, error) {
+	offset := (page - 1) * limit
+	query := `SELECT id, user_id, order_number, status, subtotal, tax, shipping, total, currency, payment_status, shipping_address, billing_address, notes, tracking, created_at, updated_at FROM orders ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	rows, err := db.Query(context.Background(), query, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var orders []models.Order
+	for rows.Next() {
+		var order models.Order
+		var shippingAddrJSON, billingAddrJSON []byte
+		var tracking sql.NullString
+		err := rows.Scan(
+			&order.ID, &order.UserID, &order.OrderNumber, &order.Status, &order.Subtotal, &order.Tax, &order.Shipping, &order.Total, &order.Currency, &order.PaymentStatus,
+			&shippingAddrJSON, &billingAddrJSON, &order.Notes, &tracking, &order.CreatedAt, &order.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+		if tracking.Valid {
+			order.Tracking = tracking.String
+		}
+		if len(shippingAddrJSON) > 0 {
+			var shippingAddr models.Address
+			if err := json.Unmarshal(shippingAddrJSON, &shippingAddr); err == nil {
+				order.ShippingAddress = &shippingAddr
+			}
+		}
+		if len(billingAddrJSON) > 0 {
+			var billingAddr models.Address
+			if err := json.Unmarshal(billingAddrJSON, &billingAddr); err == nil {
+				order.BillingAddress = &billingAddr
+			}
+		}
+		orders = append(orders, order)
+	}
+
+	var total int
+	err = db.QueryRow(context.Background(), "SELECT COUNT(*) FROM orders").Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return orders, total, nil
+}
+
+// Obtener detalles completos de un pedido (incluye items y pagos)
+func GetOrderByIDAdmin(db *pgxpool.Pool, orderID int) (*models.Order, error) {
+	order, err := GetOrderByID(db, orderID)
+	if err != nil {
+		return nil, err
+	}
+	items, err := GetOrderItems(db, orderID)
+	if err == nil {
+		order.Items = items
+	}
+	payments, err := GetOrderPayments(db, orderID)
+	if err == nil && len(payments) > 0 {
+		order.Payment = &payments[0]
+	}
+	return order, nil
+}
+
+// Actualizar el número de tracking de un pedido
+func UpdateOrderTracking(db *pgxpool.Pool, orderID int, tracking string) error {
+	query := `UPDATE orders SET tracking = $1, updated_at = NOW() WHERE id = $2`
+	res, err := db.Exec(context.Background(), query, tracking, orderID)
+	if err != nil {
+		return err
+	}
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("pedido no encontrado")
+	}
+	return nil
+}
+
+// MIGRACIÓN: agregar columna tracking si no existe
+type columnCheck struct{ Exists bool }
+
+func ensureTrackingColumn(db *pgxpool.Pool) error {
+	var exists bool
+	err := db.QueryRow(context.Background(), `SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='tracking')`).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		_, err = db.Exec(context.Background(), `ALTER TABLE orders ADD COLUMN tracking VARCHAR(100)`)
+		return err
 	}
 	return nil
 }

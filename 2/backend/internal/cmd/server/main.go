@@ -144,6 +144,14 @@ func main() {
 			categories.DELETE("/:id", adminHandler.DeleteCategory)
 		}
 
+		// Gestión de pedidos
+		orders := admin.Group("/orders")
+		{
+			orders.GET("", adminHandler.GetAllOrders)
+			orders.GET(":id", adminHandler.GetOrderByID)
+			orders.PUT(":id", adminHandler.UpdateOrder)
+		}
+
 		// Rutas para gestión de usuarios
 		admin.GET("/users", adminHandler.GetAllUsers)
 		admin.PUT("/users/:id", adminHandler.UpdateUserStatus)
