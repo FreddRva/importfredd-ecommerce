@@ -57,7 +57,6 @@ func createTables() error {
 		telefono VARCHAR(20),
 		avatar TEXT,
 		preferencias TEXT,
-		password_hash VARCHAR(255),
 		created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 		updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 	);
@@ -1149,8 +1148,8 @@ func GetOrderItems(db *pgxpool.Pool, orderID int) ([]models.OrderItem, error) {
 
 func GetUserByEmail(db *pgxpool.Pool, email string) (*models.User, error) {
 	var user models.User
-	query := "SELECT id, email, password_hash, is_admin, is_active FROM users WHERE email = $1"
-	err := db.QueryRow(context.Background(), query, email).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.IsAdmin, &user.IsActive)
+	query := "SELECT id, email, is_admin, is_active FROM users WHERE email = $1"
+	err := db.QueryRow(context.Background(), query, email).Scan(&user.ID, &user.Email, &user.IsAdmin, &user.IsActive)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, fmt.Errorf("user not found with email: %s", email)
@@ -1188,11 +1187,11 @@ func CreateUser(db *pgxpool.Pool, email, hashedCode string, expiresAt time.Time)
 func GetUserByEmailWithPassword(db *pgxpool.Pool, email string) (*models.User, error) {
 	var user models.User
 	query := `
-		SELECT id, email, password_hash, is_admin, is_active, is_verified, verification_token, verification_token_expires_at
+		SELECT id, email, is_admin, is_active, is_verified, verification_token, verification_token_expires_at
 		FROM users 
 		WHERE email = $1`
 	err := db.QueryRow(context.Background(), query, email).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.IsAdmin, &user.IsActive, &user.IsVerified, &user.VerificationToken, &user.VerificationTokenExpiresAt,
+		&user.ID, &user.Email, &user.IsAdmin, &user.IsActive, &user.IsVerified, &user.VerificationToken, &user.VerificationTokenExpiresAt,
 	)
 	if err != nil {
 		if err == pgx.ErrNoRows {

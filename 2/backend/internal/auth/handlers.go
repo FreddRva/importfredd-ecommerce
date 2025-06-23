@@ -354,50 +354,6 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 	})
 }
 
-func (h *AuthHandler) TraditionalLogin(c *gin.Context) {
-	var req struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	user, err := db.GetUserByEmailWithPassword(h.db, req.Email)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-
-	if user.PasswordHash == nil || !CheckPasswordHash(req.Password, *user.PasswordHash) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-
-	if !user.IsActive {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Account is not active"})
-		return
-	}
-
-	accessToken, refreshToken, err := GenerateTokens(user.ID, user.Email, user.IsAdmin)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-		return
-	}
-
-	userResponse := gin.H{
-		"id":       user.ID,
-		"email":    user.Email,
-		"is_admin": user.IsAdmin,
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-		"user":          userResponse,
-	})
-}
-
 func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil

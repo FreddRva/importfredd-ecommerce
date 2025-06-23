@@ -15,7 +15,6 @@ type User struct {
 	Telefono                   *string                `json:"telefono,omitempty"`
 	Avatar                     *string                `json:"avatar,omitempty"`
 	Preferencias               map[string]interface{} `json:"preferencias,omitempty"`
-	PasswordHash               *string                `json:"-"`
 	IsAdmin                    bool                   `json:"is_admin"`
 	IsVerified                 bool                   `json:"is_verified"`
 	VerificationToken          *string                `json:"-"`
