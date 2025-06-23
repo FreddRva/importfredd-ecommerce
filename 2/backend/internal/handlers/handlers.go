@@ -1,0 +1,543 @@
+package handlers
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/tuusuario/ecommerce-backend/internal/db"
+	"github.com/tuusuario/ecommerce-backend/internal/models"
+)
+
+type Handler struct {
+	DB *pgxpool.Pool
+}
+
+func NewHandler(db *pgxpool.Pool) *Handler {
+	return &Handler{DB: db}
+}
+
+// ---------------------------
+// PRODUCTOS
+// ---------------------------
+
+// Crear producto
+func (h *Handler) CreateProduct(c *gin.Context) {
+	var p models.Product
+	if err := c.ShouldBindJSON(&p); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := `
+        INSERT INTO products (name, description, price, category_id)
+        VALUES ($1, $2, $3, $4) RETURNING id, created_at
+    `
+	err := h.DB.QueryRow(context.Background(), query,
+		p.Name, p.Description, p.Price, p.CategoryID,
+	).Scan(&p.ID, &p.CreatedAt)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al insertar producto"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, p)
+}
+
+// Obtener productos
+func (h *Handler) GetProducts(c *gin.Context) {
+	rows, err := h.DB.Query(context.Background(),
+		`SELECT id, name, description, price, category_id, created_at, image_url, dimensions FROM products WHERE is_active = true`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener productos"})
+		return
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		err := rows.Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.CategoryID, &p.CreatedAt, &p.ImageURL, &p.Dimensions)
+		if err != nil {
+			log.Printf("Error al escanear producto: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error leyendo datos de productos"})
+			return
+		}
+		products = append(products, p)
+	}
+
+	c.JSON(http.StatusOK, products)
+}
+
+// GetProduct obtiene un producto por su ID.
+func (h *Handler) GetProduct(c *gin.Context) {
+	productID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de producto inválido"})
+		return
+	}
+
+	product, err := db.GetProductByID(h.DB, productID)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Producto no encontrado"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo producto: " + err.Error()})
+		return
+	}
+
+	// Asegurarse de que el producto esté activo
+	if !product.IsActive {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Producto no encontrado"}) // Mismo error para no dar pistas
+		return
+	}
+
+	c.JSON(http.StatusOK, product)
+}
+
+// ---------------------------
+// USUARIOS
+// ---------------------------
+
+// Crear usuario
+func (h *Handler) CreateUser(c *gin.Context) {
+	var u models.User
+	if err := c.ShouldBindJSON(&u); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := `INSERT INTO users (email) VALUES ($1) RETURNING id, created_at`
+	err := h.DB.QueryRow(context.Background(), query, u.Email).Scan(&u.ID, &u.CreatedAt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear usuario"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, u)
+}
+
+// Obtener usuarios
+func (h *Handler) GetUsers(c *gin.Context) {
+	rows, err := h.DB.Query(context.Background(),
+		`SELECT id, email, created_at FROM users`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener usuarios"})
+		return
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next() {
+		var u models.User
+		err := rows.Scan(&u.ID, &u.Email, &u.CreatedAt)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error leyendo usuarios"})
+			return
+		}
+		users = append(users, u)
+	}
+
+	c.JSON(http.StatusOK, users)
+}
+
+// ---------------------------
+// CATEGORÍAS
+// ---------------------------
+
+// Crear categoría
+func (h *Handler) CreateCategory(c *gin.Context) {
+	var cat models.Category
+	if err := c.ShouldBindJSON(&cat); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := `INSERT INTO categories (name) VALUES ($1) RETURNING id, created_at`
+	err := h.DB.QueryRow(context.Background(), query, cat.Name).Scan(&cat.ID, &cat.CreatedAt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear categoría"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, cat)
+}
+
+// Obtener categorías
+func (h *Handler) GetCategories(c *gin.Context) {
+	rows, err := h.DB.Query(context.Background(),
+		`SELECT id, name, created_at FROM categories`)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener categorías"})
+		return
+	}
+	defer rows.Close()
+
+	var cats []models.Category
+	for rows.Next() {
+		var cat models.Category // ⚠️ NO uses `c` aquí
+		err := rows.Scan(&cat.ID, &cat.Name, &cat.CreatedAt)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error leyendo categorías"})
+			return
+		}
+		cats = append(cats, cat)
+	}
+
+	c.JSON(http.StatusOK, cats)
+}
+
+// ---------------------------
+// PERFIL DE USUARIO
+// ---------------------------
+
+// Obtener perfil del usuario actual
+func (h *Handler) GetUserProfile(c *gin.Context) {
+	userID := c.GetInt("user_id")
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	user, err := db.GetUserByID(h.DB, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener perfil del usuario"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mensaje":      "Perfil obtenido exitosamente",
+		"user_id":      user.ID,
+		"email":        user.Email,
+		"nombre":       user.Nombre,
+		"apellido":     user.Apellido,
+		"telefono":     user.Telefono,
+		"avatar":       user.Avatar,
+		"preferencias": user.Preferencias,
+		"created_at":   user.CreatedAt,
+		"updated_at":   user.UpdatedAt,
+	})
+}
+
+// Actualizar perfil del usuario
+func (h *Handler) UpdateUserProfile(c *gin.Context) {
+	userID := c.GetInt("user_id")
+	if userID == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no autenticado"})
+		return
+	}
+
+	var updateData struct {
+		Nombre       *string `json:"nombre"`
+		Apellido     *string `json:"apellido"`
+		Telefono     *string `json:"telefono"`
+		Avatar       *string `json:"avatar"`
+		Preferencias *string `json:"preferencias"`
+	}
+
+	if err := c.ShouldBindJSON(&updateData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos: " + err.Error()})
+		return
+	}
+
+	// Crear mapa de actualizaciones
+	updates := make(map[string]interface{})
+	if updateData.Nombre != nil {
+		updates["nombre"] = *updateData.Nombre
+	}
+	if updateData.Apellido != nil {
+		updates["apellido"] = *updateData.Apellido
+	}
+	if updateData.Telefono != nil {
+		updates["telefono"] = *updateData.Telefono
+	}
+	if updateData.Avatar != nil {
+		updates["avatar"] = *updateData.Avatar
+	}
+	if updateData.Preferencias != nil {
+		updates["preferencias"] = *updateData.Preferencias
+	}
+
+	// Actualizar en la base de datos
+	err := db.UpdateUserProfile(h.DB, userID, updates)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al actualizar perfil: " + err.Error()})
+		return
+	}
+
+	// Obtener usuario actualizado
+	user, err := db.GetUserByID(h.DB, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener perfil actualizado"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mensaje":      "Perfil actualizado exitosamente",
+		"user_id":      user.ID,
+		"email":        user.Email,
+		"nombre":       user.Nombre,
+		"apellido":     user.Apellido,
+		"telefono":     user.Telefono,
+		"avatar":       user.Avatar,
+		"preferencias": user.Preferencias,
+		"updated_at":   user.UpdatedAt,
+	})
+}
+
+// ---- Cart Handlers ----
+
+func (h *Handler) GetCart(c *gin.Context) {
+	log.Printf("GetCart llamado - verificando user_id")
+	userID, exists := c.Get("user_id")
+	if !exists {
+		log.Printf("user_id no encontrado en contexto")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	log.Printf("user_id encontrado: %v", userID)
+	cartID, err := db.FindOrCreateCartByUserID(h.DB, userID.(int))
+	if err != nil {
+		log.Printf("Error creando/obteniendo carrito: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get or create cart"})
+		return
+	}
+
+	log.Printf("Carrito obtenido/creado con ID: %d", cartID)
+	items, err := db.GetCartContents(h.DB, cartID)
+	if err != nil {
+		log.Printf("Error obteniendo contenido del carrito: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get cart items"})
+		return
+	}
+
+	// Transformar los datos para que coincidan con lo que espera el frontend
+	var transformedItems []gin.H
+	for _, item := range items {
+		transformedItem := gin.H{
+			"id":         item.ID,
+			"product_id": item.ProductID,
+			"quantity":   item.Quantity,
+			"created_at": item.CreatedAt,
+			"updated_at": item.UpdatedAt,
+		}
+
+		// Agregar datos del producto si existe
+		if item.Product != nil {
+			transformedItem["product_name"] = item.Product.Name
+			transformedItem["price"] = item.Product.Price
+			transformedItem["image_url"] = item.Product.ImageURL
+		} else {
+			// Valores por defecto si no hay datos del producto
+			transformedItem["product_name"] = "Producto desconocido"
+			transformedItem["price"] = 0.0
+			transformedItem["image_url"] = ""
+		}
+
+		transformedItems = append(transformedItems, transformedItem)
+	}
+
+	log.Printf("Carrito devuelto con %d items", len(transformedItems))
+	c.JSON(http.StatusOK, transformedItems)
+}
+
+type AddToCartRequest struct {
+	ProductID int `json:"product_id" binding:"required"`
+	Quantity  int `json:"quantity" binding:"required,min=1"`
+}
+
+func (h *Handler) AddToCart(c *gin.Context) {
+	var req AddToCartRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	cartID, err := db.FindOrCreateCartByUserID(h.DB, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find or create cart"})
+		return
+	}
+
+	if err := db.AddItemToCart(h.DB, cartID, req.ProductID, req.Quantity); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add item to cart"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Item added to cart successfully"})
+}
+
+type UpdateCartItemRequest struct {
+	Quantity int `json:"quantity" binding:"required,min=0"`
+}
+
+func (h *Handler) UpdateCartItem(c *gin.Context) {
+	cartItemIDStr := c.Param("itemID")
+	cartItemID, err := strconv.Atoi(cartItemIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid item ID"})
+		return
+	}
+
+	var req UpdateCartItemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := db.UpdateCartItemQuantity(h.DB, cartItemID, req.Quantity); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update cart item"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Cart item updated successfully"})
+}
+
+func (h *Handler) RemoveCartItem(c *gin.Context) {
+	cartItemIDStr := c.Param("itemID")
+	cartItemID, err := strconv.Atoi(cartItemIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid item ID"})
+		return
+	}
+
+	if err := db.RemoveItemFromCart(h.DB, cartItemID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove item from cart"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Item removed from cart successfully"})
+}
+
+// SeedData crea datos de prueba
+func (h *Handler) SeedData(c *gin.Context) {
+	// Crear categorías
+	categories := []string{"Electrónicos", "Ropa", "Hogar", "Deportes", "Libros"}
+	var categoryPlaceholders []string
+	var categoryValues []interface{}
+	for i, catName := range categories {
+		categoryPlaceholders = append(categoryPlaceholders, fmt.Sprintf("($%d)", i+1))
+		categoryValues = append(categoryValues, catName)
+	}
+	catQuery := "INSERT INTO categories (name) VALUES " + strings.Join(categoryPlaceholders, ", ") + " ON CONFLICT (name) DO NOTHING"
+	_, err := h.DB.Exec(context.Background(), catQuery, categoryValues...)
+	if err != nil {
+		log.Printf("Error creando categorías: %v", err)
+	}
+
+	// Crear productos
+	products := []struct {
+		name        string
+		description string
+		price       float64
+		categoryID  int
+	}{
+		{"iPhone 15 Pro", "El último iPhone con cámara profesional", 999.99, 1},
+		{"MacBook Air M2", "Portátil ultra ligero con chip M2", 1299.99, 1},
+		{"Camiseta Básica", "Camiseta de algodón 100%", 19.99, 2},
+		{"Jeans Clásicos", "Jeans de alta calidad", 49.99, 2},
+		{"Sofá Moderno", "Sofá elegante para tu sala", 599.99, 3},
+		{"Lámpara LED", "Iluminación moderna y eficiente", 89.99, 3},
+		{"Balón de Fútbol", "Balón oficial de competición", 29.99, 4},
+		{"Raqueta de Tenis", "Raqueta profesional", 159.99, 4},
+		{"El Señor de los Anillos", "Trilogía completa en tapa dura", 39.99, 5},
+		{"Clean Code", "Guía para escribir código limpio", 24.99, 5},
+		{"Zapatilla Skater B9S", "Edición limitada y numerada Tweed", 129.99, 2},
+	}
+
+	var productPlaceholders []string
+	var productValues []interface{}
+	i := 1
+	for _, p := range products {
+		productPlaceholders = append(productPlaceholders, fmt.Sprintf("($%d, $%d, $%d, $%d)", i, i+1, i+2, i+3))
+		productValues = append(productValues, p.name, p.description, p.price, p.categoryID)
+		i += 4
+	}
+	prodQuery := "INSERT INTO products (name, description, price, category_id) VALUES " + strings.Join(productPlaceholders, ", ") + " ON CONFLICT (name) DO NOTHING"
+	_, err = h.DB.Exec(context.Background(), prodQuery, productValues...)
+	if err != nil {
+		log.Printf("Error creando productos: %v", err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Datos de prueba creados exitosamente",
+	})
+}
+
+func (h *Handler) GetProfile(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	user, err := db.GetUserByID(h.DB, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user profile"})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+func (h *Handler) UpdateProfile(c *gin.Context) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	var updates map[string]interface{}
+	if err := c.ShouldBindJSON(&updates); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Filtrar campos no permitidos
+	allowedFields := map[string]bool{
+		"nombre":       true,
+		"apellido":     true,
+		"telefono":     true,
+		"avatar":       true,
+		"preferencias": true,
+	}
+
+	for key := range updates {
+		if !allowedFields[key] {
+			delete(updates, key)
+		}
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No valid fields to update"})
+		return
+	}
+
+	err := db.UpdateUserProfile(h.DB, userID.(int), updates)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+}
+
+func (h *Handler) Logout(c *gin.Context) {
+	// La lógica de logout (invalidar tokens) se maneja en el middleware o un handler específico de auth
+	// Este endpoint es más para que el cliente confirme que el logout se ha procesado
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+}
