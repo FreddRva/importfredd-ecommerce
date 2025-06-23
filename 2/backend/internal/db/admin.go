@@ -44,20 +44,20 @@ func UpdateProduct(db *pgxpool.Pool, product *models.Product) (*models.Product, 
 		UPDATE products 
 		SET name = $1, description = $2, price = $3, image_url = $4, 
 			category_id = $5, stock = $6, sku = $7, weight = $8, 
-			dimensions = $9, is_active = $10, updated_at = $11
-		WHERE id = $12
-		RETURNING id, name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at
+			dimensions = $9, is_active = $10, updated_at = $11, featured = $12
+		WHERE id = $13
+		RETURNING id, name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at, featured
 	`
 
 	err := db.QueryRow(context.Background(), query,
 		product.Name, product.Description, product.Price, product.ImageURL,
 		product.CategoryID, product.Stock, product.SKU, product.Weight,
-		product.Dimensions, product.IsActive, product.UpdatedAt, product.ID,
+		product.Dimensions, product.IsActive, product.UpdatedAt, product.Featured, product.ID,
 	).Scan(
 		&product.ID, &product.Name, &product.Description, &product.Price,
 		&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
 		&product.Weight, &product.Dimensions, &product.IsActive,
-		&product.CreatedAt, &product.UpdatedAt,
+		&product.CreatedAt, &product.UpdatedAt, &product.Featured,
 	)
 
 	if err != nil {
@@ -86,7 +86,7 @@ func GetAllProductsAdmin(db *pgxpool.Pool, page, limit int, search string, categ
 	// Construir la consulta base
 	baseQuery := `
 		SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, 
-			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at,
+			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at, p.featured,
 			   c.name as category_name
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
@@ -135,17 +135,17 @@ func GetAllProductsAdmin(db *pgxpool.Pool, page, limit int, search string, categ
 	var products []models.Product
 	for rows.Next() {
 		var product models.Product
-
+		var featured bool
 		err := rows.Scan(
 			&product.ID, &product.Name, &product.Description, &product.Price,
 			&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
 			&product.Weight, &product.Dimensions, &product.IsActive,
-			&product.CreatedAt, &product.UpdatedAt, &product.CategoryName,
+			&product.CreatedAt, &product.UpdatedAt, &featured, &product.CategoryName,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("error escaneando producto: %v", err)
 		}
-
+		product.Featured = featured
 		products = append(products, product)
 	}
 
@@ -153,12 +153,12 @@ func GetAllProductsAdmin(db *pgxpool.Pool, page, limit int, search string, categ
 }
 
 // GetPublicProducts obtiene productos para la vista pública (activos) con filtros y paginación
-func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy, order, search string) ([]models.Product, int, error) {
+func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy, order, search string, featuredOnly bool) ([]models.Product, int, error) {
 	offset := (page - 1) * limit
 
 	baseQuery := `
 		SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, 
-			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at,
+			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at, p.featured,
 			   COALESCE(c.name, 'Sin categoría') as category_name
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
@@ -181,6 +181,11 @@ func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy
 		countQuery += fmt.Sprintf(" AND p.category_id = $%d", argCount)
 		args = append(args, categoryID)
 		argCount++
+	}
+
+	if featuredOnly {
+		baseQuery += " AND p.featured = true"
+		countQuery += " AND p.featured = true"
 	}
 
 	validSorts := map[string]string{
@@ -214,15 +219,17 @@ func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy
 	var products []models.Product
 	for rows.Next() {
 		var product models.Product
+		var featured bool
 		err := rows.Scan(
 			&product.ID, &product.Name, &product.Description, &product.Price,
 			&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
 			&product.Weight, &product.Dimensions, &product.IsActive,
-			&product.CreatedAt, &product.UpdatedAt, &product.CategoryName,
+			&product.CreatedAt, &product.UpdatedAt, &featured, &product.CategoryName,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("error escaneando producto: %v", err)
 		}
+		product.Featured = featured
 		products = append(products, product)
 	}
 

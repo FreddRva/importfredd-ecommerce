@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"time"
 
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tuusuario/ecommerce-backend/internal/db"
@@ -185,6 +187,18 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 	categoryIDStr := c.PostForm("category_id")
 	sku := c.PostForm("sku")
 	weightStr := c.PostForm("weight")
+	// Leer el campo 'featured'
+	featuredStr := c.PostForm("featured")
+	featured := existingProduct.Featured // valor por defecto
+	if featuredStr != "" {
+		if featuredStr == "true" || featuredStr == "1" {
+			featured = true
+		} else if featuredStr == "false" || featuredStr == "0" {
+			featured = false
+		}
+	}
+	// Log para depuración
+	log.Printf("[UpdateProduct] featuredStr='%s', featured=%v", featuredStr, featured)
 
 	// Validaciones
 	if name == "" || priceStr == "" || stockStr == "" || categoryIDStr == "" {
@@ -282,8 +296,8 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 		Weight:      weightPtr,
 		IsActive:    isActive,
 		UpdatedAt:   time.Now(),
-		// Mantener valores existentes si no se proveen en el form
-		CreatedAt: existingProduct.CreatedAt,
+		CreatedAt:   existingProduct.CreatedAt,
+		Featured:    featured,
 	}
 
 	updatedProduct, err := db.UpdateProduct(h.DB, &product)

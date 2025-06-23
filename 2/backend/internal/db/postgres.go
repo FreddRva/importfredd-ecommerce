@@ -444,6 +444,12 @@ func addNewColumnsIfNotExist() error {
 		}
 	}
 
+	// Migración: agregar columna 'featured' si no existe
+	_, err := Pool.Exec(context.Background(), `ALTER TABLE products ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false`)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -59,7 +59,14 @@ func (h *Handler) GetProducts(c *gin.Context) {
 	order := c.DefaultQuery("order", "desc")
 	search := c.DefaultQuery("search", "")
 
-	products, total, err := db.GetPublicProducts(h.DB, page, limit, categoryID, sortBy, order, search)
+	// Filtrar por productos destacados
+	featuredParam := c.Query("featured")
+	var featuredOnly bool
+	if featuredParam == "true" {
+		featuredOnly = true
+	}
+
+	products, total, err := db.GetPublicProducts(h.DB, page, limit, categoryID, sortBy, order, search, featuredOnly)
 	if err != nil {
 		log.Printf("Error al obtener productos: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener productos"})
