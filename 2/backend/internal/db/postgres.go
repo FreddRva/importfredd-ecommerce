@@ -1294,3 +1294,9 @@ func ReactivateUser(db *pgxpool.Pool, email, hashedCode string, expiresAt time.T
 	}
 	return nil
 }
+
+// Elimina todas las credenciales de un usuario (para recuperación de Passkey)
+func DeleteAllCredentialsForUser(db *pgxpool.Pool, userID int) error {
+	_, err := db.Exec(context.Background(), "DELETE FROM credentials WHERE user_id = $1", userID)
+	return err
+}

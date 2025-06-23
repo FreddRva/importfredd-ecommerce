@@ -43,6 +43,7 @@ func NewAuthHandler(db *pgxpool.Pool) (*AuthHandler, error) {
 func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	var req struct {
 		Email string `json:"email" binding:"required,email"`
+		Mode  string `json:"mode"` // 'register' o 'recover'
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email no válido."})
@@ -61,22 +62,27 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	}
 	expiresAt := time.Now().Add(10 * time.Minute)
 
-	// Buscar usuario por email
 	user, err := db.GetUserByEmail(h.db, req.Email)
 	if err == nil && user != nil {
-		if user.IsActive {
+		if user.IsActive && req.Mode != "recover" {
 			c.JSON(http.StatusConflict, gin.H{"error": "Este correo ya está registrado."})
 			return
 		} else {
-			// Reactivar usuario y actualizar token
+			// Reactivar usuario y actualizar token (o recuperación)
 			err = db.ReactivateUser(h.db, req.Email, hashedCode, expiresAt)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo reactivar el usuario."})
 				return
 			}
 			log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
+			var msg string
+			if req.Mode == "recover" {
+				msg = "Código de recuperación generado."
+			} else {
+				msg = "Código generado y usuario reactivado."
+			}
 			c.JSON(http.StatusOK, gin.H{
-				"message":    "Código generado y usuario reactivado.",
+				"message":    msg,
 				"debug_code": code,
 			})
 			return
@@ -104,6 +110,7 @@ func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 	var req struct {
 		Email string `json:"email" binding:"required,email"`
 		Code  string `json:"code" binding:"required"`
+		Mode  string `json:"mode"` // 'register' o 'recover'
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email y código son requeridos."})
@@ -116,7 +123,7 @@ func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 		return
 	}
 
-	if user.IsVerified {
+	if user.IsVerified && req.Mode != "recover" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Este usuario ya está verificado."})
 		return
 	}
@@ -154,6 +161,7 @@ func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 
 func (h *AuthHandler) FinishRegistration(c *gin.Context) {
 	email := c.Query("email")
+	mode := c.Query("mode") // 'register' o 'recover'
 	if email == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email is required"})
 		return
@@ -175,6 +183,15 @@ func (h *AuthHandler) FinishRegistration(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse registration response"})
 		return
+	}
+
+	if mode == "recover" {
+		// Eliminar credenciales antiguas antes de guardar la nueva
+		err := db.DeleteAllCredentialsForUser(h.db, user.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudieron eliminar las credenciales antiguas"})
+			return
+		}
 	}
 
 	credential, err := webAuthn.CreateCredential(user, *sessionData, parsedResponse)
@@ -409,6 +426,5 @@ func AddAuthRoutes(rg *gin.RouterGroup, authHandler *AuthHandler) {
 	rg.POST("/finish-registration", authHandler.FinishRegistration)
 	rg.GET("/begin-login", authHandler.BeginLogin)
 	rg.POST("/finish-login", authHandler.FinishLogin)
-	rg.POST("/login", authHandler.TraditionalLogin)
 	rg.POST("/refresh-token", authHandler.RefreshToken)
 }
