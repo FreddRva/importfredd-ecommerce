@@ -52,27 +52,26 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 
 // Obtener productos
 func (h *Handler) GetProducts(c *gin.Context) {
-	rows, err := h.DB.Query(context.Background(),
-		`SELECT id, name, description, price, category_id, created_at, image_url, dimensions FROM products WHERE is_active = true`)
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "12")) // Default a 12 para que se vea bien en grillas de 3 o 4
+	categoryID, _ := strconv.Atoi(c.DefaultQuery("category_id", "0"))
+	sortBy := c.DefaultQuery("sort_by", "created_at")
+	order := c.DefaultQuery("order", "desc")
+	search := c.DefaultQuery("search", "")
+
+	products, total, err := db.GetPublicProducts(h.DB, page, limit, categoryID, sortBy, order, search)
 	if err != nil {
+		log.Printf("Error al obtener productos: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener productos"})
 		return
 	}
-	defer rows.Close()
 
-	var products []models.Product
-	for rows.Next() {
-		var p models.Product
-		err := rows.Scan(&p.ID, &p.Name, &p.Description, &p.Price, &p.CategoryID, &p.CreatedAt, &p.ImageURL, &p.Dimensions)
-		if err != nil {
-			log.Printf("Error al escanear producto: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error leyendo datos de productos"})
-			return
-		}
-		products = append(products, p)
-	}
-
-	c.JSON(http.StatusOK, products)
+	c.JSON(http.StatusOK, gin.H{
+		"products": products,
+		"total":    total,
+		"page":     page,
+		"limit":    limit,
+	})
 }
 
 // GetProduct obtiene un producto por su ID.
@@ -540,4 +539,21 @@ func (h *Handler) Logout(c *gin.Context) {
 	// La lógica de logout (invalidar tokens) se maneja en el middleware o un handler específico de auth
 	// Este endpoint es más para que el cliente confirme que el logout se ha procesado
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+}
+
+// GetProductSuggestions devuelve sugerencias de búsqueda de productos
+func (h *Handler) GetProductSuggestions(c *gin.Context) {
+	query := c.Query("q")
+	if len(query) < 2 { // No buscar si la consulta es muy corta
+		c.JSON(http.StatusOK, gin.H{"suggestions": []string{}})
+		return
+	}
+
+	suggestions, err := db.GetProductSuggestions(h.DB, query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener sugerencias"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"suggestions": suggestions})
 }

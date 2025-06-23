@@ -54,6 +54,7 @@ func main() {
 	})
 	router.POST("/seed-data", h.SeedData)
 	router.GET("/products", h.GetProducts)
+	router.GET("/products/suggestions", h.GetProductSuggestions)
 	router.GET("/products/:id", h.GetProduct)
 	router.GET("/categories", h.GetCategories)
 

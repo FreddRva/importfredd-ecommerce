@@ -150,6 +150,109 @@ func GetAllProductsAdmin(db *pgxpool.Pool, page, limit int, search string, categ
 	return products, total, nil
 }
 
+// GetPublicProducts obtiene productos para la vista pública (activos) con filtros y paginación
+func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy, order, search string) ([]models.Product, int, error) {
+	offset := (page - 1) * limit
+
+	baseQuery := `
+		SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, 
+			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at,
+			   COALESCE(c.name, 'Sin categoría') as category_name
+		FROM products p
+		LEFT JOIN categories c ON p.category_id = c.id
+		WHERE p.is_active = true
+	`
+	countQuery := `SELECT COUNT(*) FROM products p WHERE p.is_active = true`
+
+	var args []interface{}
+	argCount := 1
+
+	if search != "" {
+		baseQuery += fmt.Sprintf(" AND (p.name ILIKE $%d OR p.description ILIKE $%d)", argCount, argCount)
+		countQuery += fmt.Sprintf(" AND (p.name ILIKE $%d OR p.description ILIKE $%d)", argCount, argCount)
+		args = append(args, "%"+search+"%")
+		argCount++
+	}
+
+	if categoryID > 0 {
+		baseQuery += fmt.Sprintf(" AND p.category_id = $%d", argCount)
+		countQuery += fmt.Sprintf(" AND p.category_id = $%d", argCount)
+		args = append(args, categoryID)
+		argCount++
+	}
+
+	validSorts := map[string]string{
+		"created_at": "p.created_at",
+		"price":      "p.price",
+		"name":       "p.name",
+	}
+	sortColumn, ok := validSorts[sortBy]
+	if !ok {
+		sortColumn = "p.created_at"
+	}
+	if order != "asc" && order != "desc" {
+		order = "desc"
+	}
+
+	baseQuery += fmt.Sprintf(" ORDER BY %s %s LIMIT $%d OFFSET $%d", sortColumn, order, argCount, argCount+1)
+	argsWithPagination := append(args, limit, offset)
+
+	var total int
+	err := db.QueryRow(context.Background(), countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error contando productos: %v", err)
+	}
+
+	rows, err := db.Query(context.Background(), baseQuery, argsWithPagination...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error obteniendo productos: %v", err)
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var product models.Product
+		err := rows.Scan(
+			&product.ID, &product.Name, &product.Description, &product.Price,
+			&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
+			&product.Weight, &product.Dimensions, &product.IsActive,
+			&product.CreatedAt, &product.UpdatedAt, &product.CategoryName,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("error escaneando producto: %v", err)
+		}
+		products = append(products, product)
+	}
+
+	return products, total, nil
+}
+
+// GetProductSuggestions busca nombres de productos para autocompletar
+func GetProductSuggestions(db *pgxpool.Pool, query string) ([]string, error) {
+	sqlQuery := `
+		SELECT name 
+		FROM products 
+		WHERE name ILIKE $1 AND is_active = true
+		LIMIT 5
+	`
+	rows, err := db.Query(context.Background(), sqlQuery, "%"+query+"%")
+	if err != nil {
+		return nil, fmt.Errorf("error obteniendo sugerencias de productos: %v", err)
+	}
+	defer rows.Close()
+
+	var suggestions []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, fmt.Errorf("error escaneando sugerencia de producto: %v", err)
+		}
+		suggestions = append(suggestions, name)
+	}
+
+	return suggestions, nil
+}
+
 // ===== CATEGORÍAS =====
 
 // CreateCategory crea una nueva categoría
