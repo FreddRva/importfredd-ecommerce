@@ -284,6 +284,23 @@ func createTables() error {
 		return fmt.Errorf("error creating payments table: %w", err)
 	}
 
+	// Crear tabla de favoritos
+	favoritesTable := `
+	CREATE TABLE IF NOT EXISTS favorites (
+		id SERIAL PRIMARY KEY,
+		user_id INTEGER NOT NULL,
+		product_id INTEGER NOT NULL,
+		created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+		UNIQUE(user_id, product_id),
+		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+		FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
+	);
+	`
+	_, err = Pool.Exec(context.Background(), favoritesTable)
+	if err != nil {
+		return fmt.Errorf("error creating favorites table: %w", err)
+	}
+
 	// Crear índices para mejorar el rendimiento
 	indexes := []string{
 		"CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);",
@@ -714,6 +731,21 @@ func GetCartContents(db *pgxpool.Pool, cartID int) ([]models.CartItem, error) {
 
 // AddItemToCart agrega un producto al carrito o actualiza su cantidad si ya existe.
 func AddItemToCart(db *pgxpool.Pool, cartID, productID, quantity int) error {
+	// Obtener stock actual del producto
+	var stock int
+	err := db.QueryRow(context.Background(), "SELECT stock FROM products WHERE id = $1", productID).Scan(&stock)
+	if err != nil {
+		return fmt.Errorf("error obteniendo stock del producto: %w", err)
+	}
+
+	// Obtener cantidad ya en el carrito
+	var currentQty int
+	db.QueryRow(context.Background(), "SELECT quantity FROM cart_items WHERE cart_id = $1 AND product_id = $2", cartID, productID).Scan(&currentQty)
+
+	if quantity+currentQty > stock {
+		return fmt.Errorf("No hay suficiente stock disponible")
+	}
+
 	// ON CONFLICT se encarga de actualizar la cantidad si el producto ya está en el carrito
 	query := `
 		INSERT INTO cart_items (cart_id, product_id, quantity)
@@ -721,7 +753,7 @@ func AddItemToCart(db *pgxpool.Pool, cartID, productID, quantity int) error {
 		ON CONFLICT (cart_id, product_id) DO UPDATE
 		SET quantity = cart_items.quantity + $3, updated_at = NOW()
 	`
-	_, err := db.Exec(context.Background(), query, cartID, productID, quantity)
+	_, err = db.Exec(context.Background(), query, cartID, productID, quantity)
 	return err
 }
 

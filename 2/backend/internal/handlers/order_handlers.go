@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -82,6 +83,21 @@ func (h *OrderHandler) CreateOrderFromCart(c *gin.Context) {
 	// Calcular totales
 	var subtotal float64
 	var orderItems []models.OrderItem
+
+	// Validar stock antes de crear la orden
+	for _, item := range cartItems {
+		product, err := db.GetProductByID(h.DB, item.ProductID)
+		if err != nil {
+			log.Printf("Error obteniendo producto %d: %v", item.ProductID, err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo producto"})
+			return
+		}
+		if item.Quantity > product.Stock {
+			log.Printf("Stock insuficiente para producto %d: solicitado %d, disponible %d", item.ProductID, item.Quantity, product.Stock)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Stock insuficiente para el producto '" + product.Name + "' (disponible: " + strconv.Itoa(product.Stock) + ")"})
+			return
+		}
+	}
 
 	log.Printf("Calculando totales...")
 	for _, item := range cartItems {
@@ -165,6 +181,19 @@ func (h *OrderHandler) CreateOrderFromCart(c *gin.Context) {
 			// Continuar con los demás items
 		} else {
 			log.Printf("Item %d guardado correctamente", i+1)
+		}
+
+		// Descontar stock del producto
+		log.Printf("Intentando descontar stock: producto_id=%d, cantidad=%d", orderItems[i].ProductID, orderItems[i].Quantity)
+		res, err := h.DB.Exec(context.Background(), "UPDATE products SET stock = stock - $1 WHERE id = $2", orderItems[i].Quantity, orderItems[i].ProductID)
+		if err != nil {
+			log.Printf("Error descontando stock para producto %d: %v", orderItems[i].ProductID, err)
+		} else {
+			rows := res.RowsAffected()
+			log.Printf("UPDATE stock: producto_id=%d, cantidad=%d, filas_afectadas=%d", orderItems[i].ProductID, orderItems[i].Quantity, rows)
+			if rows == 0 {
+				log.Printf("ADVERTENCIA: No se descontó stock para producto_id=%d (puede que el ID no exista o el stock ya sea 0)", orderItems[i].ProductID)
+			}
 		}
 	}
 

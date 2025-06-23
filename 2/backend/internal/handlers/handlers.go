@@ -372,7 +372,12 @@ func (h *Handler) AddToCart(c *gin.Context) {
 		return
 	}
 
-	if err := db.AddItemToCart(h.DB, cartID, req.ProductID, req.Quantity); err != nil {
+	err = db.AddItemToCart(h.DB, cartID, req.ProductID, req.Quantity)
+	if err != nil {
+		if strings.Contains(err.Error(), "stock") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No hay suficiente stock disponible"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add item to cart"})
 		return
 	}

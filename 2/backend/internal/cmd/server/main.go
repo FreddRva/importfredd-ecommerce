@@ -105,6 +105,15 @@ func main() {
 
 		// Logout (esencialmente invalida el token en el lado del cliente)
 		api.POST("/logout", h.Logout)
+
+		// Favoritos
+		favoritesHandler := handlers.NewFavoritesHandler(db.Pool)
+		favorites := api.Group("/favorites")
+		{
+			favorites.GET("", favoritesHandler.ListFavorites)
+			favorites.POST("", favoritesHandler.AddFavorite)
+			favorites.DELETE(":product_id", favoritesHandler.RemoveFavorite)
+		}
 	}
 
 	// --- Rutas de Administración ---
