@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -43,16 +42,15 @@ func main() {
 	router := gin.Default()
 
 	// Configurar CORS
-	router.Use(cors.New(cors.Config{
-		AllowOriginFunc: func(origin string) bool {
-			// Permitir localhost para desarrollo y cualquier subdominio de vercel.app
-			return origin == "http://localhost:3000" || strings.HasSuffix(origin, ".vercel.app")
-		},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"https://importfredd-ecommercerv.vercel.app", // dominio exacto de Vercel
+		"http://localhost:3000",                      // desarrollo local
+	}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	config.AllowCredentials = true // Permitir cookies
+	router.Use(cors.New(config))
 
 	// --- Rutas Públicas ---
 	// No requieren autenticación
