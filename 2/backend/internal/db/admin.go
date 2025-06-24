@@ -156,7 +156,7 @@ func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy
 
 	baseQuery := `
 		SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, 
-			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at,
+			   p.stock, p.sku, p.weight, p.dimensions, p.model_url, p.is_active, p.created_at, p.updated_at,
 			   COALESCE(c.name, 'Sin categoría') as category_name
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
@@ -220,7 +220,7 @@ func GetPublicProducts(db *pgxpool.Pool, page, limit int, categoryID int, sortBy
 		err := rows.Scan(
 			&product.ID, &product.Name, &product.Description, &product.Price,
 			&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
-			&product.Weight, &product.Dimensions, &product.IsActive,
+			&product.Weight, &product.Dimensions, &product.ModelURL, &product.IsActive,
 			&product.CreatedAt, &product.UpdatedAt, &product.CategoryName,
 		)
 		if err != nil {
