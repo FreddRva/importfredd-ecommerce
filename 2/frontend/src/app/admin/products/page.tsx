@@ -226,6 +226,7 @@ export default function AdminProductsPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Gestión de Productos</h1>
         <button
+          style={{ display: 'block', position: 'relative', zIndex: 9999, background: 'red' }}
           onClick={handleAddNew}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
         >
