@@ -214,6 +214,9 @@ export default function AdminProductsPage() {
     }
   };
 
+  // Agregar log para depuración
+  console.log('Renderizando AdminProductsPage');
+
   if (loading && products.length === 0) {
     return <div className="p-8 text-center">Cargando productos...</div>;
   }
