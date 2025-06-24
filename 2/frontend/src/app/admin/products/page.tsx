@@ -222,7 +222,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  if (!token) {
+  if (typeof window !== "undefined" && !token) {
     return <div className="p-8 text-center">Cargando autenticación...</div>;
   }
 
