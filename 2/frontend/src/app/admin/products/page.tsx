@@ -244,7 +244,8 @@ export default function AdminProductsPage() {
         <h1 className="text-2xl font-bold">Gestión de Productos</h1>
         <button
           onClick={handleAddNew}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+          style={{ background: 'red', zIndex: 9999, position: 'relative' }}
+          className="text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
         >
           <PlusCircle size={16} /> Nuevo Producto
         </button>
