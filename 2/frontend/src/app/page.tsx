@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, Star, ShoppingCart, Eye, Heart, Settings, Sparkles, Zap, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/context/CartContext';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function HomePage() {
   const [currentDate, setCurrentDate] = useState('');
@@ -249,7 +250,7 @@ export default function HomePage() {
                     <div className="w-full h-64 bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-50 rounded-t-3xl flex items-center justify-center overflow-hidden relative">
                       {product.image_url ? (
                         <img 
-                          src={`http://localhost:8080${product.image_url}`} 
+                          src={`${API_BASE_URL}${product.image_url}`} 
                           alt={product.name} 
                           className="w-full h-full object-contain transition-all duration-700 group-hover:scale-110 group-hover:rotate-2" 
                         />

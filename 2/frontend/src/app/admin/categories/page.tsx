@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { PlusCircle, Edit, Trash2, Tag, X } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Category {
   id: number;
@@ -25,7 +26,7 @@ export default function AdminCategoriesPage() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8080/admin/categories', {
+      const res = await fetch(`${API_BASE_URL}/admin/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('No se pudieron cargar las categorías.');
@@ -65,8 +66,8 @@ export default function AdminCategoriesPage() {
     }
     
     const url = currentCategory?.id
-      ? `http://localhost:8080/admin/categories/${currentCategory.id}`
-      : 'http://localhost:8080/admin/categories';
+      ? `${API_BASE_URL}/admin/categories/${currentCategory.id}`
+      : `${API_BASE_URL}/admin/categories`;
     
     const method = currentCategory?.id ? 'PUT' : 'POST';
 
@@ -95,7 +96,7 @@ export default function AdminCategoriesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
       try {
-        const res = await fetch(`http://localhost:8080/admin/categories/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { API_BASE_URL } from '@/lib/api'
 
 interface Order {
   id: number;
@@ -50,7 +51,7 @@ export default function AdminOrdersPage() {
     setError("");
     try {
       const res = await fetch(
-        `http://localhost:8080/admin/orders?page=${page}&limit=20`,
+        `${API_BASE_URL}/admin/orders?page=${page}&limit=20`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Error al cargar pedidos");
@@ -76,21 +77,22 @@ export default function AdminOrdersPage() {
     setEditTracking("");
   };
 
-  const saveEdit = async (orderId: number) => {
+  const updateOrder = async (orderId: number, status: string, tracking?: string) => {
     try {
-      const res = await fetch(`http://localhost:8080/admin/orders/${orderId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
         },
-        body: JSON.stringify({ status: editStatus, tracking: editTracking }),
+        body: JSON.stringify({ status, tracking }),
       });
-      if (!res.ok) throw new Error("Error actualizando pedido");
-      await fetchOrders();
-      cancelEdit();
+      if (res.ok) {
+        fetchOrders();
+        setEditing(null);
+      }
     } catch (err: any) {
-      alert(err.message);
+      console.error('Error updating order:', err);
     }
   };
 
@@ -163,7 +165,7 @@ export default function AdminOrdersPage() {
                     {editing === order.id ? (
                       <>
                         <button
-                          onClick={() => saveEdit(order.id)}
+                          onClick={() => updateOrder(order.id, editStatus, editTracking)}
                           className="bg-green-600 text-white px-3 py-1 rounded mr-2 hover:bg-green-700"
                         >
                           Guardar

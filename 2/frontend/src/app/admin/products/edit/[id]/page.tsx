@@ -3,6 +3,8 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Save, UploadCloud } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Product {
   id: number;
@@ -37,36 +39,38 @@ export default function EditProductPage() {
   const [newModel, setNewModel] = useState<File | null>(null);
   const [modelName, setModelName] = useState<string | null>(null);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     if (!id) return;
-    const token = localStorage.getItem('token');
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/admin/products/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error('Error al cargar el producto');
-        const data = await res.json();
-        setProduct(data.product);
-      } catch (err: any) {
-        setError(err.message);
+        if (res.ok) {
+          const data = await res.json();
+          setProduct(data.product);
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
     const fetchCategories = async () => {
       try {
-        const res = await fetch('http://localhost:8080/admin/categories', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch(`${API_BASE_URL}/admin/categories`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error('Error al cargar categorías');
-        const data = await res.json();
-        setCategories(data.categories || []);
-      } catch (err: any) {
-        setError('No se pudieron cargar las categorías.');
-        setCategories([]);
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.categories);
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
     Promise.all([fetchProduct(), fetchCategories()]).finally(() => setLoading(false));
-  }, [id]);
+  }, [id, token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -94,34 +98,40 @@ export default function EditProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !product.name || !product.price || !product.stock || !product.category_id) {
-        setError("Por favor, completa todos los campos requeridos.");
-        return;
+      setError("Por favor, completa todos los campos requeridos.");
+      return;
     }
-    const formData = new FormData();
-    formData.append('name', product.name);
-    formData.append('description', product.description || '');
-    formData.append('price', String(product.price));
-    formData.append('stock', String(product.stock));
-    formData.append('category_id', String(product.category_id));
-    formData.append('is_active', String(product.is_active || false));
-    if (newImage) formData.append('image', newImage);
-    if (newModel) formData.append('model3d', newModel);
+    
+    setLoading(true);
+    setError("");
 
     try {
-      const res = await fetch(`http://localhost:8080/admin/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      const formData = new FormData();
+      formData.append('name', product.name);
+      formData.append('description', product.description || '');
+      formData.append('price', String(product.price));
+      formData.append('stock', String(product.stock));
+      formData.append('category_id', String(product.category_id));
+      formData.append('is_active', String(product.is_active || false));
+      if (newImage) formData.append('image', newImage);
+      if (newModel) formData.append('model3d', newModel);
+
+      const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
-      if (!res.ok) {
+
+      if (res.ok) {
+        router.push("/admin/products");
+      } else {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Error al actualizar el producto');
+        setError(errorData.error || "Error actualizando producto");
       }
-      alert('Producto actualizado exitosamente');
-      router.push('/admin/products');
     } catch (err: any) {
       setError(err.message);
-      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -185,7 +195,7 @@ export default function EditProductPage() {
           <div className="mt-2 flex items-center gap-4">
             <div className="flex-shrink-0">
               <span className="text-xs text-gray-500">Actual</span>
-              {imagePreview ? <img src={imagePreview} alt="Nueva" className="h-20 w-20 mt-1 rounded-md object-cover" /> : (product.image_url && <img src={`http://localhost:8080${product.image_url}`} alt="Actual" className="h-20 w-20 mt-1 rounded-md object-cover" />)}
+              {imagePreview ? <img src={imagePreview} alt="Nueva" className="h-20 w-20 mt-1 rounded-md object-cover" /> : (product.image_url && <img src={`${API_BASE_URL}${product.image_url}`} alt="Actual" className="h-20 w-20 mt-1 rounded-md object-cover" />)}
             </div>
             <label htmlFor="image-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 border border-gray-300 px-4 py-2 self-center">
               <span><UploadCloud size={16} className="inline-block mr-2"/>Cambiar Imagen</span>

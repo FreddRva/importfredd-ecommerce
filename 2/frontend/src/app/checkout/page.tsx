@@ -7,6 +7,7 @@ import { ArrowLeft, CreditCard, Truck, CheckCircle, Lock, ShoppingBag } from 'lu
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import StripePayment from '@/components/StripePayment';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Address {
   firstName: string;
@@ -60,7 +61,7 @@ export default function CheckoutPage() {
 
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
+  const [step, setStep] = useState<'shipping' | 'payment' | 'review' | 'success'>('shipping');
   const [order, setOrder] = useState<Order | null>(null);
   const [notes, setNotes] = useState('');
 
@@ -83,7 +84,7 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/orders/create', {
+      const response = await fetch(`${API_BASE_URL}/api/orders/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -132,10 +133,10 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePaymentSuccess = async (paymentIntentId: string) => {
+  const handlePaymentConfirm = async (paymentIntentId: string) => {
+    setLoading(true);
     try {
-      // Confirmar el pago en el backend
-      const response = await fetch('http://localhost:8080/api/payments/confirm', {
+      const response = await fetch(`${API_BASE_URL}/api/payments/confirm`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,19 +144,27 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           payment_intent_id: paymentIntentId,
+          order_id: order?.id,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Error confirmando pago');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error confirmando pago');
       }
 
-      // Limpiar carrito y redirigir
-      clearLocalCart();
-      router.push('/payment-success');
+      const result = await response.json();
+      if (result.success) {
+        setStep('success');
+        clearLocalCart();
+      } else {
+        alert('Error en el pago: ' + (result.error || 'Error desconocido'));
+      }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error confirmando pago');
+      alert(error instanceof Error ? error.message : 'Error confirmando pago');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -471,7 +480,7 @@ export default function CheckoutPage() {
                     amount={Math.round(order.total * 100)} // Convertir a centavos
                     currency={order.currency.toLowerCase()}
                     customerEmail={user?.email || ''}
-                    onSuccess={handlePaymentSuccess}
+                    onSuccess={handlePaymentConfirm}
                     onError={handlePaymentError}
                   />
                 </div>

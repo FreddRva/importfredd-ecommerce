@@ -8,6 +8,7 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
+import { API_BASE_URL } from '@/lib/api';
 
 // Cargar Stripe (en producción, usar la clave pública real)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_...');
@@ -140,18 +141,16 @@ const StripePayment: React.FC<StripePaymentProps> = ({
           customer_email: customerEmail,
         });
 
-        const response = await fetch('http://localhost:8080/api/payments/create-intent', {
+        const response = await fetch(`${API_BASE_URL}/api/payments/create-intent`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },
           body: JSON.stringify({
-            amount,
-            currency,
+            amount: amount,
+            currency: 'usd',
             order_id: orderId,
-            customer_email: customerEmail,
-            description: `Pago para pedido #${orderId}`,
           }),
         });
 

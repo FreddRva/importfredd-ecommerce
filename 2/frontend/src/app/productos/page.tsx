@@ -8,6 +8,7 @@ import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useFavorites } from '@/context/FavoritesContext';
+import { API_BASE_URL } from '@/lib/api';
 
 const ModelViewerModal = dynamic(() => import('@/components/ModelViewerModal'), {
   ssr: false,
@@ -96,7 +97,7 @@ function ProductosContent() {
       if (categoryFromUrl) params.set('category_id', String(categoryFromUrl));
 
       try {
-        const response = await fetch(`http://localhost:8080/products?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`);
         if (!response.ok) throw new Error('Error al cargar productos');
         const data = await response.json();
         setProducts(data.products || []);
@@ -122,7 +123,7 @@ function ProductosContent() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:8080/categories');
+        const response = await fetch(`${API_BASE_URL}/categories`);
         if (!response.ok) return;
         const data = await response.json();
         setCategories(data || []);
@@ -147,7 +148,7 @@ function ProductosContent() {
         return;
       }
       try {
-        const response = await fetch(`http://localhost:8080/products/suggestions?q=${debouncedInputValue}`);
+        const response = await fetch(`${API_BASE_URL}/products/suggestions?q=${debouncedInputValue}`);
         if (response.ok) {
           const data = await response.json();
           setSuggestions(data.suggestions || []);
@@ -433,7 +434,7 @@ function ProductosContent() {
                           <Link href={`/productos/${product.id}`} className="block">
                             <div className="relative aspect-square w-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                               <img 
-                                src={product.image_url ? `http://localhost:8080${product.image_url}` : "/placeholder.png"} 
+                                src={product.image_url ? `${API_BASE_URL}${product.image_url}` : "/placeholder.png"} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                               />
@@ -516,7 +517,7 @@ function ProductosContent() {
                           <Link href={`/productos/${product.id}`} className="block sm:w-48 sm:h-48 w-full h-48 flex-shrink-0">
                             <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
                               <img 
-                                src={product.image_url ? `http://localhost:8080${product.image_url}` : "/placeholder.png"} 
+                                src={product.image_url ? `${API_BASE_URL}${product.image_url}` : "/placeholder.png"} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover" 
                               />

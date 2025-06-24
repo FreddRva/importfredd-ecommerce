@@ -2,6 +2,7 @@
 
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { API_BASE_URL } from '@/lib/api';
 
 export interface CartItem {
   id: number;
@@ -58,7 +59,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       console.log('Enviando token:', token ? token.substring(0, 20) + '...' : 'no existe');
-      const response = await fetch('http://localhost:8080/api/cart', {
+      const response = await fetch(`${API_BASE_URL}/api/cart`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       console.log('Respuesta del backend:', response.status, response.statusText);
@@ -98,7 +99,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      await fetch('http://localhost:8080/api/cart/items', {
+      await fetch(`${API_BASE_URL}/api/cart/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +130,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      await fetch(`http://localhost:8080/api/cart/items/${itemId}`, {
+      await fetch(`${API_BASE_URL}/api/cart/items/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +154,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      await fetch(`http://localhost:8080/api/cart/items/${itemId}`, {
+      await fetch(`${API_BASE_URL}/api/cart/items/${itemId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -177,7 +178,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     try {
       for (const item of localCart) {
-        await fetch('http://localhost:8080/api/cart/items', {
+        await fetch(`${API_BASE_URL}/api/cart/items`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

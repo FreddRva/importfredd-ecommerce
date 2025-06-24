@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MailCheck, MailWarning, LoaderCircle } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function VerifyEmailPage() {
   return (
@@ -30,7 +31,7 @@ function VerifyEmailContent() {
 
     const verifyToken = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/auth/verify-email?token=${token}`);
+        const res = await fetch(`${API_BASE_URL}/auth/verify-email?token=${token}`);
         const data = await res.json();
 
         if (!res.ok) {

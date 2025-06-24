@@ -4,6 +4,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Plus, UploadCloud } from "lucide-react";
+import { API_BASE_URL } from '@/lib/api'
 
 interface Category {
   id: number;
@@ -35,7 +36,7 @@ export default function NewProductPage() {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/admin/categories", {
+      const res = await fetch(`${API_BASE_URL}/admin/categories`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -75,8 +76,8 @@ export default function NewProductPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("name", form.name);
       formData.append("description", form.description);
@@ -86,21 +87,21 @@ export default function NewProductPage() {
       if (form.image) formData.append("image", form.image);
       if (form.model3d) formData.append("model3d", form.model3d);
 
-      const res = await fetch("http://localhost:8080/admin/products", {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/admin/products`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
+
       if (res.ok) {
         router.push("/admin/products");
       } else {
-        const data = await res.json();
-        setError(data.error || "Error al crear producto");
+        const errorData = await res.json();
+        setError(errorData.error || "Error creando producto");
       }
-    } catch (err) {
-      setError("Error de red");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }

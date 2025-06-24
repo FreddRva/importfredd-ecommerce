@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Shield, User, ToggleLeft, ToggleRight, Trash2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { API_BASE_URL } from '@/lib/api';
 
 // Definición del tipo de Usuario, debe coincidir con el backend
 interface UserData {
@@ -40,20 +42,12 @@ export default function AdminUsersPage() {
       }
 
       try {
-        const res = await fetch('http://localhost:8080/admin/users', {
-          headers: { 'Authorization': `Bearer ${token}` },
+        const res = await fetch(`${API_BASE_URL}/admin/users`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        if (!res.ok) throw new Error(`Error ${res.status}: No se pudo obtener la lista de usuarios.`);
-        
+        if (!res.ok) throw new Error('Error al cargar usuarios');
         const data = await res.json();
-        if (data && Array.isArray(data.users)) {
-          setUsers(data.users);
-        } else {
-          setUsers([]);
-          console.warn("La respuesta de la API no tenía el formato esperado:", data);
-        }
-        
+        setUsers(data.users || []);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -75,7 +69,7 @@ export default function AdminUsersPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:8080/admin/users/${targetUser.id}`, {
+      const res = await fetch(`${API_BASE_URL}/admin/users/${targetUser.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +100,7 @@ export default function AdminUsersPage() {
 
     try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:8080/admin/users/${targetUserId}`, {
+        const res = await fetch(`${API_BASE_URL}/admin/users/${targetUserId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` },
         });

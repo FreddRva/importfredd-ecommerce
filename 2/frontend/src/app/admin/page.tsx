@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { LayoutDashboard, Package, Users, BarChart2, DollarSign, LogOut, ArrowLeft } from 'lucide-react'
+import { API_BASE_URL } from '@/lib/api'
 
 interface Stats {
   total_products: number
@@ -51,7 +52,7 @@ export default function AdminPage() {
   const fetchStats = async () => {
     setLoading(true)
     try {
-      const res = await fetch('http://localhost:8080/admin/stats', {
+      const res = await fetch(`${API_BASE_URL}/admin/stats`, {
         headers: { 'Authorization': `Bearer ${token}` },
       })
       if (!res.ok) throw new Error('Error al cargar las estadísticas')

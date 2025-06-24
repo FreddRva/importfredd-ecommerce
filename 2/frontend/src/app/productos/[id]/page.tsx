@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { ShoppingCart, Star, CheckCircle, ArrowLeft, Loader2, Orbit } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { API_BASE_URL } from '@/lib/api';
 
 const ThreeJSViewer = dynamic(() => import('@/components/ThreeJSViewer'), {
   ssr: false,
@@ -40,7 +41,7 @@ export default function ProductDetailPage() {
       const fetchProduct = async () => {
         try {
           setLoading(true);
-          const res = await fetch(`http://localhost:8080/products/${id}`);
+          const res = await fetch(`${API_BASE_URL}/products/${id}`);
           if (!res.ok) {
             throw new Error('Producto no encontrado');
           }
@@ -110,13 +111,13 @@ export default function ProductDetailPage() {
             <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden relative">
               {product.dimensions ? (
                 <ThreeJSViewer 
-                  modelPath={`http://localhost:8080${product.dimensions}`}
+                  modelPath={`${API_BASE_URL}${product.dimensions}`}
                   width={600}
                   height={600}
                 />
               ) : (
                 <img
-                  src={`http://localhost:8080${product.image_url}`}
+                  src={`${API_BASE_URL}${product.image_url}`}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { PlusCircle, Edit, Trash2 } from "lucide-react";
+import { API_BASE_URL } from '@/lib/api'
 
 interface Product {
   id: number;
@@ -23,6 +24,7 @@ export default function AdminProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     setLoadingProducts(true);

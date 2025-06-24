@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { User, ShoppingBag, Settings, LogOut, Edit, Shield, Heart, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/context/FavoritesContext';
+import { API_BASE_URL } from '@/lib/api';
 
 interface Product {
   id: number;
@@ -68,45 +69,56 @@ export default function MiCuentaPage() {
     router.push('/');
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setFavLoading(true);
-      if (favorites.length === 0) {
-        setFavProducts([]);
-        setFavLoading(false);
-        return;
-      }
-      const res = await fetch(`http://localhost:8080/products?ids=${favorites.join(',')}`);
+  const fetchFavoriteProducts = async () => {
+    if (favorites.length === 0) return;
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/products?ids=${favorites.join(',')}`);
       if (res.ok) {
         const data = await res.json();
         setFavProducts(data.products || []);
-      } else {
-        setFavProducts([]);
       }
-      setFavLoading(false);
-    };
-    fetchProducts();
+    } catch (err) {
+      console.error('Error fetching favorite products:', err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data.orders || []);
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    }
+  };
+
+  const fetchOrderDetails = async (orderId: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedOrder(data.order || null);
+      }
+    } catch (err) {
+      console.error('Error fetching order details:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchFavoriteProducts();
   }, [favorites]);
 
   useEffect(() => {
     if (!user) return;
-    const fetchOrders = async () => {
-      setOrdersLoading(true);
-      setOrdersError("");
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:8080/api/orders', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Error al cargar pedidos");
-        const data = await res.json();
-        setOrders(data.orders || []);
-      } catch (err: any) {
-        setOrdersError(err.message);
-      } finally {
-        setOrdersLoading(false);
-      }
-    };
     fetchOrders();
   }, [user]);
 
@@ -114,13 +126,7 @@ export default function MiCuentaPage() {
     setDetailLoading(true);
     setDetailError("");
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:8080/api/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Error al cargar detalle del pedido");
-      const data = await res.json();
-      setSelectedOrder(data.order);
+      fetchOrderDetails(orderId);
     } catch (err: any) {
       setDetailError(err.message);
     } finally {
@@ -395,7 +401,7 @@ export default function MiCuentaPage() {
                       <div key={product.id} className="group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all">
                         <Link href={`/productos/${product.id}`} className="block">
                           <div className="w-full h-56 bg-gray-200 flex items-center justify-center overflow-hidden relative">
-                            <img src={product.image_url ? `http://localhost:8080${product.image_url}` : "/placeholder.png"} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <img src={product.image_url ? `${API_BASE_URL}${product.image_url}` : "/placeholder.png"} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                           </div>
                           <div className="p-4">
                             <h3 className="text-lg font-semibold text-gray-900 truncate">{product.name}</h3>
@@ -557,7 +563,7 @@ export default function MiCuentaPage() {
             <ul className="mb-4 divide-y divide-gray-200">
               {selectedOrder.items.map(item => (
                 <li key={item.id} className="py-2 flex items-center gap-3">
-                  {item.image_url && <img src={`http://localhost:8080${item.image_url}`} alt={item.name} className="w-12 h-12 object-cover rounded" />}
+                  {item.image_url && <img src={`${API_BASE_URL}${item.image_url}`} alt={item.name} className="w-12 h-12 object-cover rounded" />}
                   <div>
                     <div className="font-medium">{item.name}</div>
                     <div className="text-xs text-gray-500">Cantidad: {item.quantity} &bull; Precio: {selectedOrder.currency} {item.price.toFixed(2)}</div>

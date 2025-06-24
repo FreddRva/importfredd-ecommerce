@@ -5,8 +5,10 @@ import {
     AuthenticationResponseJSON,
   } from '@simplewebauthn/browser';
   
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  
   export async function requestVerificationCode(email: string, mode?: string): Promise<any> {
-    const res = await fetch(`http://localhost:8080/auth/request-verification-code`, {
+    const res = await fetch(`${API_BASE_URL}/auth/request-verification-code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, ...(mode ? { mode } : {}) }),
@@ -25,7 +27,7 @@ import {
     try {
       console.log('Iniciando verificación de código para:', email);
       
-      const res = await fetch(`http://localhost:8080/auth/begin-registration`, {
+      const res = await fetch(`${API_BASE_URL}/auth/begin-registration`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -62,29 +64,49 @@ import {
       console.log('PASANDO ESTO A startRegistration:', JSON.stringify(optionsToPass, null, 2));
       const credential: RegistrationResponseJSON = await startRegistration(optionsToPass);
       console.log('Credencial creada exitosamente');
+      console.log('Credencial generada:', credential);
     
       // 3. Enviar la credencial al backend para validar
-      const verifyRes = await fetch(`http://localhost:8080/auth/finish-registration?email=${email}&mode=${mode || ''}`, {
+      const credentialJson = JSON.stringify(credential);
+      console.log('Enviando credencial al backend...');
+      console.log('CREDENCIAL A ENVIAR:', credentialJson);
+    
+      const finishRes = await fetch(`${API_BASE_URL}/auth/finish-registration?email=${email}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(credential),
+        body: JSON.stringify({ email, ...credential }),
       });
     
-      const verifyJson = await verifyRes.json();
-      if (!verifyRes.ok) {
-        throw new Error(verifyJson.error || 'Error verificando el registro de Passkey');
+      const finishText = await finishRes.text();
+      console.log('Respuesta de finish-registration (CRUDA):', finishText);
+      console.log('Status de finish-registration:', finishRes.status);
+    
+      if (!finishRes.ok) {
+        let errorMsg = `Error del servidor en finish-registration: ${finishRes.status}`;
+        try {
+          const errorData = JSON.parse(finishText);
+          errorMsg = errorData.error || errorMsg;
+        } catch (e) {
+          if (finishText) {
+              errorMsg = finishText;
+          }
+        }
+        throw new Error(errorMsg);
       }
     
-      return verifyJson.status || 'Registro exitoso';
-    } catch (error: any) {
-      console.error('Error en registerPasskey:', error);
-      
-      // Manejo específico de errores WebAuthn
-      if (error.name === 'NotAllowedError') {
-        throw new Error('Operación cancelada o bloqueada. Asegúrate de interactuar con el dispositivo cuando se solicite.');
+      const finishData = JSON.parse(finishText);
+      console.log('Respuesta de finish-registration (parseada):', finishData);
+    
+      if (finishData.success) {
+        console.log('✅ Registro completado exitosamente');
+        return finishData.message || 'Registro completado exitosamente';
+      } else {
+        throw new Error(finishData.error || 'Error desconocido en el registro');
       }
-      
+    
+    } catch (error) {
+      console.error('❌ Error en registerPasskey:', error);
       throw error;
     }
   }
@@ -95,7 +117,7 @@ import {
         throw new Error("El email es requerido.");
       }
       console.log(`Iniciando login para: ${email}`);
-      const res = await fetch(`http://localhost:8080/auth/begin-login?email=${email}`, {
+      const res = await fetch(`${API_BASE_URL}/auth/begin-login?email=${email}`, {
         method: "GET", // Cambiado a GET según la definición del backend
       });
 
@@ -140,48 +162,55 @@ import {
     
       // 3. Enviar la credencial al backend para validar
       const credentialJson = JSON.stringify(credential);
-      console.log('Enviando credencial al backend:', credentialJson);
-      
-      const verifyRes = await fetch(`http://localhost:8080/auth/login/finish?email=${email}`, {
+      console.log('Enviando credencial al backend...');
+      console.log('CREDENCIAL A ENVIAR:', credentialJson);
+    
+      const finishRes = await fetch(`${API_BASE_URL}/auth/finish-login?email=${email}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: credentialJson,
+        body: JSON.stringify({ email, ...credential }),
       });
     
-      if (!verifyRes.ok) {
-        const errorText = await verifyRes.text();
-        console.error('Error response:', errorText);
-        let err;
+      const finishText = await finishRes.text();
+      console.log('Respuesta de finish-login (CRUDA):', finishText);
+      console.log('Status de finish-login:', finishRes.status);
+    
+      if (!finishRes.ok) {
+        let errorMsg = `Error del servidor en finish-login: ${finishRes.status}`;
         try {
-          err = JSON.parse(errorText);
-        } catch {
-          err = { error: errorText };
+          const errorData = JSON.parse(finishText);
+          errorMsg = errorData.error || errorMsg;
+        } catch (e) {
+          if (finishText) {
+              errorMsg = finishText;
+          }
         }
-        throw new Error(err.error || 'Error verificando el login de Passkey');
+        throw new Error(errorMsg);
       }
     
-      const verifyJson = await verifyRes.json();
-      console.log('Respuesta del backend:', verifyJson);
-      return verifyJson;
-    } catch (error: any) {
-      console.error('Error en loginPasskey:', error);
-      
-      // Manejo específico de errores WebAuthn
-      if (error.name === 'NotAllowedError') {
-        throw new Error('Operación cancelada o bloqueada. Asegúrate de interactuar con el dispositivo cuando se solicite.');
+      const finishData = JSON.parse(finishText);
+      console.log('Respuesta de finish-login (parseada):', finishData);
+    
+      if (finishData.success) {
+        console.log('✅ Login completado exitosamente');
+        return finishData;
+      } else {
+        throw new Error(finishData.error || 'Error desconocido en el login');
       }
-      
+    
+    } catch (error) {
+      console.error('❌ Error en startLogin:', error);
       throw error;
     }
-  }
+  };
   
   export async function loginPasskey(email: string): Promise<any> {
     try {
       console.log(`[loginPasskey] Iniciando para: ${email}`);
       
       // 1. Iniciar autenticación con el backend
-      const beginLoginResponse = await fetch(`http://localhost:8080/auth/begin-login?email=${email}`, {
+      const beginLoginResponse = await fetch(`${API_BASE_URL}/auth/begin-login?email=${email}`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -207,7 +236,7 @@ import {
       console.log('[loginPasskey] Autenticación completada en el dispositivo.');
 
       // 3. Enviar la respuesta de autenticación al backend
-      const finishLoginResponse = await fetch(`http://localhost:8080/auth/finish-login?email=${email}`, {
+      const finishLoginResponse = await fetch(`${API_BASE_URL}/auth/finish-login?email=${email}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, ...authenticationResponse }),
@@ -220,29 +249,19 @@ import {
         throw new Error(errorData.error || `Error del servidor (${finishLoginResponse.status})`);
       }
 
-      // 4. Procesar la respuesta del servidor (login exitoso)
-      const loginData = await finishLoginResponse.json();
-      console.log('[loginPasskey] Login exitoso, datos recibidos.');
-      
-      // Guardar tokens y datos del usuario
-      if (loginData.access_token) {
-        localStorage.setItem('token', loginData.access_token);
+      const result = await finishLoginResponse.json();
+      console.log('[loginPasskey] Resultado final:', result);
+
+      if (result.success) {
+        console.log('[loginPasskey] ✅ Login exitoso');
+        return result;
+      } else {
+        throw new Error(result.error || 'Error desconocido en el login');
       }
-      if (loginData.refresh_token) {
-        localStorage.setItem('refresh_token', loginData.refresh_token);
-      }
-      if (loginData.user) {
-        localStorage.setItem('user', JSON.stringify(loginData.user));
-      }
-      
-      return loginData;
 
     } catch (error) {
-      console.error("Error definitivo durante el login con Passkey:", error);
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Ocurrió un error inesperado durante el login con passkey.');
+      console.error('[loginPasskey] ❌ Error:', error);
+      throw error;
     }
   }
   

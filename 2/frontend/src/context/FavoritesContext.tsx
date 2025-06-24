@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE_URL } from '@/lib/api';
 
 interface FavoritesContextType {
   favorites: number[];
@@ -35,7 +36,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     if (local) {
       const localFavs: number[] = JSON.parse(local);
       for (const pid of localFavs) {
-        await fetch("http://localhost:8080/api/favorites", {
+        await fetch(`${API_BASE_URL}/api/favorites`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -52,7 +53,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   // Obtener favoritos de la API
   const fetchFavoritesFromAPI = async () => {
     if (!isAuthenticated || !token) return;
-    const res = await fetch("http://localhost:8080/api/favorites", {
+    const res = await fetch(`${API_BASE_URL}/api/favorites`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
@@ -63,36 +64,49 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
 
   // Añadir favorito
   const addFavorite = async (productId: number) => {
-    if (!isAuthenticated || !token) {
-      const updated = Array.from(new Set([...favorites, productId]));
-      setFavorites(updated);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
-      return;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Debes iniciar sesión para agregar favoritos');
+        return;
+      }
+
+      await fetch(`${API_BASE_URL}/api/favorites`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId }),
+      });
+
+      setFavorites(prev => [...prev, productId]);
+    } catch (error) {
+      console.error('Error adding favorite:', error);
     }
-    await fetch("http://localhost:8080/api/favorites", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ product_id: productId }),
-    });
-    await fetchFavoritesFromAPI();
   };
 
   // Quitar favorito
   const removeFavorite = async (productId: number) => {
-    if (!isAuthenticated || !token) {
-      const updated = favorites.filter((id) => id !== productId);
-      setFavorites(updated);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
-      return;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch(`${API_BASE_URL}/api/favorites`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: productId }),
+      });
+
+      if (res.ok) {
+        setFavorites(prev => prev.filter(id => id !== productId));
+      }
+    } catch (error) {
+      console.error('Error removing favorite:', error);
     }
-    await fetch(`http://localhost:8080/api/favorites/${productId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    await fetchFavoritesFromAPI();
   };
 
   // Saber si un producto es favorito
