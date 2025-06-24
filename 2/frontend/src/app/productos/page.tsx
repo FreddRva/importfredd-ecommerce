@@ -663,6 +663,14 @@ function ProductosContent() {
       
       {/* 3D Model Viewer Modal */}
       {selectedModel && <ModelViewerModal modelPath={selectedModel.path} productName={selectedModel.name} onClose={() => setSelectedModel(null)} />}
+
+      {/* Botón de prueba para abrir visor 3D */}
+      <button
+        onClick={() => setSelectedModel({ path: "https://importfredd-uploads.s3.us-east-2.amazonaws.com/models/1750806457893942096_Zapatillas.glb", name: "Modelo de Prueba" })}
+        className="fixed bottom-8 right-8 z-50 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
+      >
+        Probar visor 3D
+      </button>
     </div>
   );
 }
