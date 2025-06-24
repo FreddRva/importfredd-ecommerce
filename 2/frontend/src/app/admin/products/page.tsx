@@ -203,10 +203,11 @@ export default function AdminProductsPage() {
     const endpoint = isCreating 
         ? `${API_URL}/admin/products`
         : `${API_URL}/admin/products/${currentProduct.id}`;
+    const method = isCreating ? "POST" : "PUT";
 
     try {
       const res = await fetch(endpoint, {
-        method: "PUT",
+        method,
         headers: {
           Authorization: `Bearer ${token}`,
         },
