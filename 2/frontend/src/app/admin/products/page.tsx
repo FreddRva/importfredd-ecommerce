@@ -79,9 +79,11 @@ export default function AdminProductsPage() {
   }, [token, API_URL]);
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, [fetchProducts, fetchCategories]);
+    if (token) {
+      fetchProducts();
+      fetchCategories();
+    }
+  }, [token, fetchProducts, fetchCategories]);
   
   const resetFormState = () => {
     setCurrentProduct(null);
@@ -190,39 +192,36 @@ export default function AdminProductsPage() {
     if (newModel) formData.append('model3d', newModel);
 
     const endpoint = isCreating 
-        ? `${API_URL}/admin/products` 
+        ? `${API_URL}/admin/products`
         : `${API_URL}/admin/products/${currentProduct.id}`;
-    const method = isCreating ? "POST" : "PUT";
 
     try {
-        const res = await fetch(endpoint, {
-            method: method,
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData,
-        });
+      const res = await fetch(endpoint, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-        if (res.ok) {
-            resetFormState();
-            fetchProducts();
-        } else {
-            const errorData = await res.json();
-            setError(errorData.error || `Error al ${isCreating ? 'crear' : 'actualizar'} el producto`);
-        }
+      if (res.ok) {
+        resetFormState();
+        fetchProducts();
+      } else {
+        const data = await res.json();
+        setError(data.error || "Error al actualizar el producto");
+      }
     } catch (err: any) {
-        setError(err.message);
+      setError(err.message || "Error de conexión al actualizar el producto");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
-
-  // Agregar log para depuración
-  console.log('Renderizando AdminProductsPage');
 
   if (loading && products.length === 0) {
     return <div className="p-8 text-center">Cargando productos...</div>;
   }
 
-  // Restaurar la UI completa y el botón azul arriba a la derecha
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
@@ -234,7 +233,6 @@ export default function AdminProductsPage() {
           <PlusCircle size={16} /> Nuevo Producto
         </button>
       </div>
-      {/* Tabla de productos */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white rounded-lg shadow">
           <thead>
@@ -266,7 +264,6 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
       </div>
-      {/* Formulario de creación/edición */}
       {(isCreating || currentProduct) && (
         <form onSubmit={handleSubmit} className="mt-8 bg-gray-50 p-6 rounded-lg shadow-md max-w-xl mx-auto">
           <h2 className="text-xl font-bold mb-4">{isCreating ? 'Nuevo Producto' : 'Editar Producto'}</h2>
