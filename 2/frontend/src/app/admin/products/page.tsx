@@ -321,8 +321,8 @@ export default function AdminProductsPage() {
             {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 h-24" />}
           </div>
           <div className="mb-4">
-            <label className="block mb-1">Modelo 3D (.glb)</label>
-            <input type="file" accept=".glb" onChange={handleModelChange} />
+            <label className="block mb-1">Modelo 3D (.glb, .gltf, .obj)</label>
+            <input type="file" accept=".glb,.gltf,.obj,.fbx,.dae" onChange={handleModelChange} />
             {modelName && <span className="ml-2">{modelName}</span>}
           </div>
           <div className="mb-4 flex items-center gap-4">

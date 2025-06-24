@@ -278,8 +278,7 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error subiendo modelo 3D a S3: " + err.Error()})
 			return
 		}
-		newModelURL := "/" + url
-		modelURL = &newModelURL // Actualizar a la nueva URL
+		modelURL = &url // ✅ Usar la URL directamente sin agregar "/"
 	}
 
 	var descriptionPtr *string
