@@ -323,7 +323,10 @@ func SendVerificationEmail(to, token string) error {
 
 func SendVerificationCodeEmail(to, code string) error {
 	if DefaultEmailService == nil {
-		return fmt.Errorf("servicio de email no inicializado")
+		// Si no hay servicio de email configurado, solo log y devolver éxito
+		// para que el registro funcione en desarrollo/producción sin email
+		log.Printf("⚠️ Servicio de email no configurado. Código de verificación para %s: %s", to, code)
+		return nil
 	}
 
 	subject := "Tu código de verificación"

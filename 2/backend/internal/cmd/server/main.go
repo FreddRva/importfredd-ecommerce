@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -54,6 +55,23 @@ func main() {
 	// No requieren autenticación
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "pong"})
+	})
+	router.GET("/health", func(c *gin.Context) {
+		// Verificar conexión a la base de datos
+		if err := db.Pool.Ping(); err != nil {
+			c.JSON(503, gin.H{
+				"status":    "unhealthy",
+				"error":     "Database connection failed",
+				"timestamp": time.Now().Format(time.RFC3339),
+			})
+			return
+		}
+
+		c.JSON(200, gin.H{
+			"status":    "healthy",
+			"database":  "connected",
+			"timestamp": time.Now().Format(time.RFC3339),
+		})
 	})
 	router.POST("/seed-data", h.SeedData)
 	router.GET("/products", h.GetProducts)
