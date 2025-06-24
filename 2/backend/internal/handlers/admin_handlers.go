@@ -261,8 +261,7 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error subiendo imagen a S3: " + err.Error()})
 			return
 		}
-		newImageURL := "/" + url
-		imageURL = &newImageURL // Actualizar a la nueva URL
+		imageURL = &url // ✅ Usar la URL de S3 directamente
 	}
 
 	modelURL := existingProduct.ModelURL // Mantener el modelo existente por defecto

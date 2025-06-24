@@ -788,13 +788,13 @@ func RemoveItemFromCart(db *pgxpool.Pool, cartItemID int) error {
 func GetProductByID(db *pgxpool.Pool, productID int) (*models.Product, error) {
 	var p models.Product
 	query := `
-        SELECT id, name, description, price, category_id, created_at, image_url, dimensions, stock, is_active
+        SELECT id, name, description, price, category_id, created_at, image_url, dimensions, stock, is_active, model_url
         FROM products
         WHERE id = $1
     `
 	err := db.QueryRow(context.Background(), query, productID).Scan(
 		&p.ID, &p.Name, &p.Description, &p.Price, &p.CategoryID, &p.CreatedAt,
-		&p.ImageURL, &p.Dimensions, &p.Stock, &p.IsActive,
+		&p.ImageURL, &p.Dimensions, &p.Stock, &p.IsActive, &p.ModelURL,
 	)
 	if err != nil {
 		return nil, err

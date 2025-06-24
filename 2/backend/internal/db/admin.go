@@ -87,7 +87,7 @@ func GetAllProductsAdmin(db *pgxpool.Pool, page, limit int, search string, categ
 	baseQuery := `
 		SELECT p.id, p.name, p.description, p.price, p.image_url, p.category_id, 
 			   p.stock, p.sku, p.weight, p.dimensions, p.is_active, p.created_at, p.updated_at,
-			   c.name as category_name
+			   p.model_url, c.name as category_name
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
 		WHERE 1=1
@@ -139,7 +139,7 @@ func GetAllProductsAdmin(db *pgxpool.Pool, page, limit int, search string, categ
 			&product.ID, &product.Name, &product.Description, &product.Price,
 			&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
 			&product.Weight, &product.Dimensions, &product.IsActive,
-			&product.CreatedAt, &product.UpdatedAt, &product.CategoryName,
+			&product.CreatedAt, &product.UpdatedAt, &product.ModelURL, &product.CategoryName,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("error escaneando producto: %v", err)
