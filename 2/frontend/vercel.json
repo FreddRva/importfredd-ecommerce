@@ -17,6 +17,6 @@
     }
   ],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://tu-backend.herokuapp.com"
+    "NEXT_PUBLIC_API_URL": "https://importfredd-ecommerce.onrender.com"
   }
 } 
