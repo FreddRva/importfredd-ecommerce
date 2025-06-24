@@ -40,6 +40,7 @@ func main() {
 	h := handlers.NewHandler(db.Pool)
 
 	router := gin.Default()
+	router.MaxMultipartMemory = 64 << 20 // 64 MB para permitir archivos grandes (modelos 3D)
 
 	// Configurar CORS
 	config := cors.DefaultConfig()
