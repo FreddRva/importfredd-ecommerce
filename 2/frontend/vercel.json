@@ -18,10 +18,5 @@
   ],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://tu-backend.herokuapp.com"
-  },
-  "functions": {
-    "app/api/**/*.ts": {
-      "maxDuration": 30
-    }
   }
 } 
