@@ -217,6 +217,13 @@ func (h *AuthHandler) FinishRegistration(c *gin.Context) {
 		}
 	}
 
+	origin := c.Request.Header.Get("Origin")
+	webAuthn, err := getWebAuthnByOrigin(origin)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	credential, err := webAuthn.CreateCredential(user, *sessionData, parsedResponse)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create credential"})
@@ -354,6 +361,13 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 	parsedResponse, err := protocol.ParseCredentialRequestResponseBody(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse login response"})
+		return
+	}
+
+	origin := c.Request.Header.Get("Origin")
+	webAuthn, err := getWebAuthnByOrigin(origin)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
