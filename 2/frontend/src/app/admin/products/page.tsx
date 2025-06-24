@@ -42,6 +42,11 @@ export default function AdminProductsPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // DEPURACIÓN: log de token y autenticación
   console.log('ADMIN PRODUCTS PAGE - token:', token);
 
@@ -225,7 +230,7 @@ export default function AdminProductsPage() {
   const safeProducts = Array.isArray(products) ? products : [];
   const safeCategories = Array.isArray(categories) ? categories : [];
 
-  if (typeof window !== "undefined" && !token) {
+  if (!isClient || !token) {
     return <div className="p-8 text-center">Cargando autenticación...</div>;
   }
 
