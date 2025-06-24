@@ -219,6 +219,10 @@ export default function AdminProductsPage() {
     }
   };
 
+  if (!token) {
+    return <div className="p-8 text-center">Cargando autenticación...</div>;
+  }
+
   if (loading && products.length === 0) {
     return <div className="p-8 text-center">Cargando productos...</div>;
   }
