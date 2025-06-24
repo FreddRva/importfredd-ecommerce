@@ -1,0 +1,239 @@
+'use client';
+
+import { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+
+export interface CartItem {
+  id: number;
+  product_id: number;
+  product_name: string;
+  image_url: string;
+  price: number;
+  quantity: number;
+}
+
+interface CartContextType {
+  cart: CartItem[];
+  loading: boolean;
+  error: string | null;
+  itemCount: number;
+  totalPrice: number;
+  fetchCart: () => Promise<void>;
+  addToCart: (item: Omit<CartItem, 'id'>) => Promise<void>;
+  updateQuantity: (itemId: number, quantity: number) => Promise<void>;
+  removeFromCart: (itemId: number) => Promise<void>;
+  clearLocalCart: () => void;
+  mergeLocalAndDbCart: () => Promise<void>;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, user, token } = useAuth();
+
+  const getLocalCart = (): CartItem[] => {
+    try {
+      const localData = localStorage.getItem('cart');
+      return localData ? JSON.parse(localData) : [];
+    } catch (e) {
+      console.error("Failed to parse local cart", e);
+      return [];
+    }
+  };
+
+  const fetchCart = useCallback(async () => {
+    console.log('fetchCart llamado - isAuthenticated:', isAuthenticated, 'token:', token ? 'existe' : 'no existe');
+    
+    if (!isAuthenticated || !token) {
+      console.log('Usuario no autenticado, usando carrito local');
+      setCart(getLocalCart());
+      setLoading(false);
+      return;
+    }
+
+    console.log('Usuario autenticado, llamando a API del carrito');
+    setLoading(true);
+    try {
+      console.log('Enviando token:', token ? token.substring(0, 20) + '...' : 'no existe');
+      const response = await fetch('http://localhost:8080/api/cart', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      console.log('Respuesta del backend:', response.status, response.statusText);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Error response:', errorText);
+        throw new Error('Failed to fetch cart');
+      }
+      const data: CartItem[] = await response.json();
+      setCart(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated, token]);
+
+  const addToCart = async (itemToAdd: Omit<CartItem, 'id'>) => {
+    if (!isAuthenticated || !token) {
+      // Logic for guest cart using localStorage
+      const localCart = getLocalCart();
+      const existingItem = localCart.find(item => item.product_id === itemToAdd.product_id);
+      
+      if (existingItem) {
+        existingItem.quantity += itemToAdd.quantity;
+      } else {
+        // Asignar un ID temporal negativo para que React pueda manejar las keys
+        const newItem: CartItem = {
+          ...itemToAdd,
+          id: -Math.floor(Math.random() * 1000000), 
+        };
+        localCart.push(newItem);
+      }
+      localStorage.setItem('cart', JSON.stringify(localCart));
+      setCart([...localCart]);
+      return;
+    }
+
+    try {
+      await fetch('http://localhost:8080/api/cart/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: itemToAdd.product_id, quantity: itemToAdd.quantity }),
+      });
+      await fetchCart();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const updateQuantity = async (itemId: number, quantity: number) => {
+    if (!isAuthenticated || !token) {
+      const localCart = getLocalCart();
+      const itemIndex = localCart.findIndex(item => item.id === itemId);
+      if (itemIndex > -1) {
+        if (quantity > 0) {
+          localCart[itemIndex].quantity = quantity;
+        } else {
+          localCart.splice(itemIndex, 1);
+        }
+      }
+      localStorage.setItem('cart', JSON.stringify(localCart));
+      setCart([...localCart]);
+      return;
+    }
+
+    try {
+      await fetch(`http://localhost:8080/api/cart/items/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ quantity }),
+      });
+      await fetchCart();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const removeFromCart = async (itemId: number) => {
+    if (!isAuthenticated || !token) {
+        const localCart = getLocalCart();
+        const updatedCart = localCart.filter(item => item.id !== itemId);
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+        setCart(updatedCart);
+        return;
+    }
+
+    try {
+      await fetch(`http://localhost:8080/api/cart/items/${itemId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      await fetchCart();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+  
+  const clearLocalCart = () => {
+    localStorage.removeItem('cart');
+  };
+
+  const mergeLocalAndDbCart = useCallback(async () => {
+    if (!isAuthenticated || !token) return;
+
+    const localCart = getLocalCart();
+    if (localCart.length === 0) return;
+
+    // A simple merge: add all local items to the DB cart
+    setLoading(true);
+    try {
+      for (const item of localCart) {
+        await fetch('http://localhost:8080/api/cart/items', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
+        });
+      }
+      clearLocalCart();
+      await fetchCart();
+    } catch (err: any) {
+      setError("Failed to merge cart: " + err.message);
+    } finally {
+        setLoading(false);
+    }
+  }, [isAuthenticated, token, fetchCart]);
+
+  useEffect(() => {
+    console.log('CartContext useEffect - isAuthenticated:', isAuthenticated, 'isLoading:', false);
+    
+    if (isAuthenticated) {
+      console.log('Usuario autenticado, llamando fetchCart');
+      fetchCart();
+    } else {
+      console.log('Usuario no autenticado, usando carrito local');
+      setCart(getLocalCart());
+      setLoading(false);
+    }
+  }, [isAuthenticated, fetchCart]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      mergeLocalAndDbCart();
+    }
+  }, [isAuthenticated, mergeLocalAndDbCart]);
+  
+  // Asegurar que cart sea siempre un array antes de usar reduce
+  const safeCart = Array.isArray(cart) ? cart : [];
+  const itemCount = safeCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const totalPrice = safeCart.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0);
+
+  return (
+    <CartContext.Provider value={{ 
+        cart: safeCart, loading, error, itemCount, totalPrice,
+        fetchCart, addToCart, updateQuantity, removeFromCart, 
+        clearLocalCart, mergeLocalAndDbCart 
+    }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (context === undefined) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
+}; 
