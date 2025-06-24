@@ -42,8 +42,8 @@ func main() {
 	// Configurar CORS
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
-		"https://importfredd-ecommercevercel.vercel.app", // dominio de Vercel
-		"http://localhost:3000",                          // desarrollo local
+		"https://importfredd-ecommercerv.vercel.app", // dominio exacto de Vercel
+		"http://localhost:3000",                      // desarrollo local
 	}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
