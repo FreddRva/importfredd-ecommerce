@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tuusuario/ecommerce-backend/internal/db"
+	"github.com/tuusuario/ecommerce-backend/internal/lib"
 	"github.com/tuusuario/ecommerce-backend/internal/models"
 )
 
@@ -78,15 +78,14 @@ func (h *AdminHandler) CreateProduct(c *gin.Context) {
 		var imageURL *string
 		imageFile, err := c.FormFile("image")
 		if err == nil && imageFile != nil {
-			imagePath := "uploads/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + imageFile.Filename
-			if err := c.SaveUploadedFile(imageFile, imagePath); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando imagen"})
+			src, _ := imageFile.Open()
+			defer src.Close()
+			key := "images/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + imageFile.Filename
+			url, err := lib.UploadFileToS3(src, imageFile, key)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error subiendo imagen a S3: " + err.Error()})
 				return
 			}
-			// LOG para depuración: mostrar ruta real y cwd
-			cwd, _ := os.Getwd()
-			log.Printf("Imagen guardada en: %s (cwd: %s)", imagePath, cwd)
-			url := "/" + imagePath
 			imageURL = &url
 		}
 
@@ -94,12 +93,14 @@ func (h *AdminHandler) CreateProduct(c *gin.Context) {
 		var modelURL *string
 		modelFile, err := c.FormFile("model3d")
 		if err == nil && modelFile != nil {
-			modelPath := "uploads/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + modelFile.Filename
-			if err := c.SaveUploadedFile(modelFile, modelPath); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando modelo 3D"})
+			src, _ := modelFile.Open()
+			defer src.Close()
+			key := "models/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + modelFile.Filename
+			url, err := lib.UploadFileToS3(src, modelFile, key)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error subiendo modelo 3D a S3: " + err.Error()})
 				return
 			}
-			url := "/" + modelPath
 			modelURL = &url
 		}
 
@@ -252,12 +253,15 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 	// Manejar nueva imagen si se proporciona
 	imageFile, err := c.FormFile("image")
 	if err == nil && imageFile != nil {
-		imagePath := "uploads/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + imageFile.Filename
-		if err := c.SaveUploadedFile(imageFile, imagePath); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando la nueva imagen"})
+		src, _ := imageFile.Open()
+		defer src.Close()
+		key := "images/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + imageFile.Filename
+		url, err := lib.UploadFileToS3(src, imageFile, key)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error subiendo imagen a S3: " + err.Error()})
 			return
 		}
-		newImageURL := "/" + imagePath
+		newImageURL := "/" + url
 		imageURL = &newImageURL // Actualizar a la nueva URL
 	}
 
@@ -266,12 +270,15 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 	// Manejar nuevo modelo 3D si se proporciona
 	modelFile, err := c.FormFile("model3d")
 	if err == nil && modelFile != nil {
-		modelPath := "uploads/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + modelFile.Filename
-		if err := c.SaveUploadedFile(modelFile, modelPath); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando el nuevo modelo 3D"})
+		src, _ := modelFile.Open()
+		defer src.Close()
+		key := "models/" + strconv.FormatInt(time.Now().UnixNano(), 10) + "_" + modelFile.Filename
+		url, err := lib.UploadFileToS3(src, modelFile, key)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error subiendo modelo 3D a S3: " + err.Error()})
 			return
 		}
-		newModelURL := "/" + modelPath
+		newModelURL := "/" + url
 		modelURL = &newModelURL // Actualizar a la nueva URL
 	}
 
