@@ -123,6 +123,7 @@ export default function AdminProductsPage() {
   };
   
   const handleAddNew = () => {
+    console.log("Clic en Nuevo Producto");
     resetFormState();
     setCurrentProduct({
         name: '',
