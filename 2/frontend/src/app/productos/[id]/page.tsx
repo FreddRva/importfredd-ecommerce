@@ -25,6 +25,7 @@ interface Product {
   image_url: string;
   dimensions: string; // URL del modelo 3D
   is_active: boolean; // Necesitamos este campo
+  model_url?: string;
 }
 
 export default function ProductDetailPage() {
@@ -109,9 +110,9 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
             {/* Columna de Imagen / Visor 3D */}
             <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden relative">
-              {product.dimensions ? (
+              {product.model_url ? (
                 <ThreeJSViewer 
-                  modelPath={`${API_BASE_URL}${product.dimensions}`}
+                  modelPath={product.model_url.startsWith('http') ? product.model_url : `${API_BASE_URL}${product.model_url}`}
                   width={600}
                   height={600}
                 />
