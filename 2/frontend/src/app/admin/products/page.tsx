@@ -234,8 +234,94 @@ export default function AdminProductsPage() {
           <PlusCircle size={16} /> Nuevo Producto
         </button>
       </div>
-      {/* Aquí va el resto de la UI original: tabla, formularios, etc. */}
-      {/* ... (puedes restaurar el resto del JSX original aquí) ... */}
+      {/* Tabla de productos */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white rounded-lg shadow">
+          <thead>
+            <tr>
+              <th className="px-4 py-2">ID</th>
+              <th className="px-4 py-2">Nombre</th>
+              <th className="px-4 py-2">Categoría</th>
+              <th className="px-4 py-2">Precio</th>
+              <th className="px-4 py-2">Stock</th>
+              <th className="px-4 py-2">Activo</th>
+              <th className="px-4 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.id} className="border-t">
+                <td className="px-4 py-2">{product.id}</td>
+                <td className="px-4 py-2">{product.name}</td>
+                <td className="px-4 py-2">{categories.find(c => c.id === product.category_id)?.name || '-'}</td>
+                <td className="px-4 py-2">${product.price}</td>
+                <td className="px-4 py-2">{product.stock}</td>
+                <td className="px-4 py-2">{product.is_active ? 'Sí' : 'No'}</td>
+                <td className="px-4 py-2 flex gap-2">
+                  <button onClick={() => handleEdit(product)} className="text-blue-600 hover:underline"><Edit size={16} /></button>
+                  <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:underline"><Trash2 size={16} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Formulario de creación/edición */}
+      {(isCreating || currentProduct) && (
+        <form onSubmit={handleSubmit} className="mt-8 bg-gray-50 p-6 rounded-lg shadow-md max-w-xl mx-auto">
+          <h2 className="text-xl font-bold mb-4">{isCreating ? 'Nuevo Producto' : 'Editar Producto'}</h2>
+          {error && <div className="mb-4 text-red-600">{error}</div>}
+          <div className="mb-4">
+            <label className="block mb-1">Nombre</label>
+            <input name="name" value={currentProduct?.name || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Descripción</label>
+            <textarea name="description" value={currentProduct?.description || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Precio</label>
+            <input type="number" name="price" value={currentProduct?.price || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Stock</label>
+            <input type="number" name="stock" value={currentProduct?.stock || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Categoría</label>
+            <select name="category_id" value={currentProduct?.category_id || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required>
+              <option value="">Selecciona una categoría</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Dimensiones físicas</label>
+            <input name="dimensions" value={currentProduct?.dimensions || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Ej: 10x10x10" />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Imagen</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
+            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 h-24" />}
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Modelo 3D (.glb)</label>
+            <input type="file" accept=".glb" onChange={handleModelChange} />
+            {modelName && <span className="ml-2">{modelName}</span>}
+          </div>
+          <div className="mb-4 flex items-center gap-4">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="is_active" checked={currentProduct?.is_active || false} onChange={handleCheckboxChange} />
+              Activo
+            </label>
+          </div>
+          <div className="flex gap-4">
+            <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">{isCreating ? 'Crear' : 'Actualizar'}</button>
+            <button type="button" onClick={handleCancel} className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">Cancelar</button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }
