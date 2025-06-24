@@ -248,17 +248,18 @@ export default function HomePage() {
                       </div>
                     )}
                     <div className="w-full h-64 bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-50 rounded-t-3xl flex items-center justify-center overflow-hidden relative">
-                      {product.image_url ? (
+                      {product.image_url?.startsWith('http') ? (
+                        <img 
+                          src={product.image_url} 
+                          alt={product.name} 
+                          className="w-full h-full object-contain transition-all duration-700 group-hover:scale-110 group-hover:rotate-2" 
+                        />
+                      ) : (
                         <img 
                           src={`${API_BASE_URL}${product.image_url}`} 
                           alt={product.name} 
                           className="w-full h-full object-contain transition-all duration-700 group-hover:scale-110 group-hover:rotate-2" 
                         />
-                      ) : (
-                        <div className="text-slate-400 text-center">
-                          <div className="text-4xl mb-2">📷</div>
-                          <div className="text-sm">Sin imagen</div>
-                        </div>
                       )}
                       {/* Overlay de gradiente */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
