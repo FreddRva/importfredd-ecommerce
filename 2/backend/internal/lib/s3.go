@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, key string) (string, error) {
@@ -33,7 +32,6 @@ func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, key s
 		Bucket:      aws.String(bucket),
 		Key:         aws.String(key),
 		Body:        file,
-		ACL:         types.ObjectCannedACLPublicRead, // Hazlo público (opcional)
 		ContentType: aws.String(fileHeader.Header.Get("Content-Type")),
 	})
 	if err != nil {
