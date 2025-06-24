@@ -46,17 +46,20 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 		Mode  string `json:"mode"` // 'register' o 'recover'
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[ERROR] Error en ShouldBindJSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email no válido."})
 		return
 	}
 
 	code, err := generateNumericCode(6)
 	if err != nil {
+		log.Printf("[ERROR] Error generando código: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo generar el código."})
 		return
 	}
 	hashedCode, err := HashPassword(code)
 	if err != nil {
+		log.Printf("[ERROR] Error hasheando código: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error de seguridad."})
 		return
 	}
@@ -65,12 +68,14 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	user, err := db.GetUserByEmail(h.db, req.Email)
 	if err == nil && user != nil {
 		if user.IsActive && req.Mode != "recover" {
+			log.Printf("[ERROR] Usuario ya registrado y activo: %s", req.Email)
 			c.JSON(http.StatusConflict, gin.H{"error": "Este correo ya está registrado."})
 			return
 		} else {
 			// Reactivar usuario y actualizar token (o recuperación)
 			err = db.ReactivateUser(h.db, req.Email, hashedCode, expiresAt)
 			if err != nil {
+				log.Printf("[ERROR] Error reactivando usuario: %v", err)
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo reactivar el usuario."})
 				return
 			}
@@ -93,9 +98,11 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	_, err = db.CreateUser(h.db, req.Email, hashedCode, expiresAt)
 	if err != nil {
 		if err.Error() == "user already exists and is verified" {
+			log.Printf("[ERROR] Usuario ya existe y está verificado: %s", req.Email)
 			c.JSON(http.StatusConflict, gin.H{"error": "Este correo ya está registrado."})
 			return
 		}
+		log.Printf("[ERROR] Error creando usuario: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando información."})
 		return
 	}
