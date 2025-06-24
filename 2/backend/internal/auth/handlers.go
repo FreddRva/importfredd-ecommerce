@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/big"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +16,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var webAuthn *webauthn.WebAuthn
 var sessionStore = make(map[string]*webauthn.SessionData)
 
 type AuthHandler struct {
@@ -25,18 +23,6 @@ type AuthHandler struct {
 }
 
 func NewAuthHandler(db *pgxpool.Pool) (*AuthHandler, error) {
-	waconfig := &webauthn.Config{
-		RPDisplayName: "Go Ecommerce",
-		RPID:          os.Getenv("WEBAUTHN_RPID"),
-		RPOrigins:     []string{os.Getenv("WEBAUTHN_RP_ORIGIN")},
-	}
-
-	var err error
-	webAuthn, err = webauthn.New(waconfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create webauthn: %w", err)
-	}
-
 	return &AuthHandler{db: db}, nil
 }
 
@@ -113,6 +99,29 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	})
 }
 
+// Nueva función para obtener la instancia de WebAuthn según el Origin
+func getWebAuthnByOrigin(origin string) (*webauthn.WebAuthn, error) {
+	var rpID, rpOrigin string
+
+	switch origin {
+	case "https://importfredd-ecommercerv.vercel.app":
+		rpID = "importfredd-ecommercerv.vercel.app"
+		rpOrigin = "https://importfredd-ecommercerv.vercel.app"
+	case "https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app":
+		rpID = "importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app"
+		rpOrigin = "https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app"
+	default:
+		return nil, fmt.Errorf("Origin no permitido para WebAuthn: %s", origin)
+	}
+
+	waconfig := &webauthn.Config{
+		RPDisplayName: "Go Ecommerce",
+		RPID:          rpID,
+		RPOrigins:     []string{rpOrigin},
+	}
+	return webauthn.New(waconfig)
+}
+
 func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 	var req struct {
 		Email string `json:"email" binding:"required,email"`
@@ -154,6 +163,13 @@ func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 		return
 	}
 	user.Credentials = credentials
+
+	origin := c.Request.Header.Get("Origin")
+	webAuthn, err := getWebAuthnByOrigin(origin)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	options, sessionData, err := webAuthn.BeginRegistration(user)
 	if err != nil {
@@ -289,6 +305,13 @@ func (h *AuthHandler) BeginLogin(c *gin.Context) {
 		return
 	}
 	user.Credentials = credentials
+
+	origin := c.Request.Header.Get("Origin")
+	webAuthn, err := getWebAuthnByOrigin(origin)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	options, sessionData, err := webAuthn.BeginLogin(user)
 	if err != nil {
