@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -73,6 +74,9 @@ func (h *Handler) GetProducts(c *gin.Context) {
 		return
 	}
 
+	if products == nil {
+		products = []models.Product{}
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"products": products,
 		"total":    total,
@@ -450,35 +454,43 @@ func (h *Handler) SeedData(c *gin.Context) {
 		log.Printf("Error creando categorías: %v", err)
 	}
 
-	// Crear productos
+	// Crear productos con todos los campos obligatorios
+	now := time.Now()
 	products := []struct {
 		name        string
 		description string
 		price       float64
+		imageURL    string
 		categoryID  int
+		stock       int
+		sku         string
+		weight      float64
+		dimensions  string
+		isActive    bool
+		featured    bool
 	}{
-		{"iPhone 15 Pro", "El último iPhone con cámara profesional", 999.99, 1},
-		{"MacBook Air M2", "Portátil ultra ligero con chip M2", 1299.99, 1},
-		{"Camiseta Básica", "Camiseta de algodón 100%", 19.99, 2},
-		{"Jeans Clásicos", "Jeans de alta calidad", 49.99, 2},
-		{"Sofá Moderno", "Sofá elegante para tu sala", 599.99, 3},
-		{"Lámpara LED", "Iluminación moderna y eficiente", 89.99, 3},
-		{"Balón de Fútbol", "Balón oficial de competición", 29.99, 4},
-		{"Raqueta de Tenis", "Raqueta profesional", 159.99, 4},
-		{"El Señor de los Anillos", "Trilogía completa en tapa dura", 39.99, 5},
-		{"Clean Code", "Guía para escribir código limpio", 24.99, 5},
-		{"Zapatilla Skater B9S", "Edición limitada y numerada Tweed", 129.99, 2},
+		{"iPhone 15 Pro", "El último iPhone con cámara profesional", 999.99, "/uploads/iphone.jpg", 1, 10, "SKU-IPH15", 0.5, "146x71x7.7mm", true, true},
+		{"MacBook Air M2", "Portátil ultra ligero con chip M2", 1299.99, "/uploads/macbook.jpg", 1, 8, "SKU-MBAIR2", 1.2, "304x212x16mm", true, true},
+		{"Camiseta Básica", "Camiseta de algodón 100%", 19.99, "/uploads/camiseta.jpg", 2, 30, "SKU-CAMISB", 0.2, "M", true, false},
+		{"Jeans Clásicos", "Jeans de alta calidad", 49.99, "/uploads/jeans.jpg", 2, 20, "SKU-JEANS", 0.6, "L", true, false},
+		{"Sofá Moderno", "Sofá elegante para tu sala", 599.99, "/uploads/sofa.jpg", 3, 5, "SKU-SOFA", 15.0, "200x90x100cm", true, false},
+		{"Lámpara LED", "Iluminación moderna y eficiente", 89.99, "/uploads/lampara.jpg", 3, 15, "SKU-LAMPLED", 0.8, "40x20x20cm", true, false},
+		{"Balón de Fútbol", "Balón oficial de competición", 29.99, "/uploads/balon.jpg", 4, 25, "SKU-BALON", 0.4, "22cm", true, false},
+		{"Raqueta de Tenis", "Raqueta profesional", 159.99, "/uploads/raqueta.jpg", 4, 12, "SKU-RAQTEN", 0.3, "68x27cm", true, false},
+		{"El Señor de los Anillos", "Trilogía completa en tapa dura", 39.99, "/uploads/lotr.jpg", 5, 18, "SKU-LOTR", 1.5, "24x16x8cm", true, false},
+		{"Clean Code", "Guía para escribir código limpio", 24.99, "/uploads/cleancode.jpg", 5, 22, "SKU-CCODE", 0.7, "23x15x3cm", true, false},
+		{"Zapatilla Skater B9S", "Edición limitada y numerada Tweed", 129.99, "/uploads/zapatilla.jpg", 2, 14, "SKU-ZSKB9S", 0.9, "42", true, true},
 	}
 
 	var productPlaceholders []string
 	var productValues []interface{}
 	i := 1
 	for _, p := range products {
-		productPlaceholders = append(productPlaceholders, fmt.Sprintf("($%d, $%d, $%d, $%d)", i, i+1, i+2, i+3))
-		productValues = append(productValues, p.name, p.description, p.price, p.categoryID)
-		i += 4
+		productPlaceholders = append(productPlaceholders, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", i, i+1, i+2, i+3, i+4, i+5, i+6, i+7, i+8, i+9, i+10, i+11, i+12))
+		productValues = append(productValues, p.name, p.description, p.price, p.imageURL, p.categoryID, p.stock, p.sku, p.weight, p.dimensions, p.isActive, now, now, p.featured)
+		i += 13
 	}
-	prodQuery := "INSERT INTO products (name, description, price, category_id) VALUES " + strings.Join(productPlaceholders, ", ") + " ON CONFLICT (name) DO NOTHING"
+	prodQuery := "INSERT INTO products (name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at, featured) VALUES " + strings.Join(productPlaceholders, ", ") + " ON CONFLICT (name) DO NOTHING"
 	_, err = h.DB.Exec(context.Background(), prodQuery, productValues...)
 	if err != nil {
 		log.Printf("Error creando productos: %v", err)
