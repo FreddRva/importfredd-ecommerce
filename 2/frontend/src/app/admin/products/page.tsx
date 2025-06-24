@@ -30,7 +30,7 @@ export default function AdminProductsPage() {
     setLoadingProducts(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/admin/products", {
+      const res = await fetch(`${API_BASE_URL}/admin/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -71,7 +71,7 @@ export default function AdminProductsPage() {
     if (confirm("¿Estás seguro de que quieres eliminar este producto?")) {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:8080/admin/products/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -94,7 +94,7 @@ export default function AdminProductsPage() {
     try {
       const token = localStorage.getItem("token");
       // Obtener datos actuales del producto
-      const resGet = await fetch(`http://localhost:8080/admin/products/${id}`, {
+      const resGet = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!resGet.ok) {
@@ -113,7 +113,7 @@ export default function AdminProductsPage() {
       formData.append("is_active", String(product.is_active));
       formData.append("featured", String(featured));
 
-      const res = await fetch(`http://localhost:8080/admin/products/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
