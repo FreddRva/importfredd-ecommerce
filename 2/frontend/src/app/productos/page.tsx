@@ -501,11 +501,8 @@ function ProductosContent() {
                                   <ShoppingCart className="w-5 h-5 mr-2" />
                                   Añadir
                                 </button>
-                                <button 
-                                  onClick={() => setSelectedModel({ 
-                                    path: product.model_url || '', 
-                                    name: product.name 
-                                  })} 
+                                <button
+                                  onClick={() => setSelectedModel({ path: product.model_url || '', name: product.name })}
                                   className="p-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   aria-label="Ver en 3D"
                                   disabled={!product.model_url}
@@ -578,11 +575,8 @@ function ProductosContent() {
                                     Añadir al carrito
                                   </button>
                                 )}
-                                <button 
-                                  onClick={() => setSelectedModel({ 
-                                    path: product.model_url || '', 
-                                    name: product.name 
-                                  })} 
+                                <button
+                                  onClick={() => setSelectedModel({ path: product.model_url || '', name: product.name })}
                                   className="p-2 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                   aria-label="Ver en 3D"
                                   disabled={!product.model_url}
@@ -663,14 +657,6 @@ function ProductosContent() {
       
       {/* 3D Model Viewer Modal */}
       {selectedModel && <ModelViewerModal modelPath={selectedModel.path} productName={selectedModel.name} onClose={() => setSelectedModel(null)} />}
-
-      {/* Botón de prueba para abrir visor 3D */}
-      <button
-        onClick={() => setSelectedModel({ path: "https://importfredd-uploads.s3.us-east-2.amazonaws.com/models/1750806457893942096_Zapatillas.glb", name: "Modelo de Prueba" })}
-        className="fixed bottom-8 right-8 z-50 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700"
-      >
-        Probar visor 3D
-      </button>
     </div>
   );
 }
