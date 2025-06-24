@@ -34,6 +34,7 @@ func (h *AdminHandler) CreateProduct(c *gin.Context) {
 		categoryID := c.PostForm("category_id")
 		sku := c.PostForm("sku")
 		weightStr := c.PostForm("weight")
+		dimensions := c.PostForm("dimensions") // dimensiones físicas
 
 		// Validaciones básicas
 		if name == "" || price == "" || stock == "" || categoryID == "" {
@@ -115,7 +116,8 @@ func (h *AdminHandler) CreateProduct(c *gin.Context) {
 			Stock:       stockI,
 			CategoryID:  categoryIDPtr,
 			ImageURL:    imageURL,
-			Dimensions:  modelURL,
+			Dimensions:  &dimensions, // físicas
+			ModelURL:    modelURL,    // archivo 3D
 			SKU:         skuPtr,
 			Weight:      weightPtr,
 			IsActive:    true,
@@ -255,7 +257,7 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 		imageURL = &newImageURL // Actualizar a la nueva URL
 	}
 
-	modelURL := existingProduct.Dimensions // Mantener el modelo existente por defecto
+	modelURL := existingProduct.ModelURL // Mantener el modelo existente por defecto
 
 	// Manejar nuevo modelo 3D si se proporciona
 	modelFile, err := c.FormFile("model3d")
@@ -291,7 +293,8 @@ func (h *AdminHandler) UpdateProduct(c *gin.Context) {
 		Stock:       stock,
 		CategoryID:  categoryIDPtr,
 		ImageURL:    imageURL,
-		Dimensions:  modelURL,
+		Dimensions:  existingProduct.Dimensions,
+		ModelURL:    modelURL,
 		SKU:         skuPtr,
 		Weight:      weightPtr,
 		IsActive:    isActive,
