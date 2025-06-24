@@ -42,6 +42,9 @@ export default function AdminProductsPage() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  // DEPURACIÓN: log de token y autenticación
+  console.log('ADMIN PRODUCTS PAGE - token:', token);
+
   const fetchProducts = useCallback(async () => {
     if (!token) return;
     setLoading(true);
