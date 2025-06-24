@@ -505,7 +505,6 @@ function ProductosContent() {
                                   onClick={() => setSelectedModel({ path: product.model_url || '', name: product.name })}
                                   className="p-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   aria-label="Ver en 3D"
-                                  disabled={!product.model_url}
                                 >
                                   <Orbit className="w-5 h-5" />
                                 </button>
@@ -577,9 +576,8 @@ function ProductosContent() {
                                 )}
                                 <button
                                   onClick={() => setSelectedModel({ path: product.model_url || '', name: product.name })}
-                                  className="p-2 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="p-2 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   aria-label="Ver en 3D"
-                                  disabled={!product.model_url}
                                 >
                                   <Orbit className="w-5 h-5" />
                                 </button>
@@ -656,7 +654,14 @@ function ProductosContent() {
       </div>
       
       {/* 3D Model Viewer Modal */}
-      {selectedModel && <ModelViewerModal modelPath={selectedModel.path} productName={selectedModel.name} onClose={() => setSelectedModel(null)} />}
+      {selectedModel && (
+        <ModelViewerModal 
+          modelPath={selectedModel.path} 
+          productName={selectedModel.name} 
+          onClose={() => setSelectedModel(null)}
+          noModelMessage={!selectedModel.path ? "Este producto no tiene un modelo 3D disponible." : undefined}
+        />
+      )}
     </div>
   );
 }

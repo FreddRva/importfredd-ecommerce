@@ -7,9 +7,10 @@ interface ModelViewerModalProps {
   modelPath: string;
   productName: string;
   onClose: () => void;
+  noModelMessage?: string;
 }
 
-export default function ModelViewerModal({ modelPath, productName, onClose }: ModelViewerModalProps) {
+export default function ModelViewerModal({ modelPath, productName, onClose, noModelMessage }: ModelViewerModalProps) {
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl relative animate-fade-in-scale">
@@ -22,12 +23,16 @@ export default function ModelViewerModal({ modelPath, productName, onClose }: Mo
         </button>
 
         <div className="p-6">
-          <Product3DViewer 
-            productName={productName} 
-            modelPath={modelPath} 
-            width={800}
-            height={600}
-          />
+          {noModelMessage ? (
+            <div className="text-center text-gray-600 text-lg py-24">{noModelMessage}</div>
+          ) : (
+            <Product3DViewer 
+              productName={productName} 
+              modelPath={modelPath} 
+              width={800}
+              height={600}
+            />
+          )}
         </div>
       </div>
     </div>
