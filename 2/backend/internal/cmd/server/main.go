@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"time"
@@ -58,7 +59,8 @@ func main() {
 	})
 	router.GET("/health", func(c *gin.Context) {
 		// Verificar conexión a la base de datos
-		if err := db.Pool.Ping(); err != nil {
+		ctx := context.Background()
+		if err := db.Pool.Ping(ctx); err != nil {
 			c.JSON(503, gin.H{
 				"status":    "unhealthy",
 				"error":     "Database connection failed",
