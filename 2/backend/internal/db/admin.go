@@ -311,23 +311,20 @@ func UpdateCategory(db *pgxpool.Pool, category *models.Category) (*models.Catego
 // DeleteCategory elimina una categoría (soft delete)
 func DeleteCategory(db *pgxpool.Pool, categoryID int) error {
 	query := `UPDATE categories SET is_active = false, updated_at = NOW() WHERE id = $1`
-
 	_, err := db.Exec(context.Background(), query, categoryID)
 	if err != nil {
 		return fmt.Errorf("error eliminando categoría: %v", err)
 	}
-
 	return nil
 }
 
-// GetAllCategories obtiene todas las categorías activas
+// GetAllCategories obtiene todas las categorías
 func GetAllCategories(db *pgxpool.Pool) ([]models.Category, error) {
 	query := `
-		SELECT id, name, description, image_url, parent_id, is_active, created_at, updated_at
-		FROM categories
+		SELECT id, name, description, image_url, parent_id, is_active, created_at, updated_at 
+		FROM categories 
 		ORDER BY name ASC
 	`
-
 	rows, err := db.Query(context.Background(), query)
 	if err != nil {
 		return nil, fmt.Errorf("error obteniendo categorías: %v", err)
@@ -431,7 +428,6 @@ func GetAllUsers(db *pgxpool.Pool) ([]models.User, error) {
 	query := `
 		SELECT id, email, nombre, apellido, telefono, avatar, is_admin, is_verified, is_active, created_at, updated_at
 		FROM users
-		WHERE is_active = true
 		ORDER BY created_at DESC
 	`
 	rows, err := db.Query(context.Background(), query)

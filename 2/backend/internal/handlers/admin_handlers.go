@@ -342,6 +342,10 @@ func (h *AdminHandler) GetAllProducts(c *gin.Context) {
 		return
 	}
 
+	if products == nil {
+		products = []models.Product{}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"products": products,
 		"total":    total,
