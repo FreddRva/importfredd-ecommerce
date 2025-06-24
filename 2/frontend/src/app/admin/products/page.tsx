@@ -222,14 +222,12 @@ export default function AdminProductsPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Gestión de Productos</h1>
-        {!isCreating && !currentProduct && (
-          <button
-            onClick={handleAddNew}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
-          >
-            <PlusCircle size={16} /> Nuevo Producto
-          </button>
-        )}
+        <button
+          onClick={handleAddNew}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+        >
+          <PlusCircle size={16} /> Nuevo Producto
+        </button>
       </div>
 
       {isCreating || currentProduct ? (
