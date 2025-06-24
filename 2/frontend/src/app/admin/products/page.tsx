@@ -29,7 +29,7 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     setLoadingProducts(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(`${API_BASE_URL}/admin/products`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -70,7 +70,7 @@ export default function AdminProductsPage() {
   const handleDelete = async (id: number) => {
     if (confirm("¿Estás seguro de que quieres eliminar este producto?")) {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
         const res = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
           method: "DELETE",
           headers: {
@@ -92,7 +92,7 @@ export default function AdminProductsPage() {
 
   const handleToggleFeatured = async (id: number, featured: boolean) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       // Obtener datos actuales del producto
       const resGet = await fetch(`${API_BASE_URL}/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
