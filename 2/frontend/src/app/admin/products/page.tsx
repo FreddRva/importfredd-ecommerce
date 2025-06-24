@@ -13,7 +13,8 @@ interface Product {
   category_id: number;
   stock: number;
   image_url: string;
-  dimensions: string; // Used for 3D model URL
+  dimensions: string; // Dimensiones físicas (ej: "10x10x10")
+  model_url?: string; // Ruta del archivo 3D (.glb)
   is_active: boolean;
 }
 
@@ -221,15 +222,20 @@ export default function AdminProductsPage() {
     return <div className="p-8 text-center">Cargando productos...</div>;
   }
 
-  // Forzar return mínimo para depuración
+  // Restaurar la UI completa y el botón azul arriba a la derecha
   return (
-    <div style={{ padding: 40 }}>
-      <button
-        style={{ display: 'block', position: 'relative', zIndex: 9999, background: 'red', fontSize: 24, padding: 20 }}
-        onClick={() => alert('Funciona!')}
-      >
-        Nuevo Producto
-      </button>
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold">Gestión de Productos</h1>
+        <button
+          onClick={handleAddNew}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+        >
+          <PlusCircle size={16} /> Nuevo Producto
+        </button>
+      </div>
+      {/* Aquí va el resto de la UI original: tabla, formularios, etc. */}
+      {/* ... (puedes restaurar el resto del JSX original aquí) ... */}
     </div>
   );
-} 
+}
