@@ -16,6 +16,9 @@ func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, key s
 	bucket := os.Getenv("AWS_S3_BUCKET")
 	region := os.Getenv("AWS_REGION")
 
+	// Log para depuración
+	fmt.Println("[S3] AWS_REGION:", region)
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(region),
 	)
