@@ -435,7 +435,7 @@ function ProductosContent() {
                           <Link href={`/productos/${product.id}`} className="block">
                             <div className="relative aspect-square w-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                               <img 
-                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `${API_BASE_URL}${product.image_url}`) : "/placeholder.png"} 
+                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                               />
@@ -502,9 +502,13 @@ function ProductosContent() {
                                   Añadir
                                 </button>
                                 <button 
-                                  onClick={() => setSelectedModel({ path: product.model_url || `/uploads/1750571279467126500_Zapatillas.glb`, name: product.name })} 
+                                  onClick={() => setSelectedModel({ 
+                                    path: product.model_url || '', 
+                                    name: product.name 
+                                  })} 
                                   className="p-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   aria-label="Ver en 3D"
+                                  disabled={!product.model_url}
                                 >
                                   <Orbit className="w-5 h-5" />
                                 </button>
@@ -518,7 +522,7 @@ function ProductosContent() {
                           <Link href={`/productos/${product.id}`} className="block sm:w-48 sm:h-48 w-full h-48 flex-shrink-0">
                             <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
                               <img 
-                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `${API_BASE_URL}${product.image_url}`) : "/placeholder.png"} 
+                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover" 
                               />
@@ -575,9 +579,13 @@ function ProductosContent() {
                                   </button>
                                 )}
                                 <button 
-                                  onClick={() => setSelectedModel({ path: product.model_url || `/uploads/1750571279467126500_Zapatillas.glb`, name: product.name })} 
-                                  className="p-2 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                  onClick={() => setSelectedModel({ 
+                                    path: product.model_url || '', 
+                                    name: product.name 
+                                  })} 
+                                  className="p-2 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                                   aria-label="Ver en 3D"
+                                  disabled={!product.model_url}
                                 >
                                   <Orbit className="w-5 h-5" />
                                 </button>

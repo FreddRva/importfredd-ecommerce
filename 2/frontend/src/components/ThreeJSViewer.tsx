@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -18,10 +18,16 @@ export default function ThreeJSViewer({
 }: ThreeJSViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!mountRef.current || isInitialized.current) return;
     isInitialized.current = true;
+
+    console.log('🚀 Iniciando ThreeJSViewer con modelPath:', modelPath);
+    setLoading(true);
+    setError(null);
 
     let model: THREE.Object3D;
 
@@ -58,15 +64,20 @@ export default function ThreeJSViewer({
     scene.add(directionalLight);
 
     // 6. Model Loading
+    console.log('📦 Intentando cargar modelo desde:', modelPath);
     const loader = new GLTFLoader();
     loader.load(
       modelPath,
       (gltf) => {
+        console.log('✅ Modelo cargado exitosamente:', gltf);
         model = gltf.scene;
         
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
+        
+        console.log('📏 Dimensiones del modelo:', size);
+        console.log('🎯 Centro del modelo:', center);
         
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = camera.fov * (Math.PI / 180);
@@ -89,11 +100,16 @@ export default function ThreeJSViewer({
         controls.target.copy(center);
         controls.update();
 
-        console.log('Modelo cargado, centrado y controles actualizados.');
+        setLoading(false);
+        console.log('🎉 Modelo cargado, centrado y controles actualizados.');
       },
-      undefined,
+      (progress) => {
+        console.log('📊 Progreso de carga:', (progress.loaded / progress.total * 100).toFixed(2) + '%');
+      },
       (error) => {
-        console.error('An error happened during loading:', error);
+        console.error('❌ Error cargando modelo:', error);
+        setError(`Error cargando modelo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+        setLoading(false);
       }
     );
 
@@ -115,6 +131,7 @@ export default function ThreeJSViewer({
 
     // 9. Cleanup
     return () => {
+      console.log('🧹 Limpiando ThreeJSViewer');
       window.removeEventListener('resize', handleResize);
       if (mountRef.current && renderer.domElement) {
         mountRef.current.removeChild(renderer.domElement);
@@ -127,9 +144,35 @@ export default function ThreeJSViewer({
     };
   }, [modelPath, width, height]);
 
+  if (error) {
+    return (
+      <div className="threejs-viewer relative" style={{ width, height }}>
+        <div className="w-full h-full flex items-center justify-center bg-red-50 border border-red-200 rounded-lg">
+          <div className="text-center p-4">
+            <div className="text-red-500 mb-2">
+              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <p className="text-red-700 font-medium">Error al cargar modelo</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="threejs-viewer relative" style={{ width, height }}>
       <div ref={mountRef} />
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-sm text-gray-600">Cargando modelo 3D...</p>
+          </div>
+        </div>
+      )}
       <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-white/50 p-1 rounded">
         <span>Modelo 3D. Usa el mouse para interactuar.</span>
       </div>

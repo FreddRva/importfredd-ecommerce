@@ -401,7 +401,7 @@ export default function MiCuentaPage() {
                       <div key={product.id} className="group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all">
                         <Link href={`/productos/${product.id}`} className="block">
                           <div className="w-full h-56 bg-gray-200 flex items-center justify-center overflow-hidden relative">
-                            <img src={product.image_url ? `${API_BASE_URL}${product.image_url}` : "/placeholder.png"} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <img src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                           </div>
                           <div className="p-4">
                             <h3 className="text-lg font-semibold text-gray-900 truncate">{product.name}</h3>
@@ -563,7 +563,7 @@ export default function MiCuentaPage() {
             <ul className="mb-4 divide-y divide-gray-200">
               {selectedOrder.items.map(item => (
                 <li key={item.id} className="py-2 flex items-center gap-3">
-                  {item.image_url && <img src={`${API_BASE_URL}${item.image_url}`} alt={item.name} className="w-12 h-12 object-cover rounded" />}
+                  {item.image_url && <img src={item.image_url.startsWith('http') ? item.image_url : item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded" />}
                   <div>
                     <div className="font-medium">{item.name}</div>
                     <div className="text-xs text-gray-500">Cantidad: {item.quantity} &bull; Precio: {selectedOrder.currency} {item.price.toFixed(2)}</div>

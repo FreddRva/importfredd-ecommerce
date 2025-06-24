@@ -112,13 +112,13 @@ export default function ProductDetailPage() {
             <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden relative">
               {product.model_url ? (
                 <ThreeJSViewer 
-                  modelPath={product.model_url.startsWith('http') ? product.model_url : `${API_BASE_URL}${product.model_url}`}
+                  modelPath={product.model_url.startsWith('http') ? product.model_url : product.model_url}
                   width={600}
                   height={600}
                 />
               ) : (
                 <img
-                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `${API_BASE_URL}${product.image_url}`) : "/placeholder.png"}
+                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

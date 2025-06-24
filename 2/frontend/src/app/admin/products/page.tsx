@@ -126,7 +126,7 @@ export default function AdminProductsPage() {
     resetFormState();
     setCurrentProduct(product);
     if(product.image_url) {
-      setImagePreview(product.image_url.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`);
+      setImagePreview(product.image_url.startsWith('http') ? product.image_url : product.image_url);
     }
   };
   
