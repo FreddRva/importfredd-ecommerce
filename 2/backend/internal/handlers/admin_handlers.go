@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -82,6 +83,9 @@ func (h *AdminHandler) CreateProduct(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando imagen"})
 				return
 			}
+			// LOG para depuración: mostrar ruta real y cwd
+			cwd, _ := os.Getwd()
+			log.Printf("Imagen guardada en: %s (cwd: %s)", imagePath, cwd)
 			url := "/" + imagePath
 			imageURL = &url
 		}
