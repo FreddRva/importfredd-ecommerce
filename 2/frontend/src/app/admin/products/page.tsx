@@ -222,6 +222,9 @@ export default function AdminProductsPage() {
     }
   };
 
+  const safeProducts = Array.isArray(products) ? products : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
   if (typeof window !== "undefined" && !token) {
     return <div className="p-8 text-center">Cargando autenticación...</div>;
   }
@@ -255,11 +258,11 @@ export default function AdminProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {safeProducts.map((product) => (
               <tr key={product.id} className="border-t">
                 <td className="px-4 py-2">{product.id}</td>
                 <td className="px-4 py-2">{product.name}</td>
-                <td className="px-4 py-2">{categories.find(c => c.id === product.category_id)?.name || '-'}</td>
+                <td className="px-4 py-2">{safeCategories.find(c => c.id === product.category_id)?.name || '-'}</td>
                 <td className="px-4 py-2">${product.price}</td>
                 <td className="px-4 py-2">{product.stock}</td>
                 <td className="px-4 py-2">{product.is_active ? 'Sí' : 'No'}</td>
@@ -296,7 +299,7 @@ export default function AdminProductsPage() {
             <label className="block mb-1">Categoría</label>
             <select name="category_id" value={currentProduct?.category_id || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required>
               <option value="">Selecciona una categoría</option>
-              {categories.map(cat => (
+              {safeCategories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
