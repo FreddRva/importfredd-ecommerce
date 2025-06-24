@@ -435,7 +435,7 @@ function ProductosContent() {
                           <Link href={`/productos/${product.id}`} className="block">
                             <div className="relative aspect-square w-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                               <img 
-                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"} 
+                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                               />
@@ -522,7 +522,7 @@ function ProductosContent() {
                           <Link href={`/productos/${product.id}`} className="block sm:w-48 sm:h-48 w-full h-48 flex-shrink-0">
                             <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden relative">
                               <img 
-                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"} 
+                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"} 
                                 alt={product.name} 
                                 className="w-full h-full object-cover" 
                               />

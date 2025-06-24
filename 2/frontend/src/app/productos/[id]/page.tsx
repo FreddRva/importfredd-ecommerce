@@ -48,6 +48,8 @@ export default function ProductDetailPage() {
           }
           const data = await res.json();
           setProduct(data);
+          console.log('🔍 Product loaded:', data);
+          console.log('🔍 Product model_url:', data.model_url);
         } catch (err: any) {
           setError(err.message);
         } finally {
@@ -112,13 +114,13 @@ export default function ProductDetailPage() {
             <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden relative">
               {product.model_url ? (
                 <ThreeJSViewer 
-                  modelPath={product.model_url.startsWith('http') ? product.model_url : product.model_url}
+                  modelPath={product.model_url}
                   width={600}
                   height={600}
                 />
               ) : (
                 <img
-                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "/placeholder.png"}
+                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
