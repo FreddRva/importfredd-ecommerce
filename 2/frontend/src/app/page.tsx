@@ -43,7 +43,8 @@ export default function HomePage() {
       setLoadingFeatured(true);
       setErrorFeatured("");
       try {
-        const res = await fetch('http://localhost:8080/products?featured=true&limit=4');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const res = await fetch(`${apiUrl}/products?featured=true&limit=4`);
         if (!res.ok) throw new Error("Error al cargar productos destacados");
         const data = await res.json();
         setFeaturedProducts(data.products || []);
