@@ -67,11 +67,6 @@ func createTables() error {
 		return fmt.Errorf("error creating users table: %w", err)
 	}
 
-	// Agregar columnas nuevas si no existen (para migración)
-	if err := addNewColumnsIfNotExist(); err != nil {
-		return fmt.Errorf("error adding new columns: %w", err)
-	}
-
 	// Añadir la columna is_active a la tabla de usuarios si no existe
 	isUserActiveColumn := `
 	DO $$
@@ -316,6 +311,11 @@ func createTables() error {
 		if err != nil {
 			return fmt.Errorf("error creating index: %w", err)
 		}
+	}
+
+	// Agregar columnas nuevas si no existen (para migración)
+	if err := addNewColumnsIfNotExist(); err != nil {
+		return fmt.Errorf("error adding new columns: %w", err)
 	}
 
 	fmt.Println("Tablas creadas/verificadas exitosamente")
