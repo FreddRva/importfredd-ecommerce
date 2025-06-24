@@ -40,5 +40,9 @@ func UploadFileToS3(file multipart.File, fileHeader *multipart.FileHeader, key s
 
 	// URL pública del archivo
 	url := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucket, region, key)
+
+	// Log para depuración
+	fmt.Println("[S3] URL generada:", url)
+
 	return url, nil
 }
