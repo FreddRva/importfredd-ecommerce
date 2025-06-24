@@ -117,7 +117,7 @@ export default function ProductDetailPage() {
                 />
               ) : (
                 <img
-                  src={`${API_BASE_URL}${product.image_url}`}
+                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `${API_BASE_URL}${product.image_url}`) : "/placeholder.png"}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
