@@ -350,11 +350,14 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 	delete(sessionStore, user.Email)
 
 	userResponse := gin.H{
-		"id":       user.ID,
-		"email":    user.Email,
-		"is_admin": user.IsAdmin,
+		"id":          user.ID,
+		"email":       user.Email,
+		"is_admin":    user.IsAdmin,
+		"is_verified": user.IsVerified,
+		"is_active":   user.IsActive,
 	}
 	c.JSON(http.StatusOK, gin.H{
+		"success":       true,
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 		"user":          userResponse,
