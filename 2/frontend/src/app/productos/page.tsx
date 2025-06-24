@@ -25,6 +25,7 @@ interface Product {
   image_url?: string;
   created_at: string;
   category_name?: string;
+  model_url?: string;
 }
 
 interface Category {
@@ -501,7 +502,7 @@ function ProductosContent() {
                                   Añadir
                                 </button>
                                 <button 
-                                  onClick={() => setSelectedModel({ path: `/uploads/1750571279467126500_Zapatillas.glb`, name: product.name })} 
+                                  onClick={() => setSelectedModel({ path: product.model_url || `/uploads/1750571279467126500_Zapatillas.glb`, name: product.name })} 
                                   className="p-3 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   aria-label="Ver en 3D"
                                 >
@@ -574,7 +575,7 @@ function ProductosContent() {
                                   </button>
                                 )}
                                 <button 
-                                  onClick={() => setSelectedModel({ path: `/uploads/1750571279467126500_Zapatillas.glb`, name: product.name })} 
+                                  onClick={() => setSelectedModel({ path: product.model_url || `/uploads/1750571279467126500_Zapatillas.glb`, name: product.name })} 
                                   className="p-2 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                   aria-label="Ver en 3D"
                                 >
