@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Filter, Grid, List, Star, ShoppingCart, Eye, Heart, Orbit, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -34,6 +34,14 @@ interface Category {
 const MAX_RECENT_SEARCHES = 5;
 
 export default function ProductosPage() {
+  return (
+    <Suspense fallback={<div>Cargando productos...</div>}>
+      <ProductosContent />
+    </Suspense>
+  );
+}
+
+function ProductosContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
