@@ -25,6 +25,8 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
 
   const fetchProducts = async () => {
     setLoadingProducts(true);
@@ -146,74 +148,102 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Administrar Productos</h1>
-        <button
-          onClick={() => router.push("/admin/products/new")}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
-        >
-          <PlusCircle size={16} /> Nuevo Producto
-        </button>
-      </div>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destacado</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {products.map((product) => (
-              <tr key={product.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{product.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{product.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">${product.price.toFixed(2)}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{product.stock}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                   {product.is_active ? (
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Sí
-                    </span>
-                  ) : (
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                      No
-                    </span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <input
-                    type="checkbox"
-                    checked={!!product.featured}
-                    onChange={e => handleToggleFeatured(product.id, e.target.checked)}
-                    className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                  />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => router.push(`/admin/products/edit/${product.id}`)}
-                    className="text-blue-600 hover:text-blue-800 mr-4"
-                  >
-                    <Edit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Administrar Productos</h1>
+
+      {/* Botón para agregar nuevo producto */}
+      {!isCreating && (
+         <button
+           onClick={() => {
+             setIsCreating(true);
+             setCurrentProduct(null);
+           }}
+           className="mb-4 bg-green-500 text-white px-4 py-2 rounded"
+         >
+           Agregar Nuevo Producto
+         </button>
+      )}
+
+      {isCreating || currentProduct ? (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Formulario de Producto</h2>
+          <form>
+            {/* Rest of the form fields */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsCreating(false);
+                setCurrentProduct(null);
+              }}
+              className="bg-gray-500 text-white px-4 py-2 rounded"
+            >
+              Cancelar
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Lista de Productos</h2>
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <table className="min-w-full">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activo</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destacado</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {products.map((product) => (
+                  <tr key={product.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">{product.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{product.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">${product.price.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{product.stock}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       {product.is_active ? (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Sí
+                        </span>
+                      ) : (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                          No
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <input
+                        type="checkbox"
+                        checked={!!product.featured}
+                        onChange={e => handleToggleFeatured(product.id, e.target.checked)}
+                        className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => router.push(`/admin/products/edit/${product.id}`)}
+                        className="text-blue-600 hover:text-blue-800 mr-4"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
