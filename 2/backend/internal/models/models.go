@@ -110,7 +110,8 @@ type Product struct {
 	Stock        int       `json:"stock"`
 	SKU          *string   `json:"sku,omitempty"`
 	Weight       *float64  `json:"weight,omitempty"`
-	Dimensions   *string   `json:"dimensions,omitempty"`
+	Dimensions   *string   `json:"dimensions,omitempty"` // Dimensiones físicas (ej: "10x10x10")
+	ModelURL     *string   `json:"model_url,omitempty"`  // Ruta del archivo 3D (.glb)
 	IsActive     bool      `json:"is_active"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
