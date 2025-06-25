@@ -143,20 +143,22 @@ type CartItem struct {
 
 // Address representa una dirección
 type Address struct {
-	ID         int    `json:"id"`
-	UserID     int    `json:"user_id"`
-	Type       string `json:"type"` // shipping, billing
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	Company    string `json:"company,omitempty"`
-	Address1   string `json:"address1"`
-	Address2   string `json:"address2,omitempty"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	PostalCode string `json:"postal_code"`
-	Country    string `json:"country"`
-	Phone      string `json:"phone"`
-	IsDefault  bool   `json:"is_default"`
+	ID         int     `json:"id"`
+	UserID     int     `json:"user_id"`
+	Type       string  `json:"type"`
+	FirstName  string  `json:"first_name"`
+	LastName   string  `json:"last_name"`
+	Company    string  `json:"company,omitempty"`
+	Address1   string  `json:"address1"`
+	Address2   string  `json:"address2,omitempty"`
+	City       string  `json:"city"`
+	State      string  `json:"state"`
+	PostalCode string  `json:"postal_code"`
+	Country    string  `json:"country"`
+	Phone      string  `json:"phone"`
+	IsDefault  bool    `json:"is_default"`
+	Lat        float64 `json:"lat,omitempty"`
+	Lng        float64 `json:"lng,omitempty"`
 }
 
 // Order representa un pedido

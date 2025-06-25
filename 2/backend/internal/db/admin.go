@@ -581,3 +581,25 @@ func ensureTrackingColumn(db *pgxpool.Pool) error {
 	}
 	return nil
 }
+
+// CreateAddress inserta una nueva dirección para un usuario
+func CreateAddress(ctx context.Context, address *models.Address) error {
+	query := `INSERT INTO addresses (user_id, type, first_name, last_name, company, address1, address2, city, state, postal_code, country, phone, is_default, lat, lng) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id`
+	return Pool.QueryRow(ctx, query,
+		address.UserID,
+		address.Type,
+		address.FirstName,
+		address.LastName,
+		address.Company,
+		address.Address1,
+		address.Address2,
+		address.City,
+		address.State,
+		address.PostalCode,
+		address.Country,
+		address.Phone,
+		address.IsDefault,
+		address.Lat,
+		address.Lng,
+	).Scan(&address.ID)
+}
