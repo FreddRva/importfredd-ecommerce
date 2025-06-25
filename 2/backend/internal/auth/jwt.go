@@ -3,12 +3,21 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte("mi_secreto_super_seguro") // en prod usa env
+// Obtener JWT secret desde variable de entorno
+func getJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		// Fallback para desarrollo, pero debería estar configurado en producción
+		secret = "mi_secreto_super_seguro_dev_only"
+	}
+	return []byte(secret)
+}
 
 // Genera un token JWT válido por 15 minutos
 func GenerateJWT(userID int, email string) (string, error) {
@@ -19,7 +28,7 @@ func GenerateJWT(userID int, email string) (string, error) {
 		"type":    "access",
 	})
 
-	return token.SignedString(jwtSecret)
+	return token.SignedString(getJWTSecret())
 }
 
 // Genera un token JWT válido por 1 minuto (para pruebas de expiración)
@@ -31,7 +40,7 @@ func GenerateShortJWT(userID int, email string) (string, error) {
 		"type":    "access",
 	})
 
-	return token.SignedString(jwtSecret)
+	return token.SignedString(getJWTSecret())
 }
 
 // Genera un refresh token aleatorio
@@ -46,7 +55,7 @@ func GenerateRefreshToken() (string, error) {
 // Valida un token JWT y retorna los claims
 func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+		return getJWTSecret(), nil
 	})
 
 	if err != nil {
@@ -77,7 +86,7 @@ func GenerateTokens(userID int, email string, isAdmin bool) (accessToken string,
 		"exp":      time.Now().Add(15 * time.Minute).Unix(),
 		"type":     "access",
 	}
-	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString(jwtSecret)
+	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString(getJWTSecret())
 	if err != nil {
 		return "", "", err
 	}
@@ -88,7 +97,7 @@ func GenerateTokens(userID int, email string, isAdmin bool) (accessToken string,
 		"exp":     time.Now().Add(7 * 24 * time.Hour).Unix(),
 		"type":    "refresh",
 	}
-	refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(jwtSecret)
+	refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(getJWTSecret())
 	if err != nil {
 		return "", "", err
 	}
