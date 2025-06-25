@@ -67,6 +67,17 @@ export default function MiCuentaPage() {
   const [selectedAddress, setSelectedAddress] = useState<{ address: string; lat: number; lng: number } | null>(null);
   const [addressSaved, setAddressSaved] = useState(false);
   const [addressError, setAddressError] = useState<string | null>(null);
+  const [addressForm, setAddressForm] = useState({
+    first_name: '',
+    last_name: '',
+    phone: '',
+    address2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: '',
+    is_default: true,
+  });
 
   const handleLogout = () => {
     logout();
@@ -129,6 +140,14 @@ export default function MiCuentaPage() {
     }
   };
 
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setAddressForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' && e.target instanceof HTMLInputElement ? e.target.checked : value,
+    }));
+  };
+
   const handleSaveAddress = async () => {
     setAddressError(null);
     setAddressSaved(false);
@@ -142,17 +161,17 @@ export default function MiCuentaPage() {
         },
         body: JSON.stringify({
           type: 'shipping',
-          first_name: '',
-          last_name: '',
+          first_name: addressForm.first_name,
+          last_name: addressForm.last_name,
           company: '',
           address1: selectedAddress.address,
-          address2: '',
-          city: '',
-          state: '',
-          postal_code: '',
-          country: '',
-          phone: '',
-          is_default: true,
+          address2: addressForm.address2,
+          city: addressForm.city,
+          state: addressForm.state,
+          postal_code: addressForm.postal_code,
+          country: addressForm.country,
+          phone: addressForm.phone,
+          is_default: addressForm.is_default,
           lat: selectedAddress.lat,
           lng: selectedAddress.lng,
         }),
@@ -497,30 +516,79 @@ export default function MiCuentaPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Mis Direcciones</h2>
                 </div>
-                <div className="mb-6">
-                  <AddressMapPicker
-                    apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
-                    onChange={setSelectedAddress}
-                  />
-                  <button
-                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    disabled={!selectedAddress}
-                    onClick={handleSaveAddress}
-                  >
-                    Guardar Dirección
-                  </button>
-                  {addressSaved && selectedAddress && !addressError && (
-                    <div className="mt-4 p-3 bg-green-100 text-green-800 rounded">
-                      Dirección guardada:<br />
-                      <strong>{selectedAddress.address}</strong><br />
-                      <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
+                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <AddressMapPicker
+                      apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
+                      onChange={setSelectedAddress}
+                    />
+                    <div className="mt-2 text-xs text-gray-500">
+                      Selecciona la ubicación en el mapa o busca tu dirección exacta.
                     </div>
-                  )}
-                  {addressError && (
-                    <div className="mt-4 p-3 bg-red-100 text-red-800 rounded">
-                      {addressError}
+                  </div>
+                  <form className="space-y-3" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Nombre</label>
+                        <input type="text" name="first_name" value={addressForm.first_name} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Apellidos</label>
+                        <input type="text" name="last_name" value={addressForm.last_name} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                      </div>
                     </div>
-                  )}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Teléfono</label>
+                      <input type="tel" name="phone" value={addressForm.phone} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Dirección 2 (opcional)</label>
+                      <input type="text" name="address2" value={addressForm.address2} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Ciudad</label>
+                        <input type="text" name="city" value={addressForm.city} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Estado/Provincia</label>
+                        <input type="text" name="state" value={addressForm.state} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Código Postal</label>
+                        <input type="text" name="postal_code" value={addressForm.postal_code} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">País</label>
+                        <input type="text" name="country" value={addressForm.country} onChange={handleFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" name="is_default" checked={addressForm.is_default} onChange={handleFormChange} />
+                      <label className="text-sm">Marcar como dirección principal</label>
+                    </div>
+                    <button
+                      type="submit"
+                      className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full"
+                      disabled={!selectedAddress}
+                    >
+                      Guardar Dirección
+                    </button>
+                    {addressSaved && selectedAddress && !addressError && (
+                      <div className="mt-4 p-3 bg-green-100 text-green-800 rounded">
+                        Dirección guardada:<br />
+                        <strong>{selectedAddress.address}</strong><br />
+                        <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
+                      </div>
+                    )}
+                    {addressError && (
+                      <div className="mt-4 p-3 bg-red-100 text-red-800 rounded">
+                        {addressError}
+                      </div>
+                    )}
+                  </form>
                 </div>
                 {/* Aquí puedes mostrar la lista de direcciones guardadas del usuario */}
                 {/* ... */}
