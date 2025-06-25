@@ -155,7 +155,7 @@ export default function CheckoutPage() {
 
       const result = await response.json();
       if (result.success) {
-        setStep('success');
+        setStep('review');
         clearLocalCart();
       } else {
         alert('Error en el pago: ' + (result.error || 'Error desconocido'));
@@ -485,6 +485,26 @@ export default function CheckoutPage() {
                   />
                 </div>
               )}
+
+              {step === 'review' && order && (
+                <div className="text-center p-8">
+                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Pago realizado con éxito!</h2>
+                  <p className="text-gray-700 mb-6">Revisa los detalles de tu pedido antes de finalizar.</p>
+                  <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left max-w-lg mx-auto">
+                    <h3 className="font-semibold mb-2">Pedido #{order.orderNumber}</h3>
+                    <p className="mb-1">Total: {order.currency} {(order.total).toFixed(2)}</p>
+                    <p className="mb-1">Estado: {order.status}</p>
+                    <p className="mb-1">Fecha: {new Date(order.createdAt).toLocaleString()}</p>
+                  </div>
+                  <button
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    onClick={() => setStep('success')}
+                  >
+                    Finalizar compra
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -543,6 +563,17 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
+
+        {step === 'success' && (
+          <div className="text-center p-8">
+            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Gracias por tu compra!</h2>
+            <p className="text-gray-700 mb-6">Tu pedido ha sido procesado correctamente. Te enviaremos un correo con los detalles.</p>
+            <Link href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              Volver al inicio
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
