@@ -79,7 +79,8 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ product_id: productId }),
       });
 
-      setFavorites(prev => [...prev, productId]);
+      // Refrescar desde la API para evitar duplicados y mantener sincronía
+      await fetchFavoritesFromAPI();
     } catch (error) {
       console.error('Error adding favorite:', error);
     }
@@ -90,7 +91,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!isAuthenticated || !token) return;
 
-      const res = await fetch(`${API_BASE_URL}/api/favorites`, {
+      await fetch(`${API_BASE_URL}/api/favorites`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -99,9 +100,8 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
         body: JSON.stringify({ product_id: productId }),
       });
 
-      if (res.ok) {
-        setFavorites(prev => prev.filter(id => id !== productId));
-      }
+      // Refrescar desde la API para asegurar que se eliminó
+      await fetchFavoritesFromAPI();
     } catch (error) {
       console.error('Error removing favorite:', error);
     }
