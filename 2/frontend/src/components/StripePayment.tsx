@@ -153,6 +153,7 @@ const StripePayment: React.FC<StripePaymentProps> = ({
             amount: amount,
             currency: 'usd',
             order_id: orderId,
+            customer_email: customerEmail,
           }),
         });
 
