@@ -51,7 +51,7 @@ interface OrderDetail extends Order {
 }
 
 export default function MiCuentaPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
   const { favorites, removeFavorite, isFavorite } = useFavorites();
@@ -85,16 +85,23 @@ export default function MiCuentaPage() {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+      setOrdersLoading(true);
+      setOrdersError("");
       const res = await fetch(`${API_BASE_URL}/api/orders`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
+      } else {
+        setOrdersError("No se pudieron cargar los pedidos.");
       }
     } catch (err) {
+      setOrdersError("Error al cargar pedidos");
       console.error('Error fetching orders:', err);
+    } finally {
+      setOrdersLoading(false);
     }
   };
 
@@ -118,9 +125,9 @@ export default function MiCuentaPage() {
   }, [favorites]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !token) return;
     fetchOrders();
-  }, [user]);
+  }, [user, token]);
 
   const handleOrderClick = async (orderId: number) => {
     setDetailLoading(true);
