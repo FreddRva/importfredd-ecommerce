@@ -306,7 +306,7 @@ export default function MiCuentaPage() {
 
           {/* Main Content Premium */}
           <div className="lg:col-span-3 animate-fade-in-premium">
-            {/* Aquí van los tabs, cada uno con glass, gradientes, tablas y formularios mejorados, cards apiladas en móvil, etc. */}
+            {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
                 <div className="flex items-center justify-between mb-8">
@@ -341,97 +341,314 @@ export default function MiCuentaPage() {
                 </div>
               </div>
             )}
+
+            {/* Orders Tab */}
             {activeTab === 'orders' && (
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Mis Pedidos</h2>
-                  <button className="flex items-center text-violet-600 hover:text-violet-800 font-bold transition-colors">
-                    Ver Todos
-                  </button>
-                </div>
-                {/* Contenido del tab de pedidos */}
+                <h2 className="text-2xl font-black text-slate-900 mb-6">Mis Pedidos</h2>
+                {ordersLoading ? (
+                  <div className="text-center py-12 text-slate-500">Cargando...</div>
+                ) : ordersError ? (
+                  <div className="text-center py-12 text-red-500">{ordersError}</div>
+                ) : orders.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500">No tienes pedidos aún.</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-slate-100 to-gray-100">
+                          <th className="px-4 py-3 font-bold text-slate-700">#</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Fecha</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Total</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Estado</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Pago</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Tracking</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order) => (
+                          <tr key={order.id} className="border-t hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => handleOrderClick(order.id)}>
+                            <td className="px-4 py-3 font-mono font-bold">{order.order_number}</td>
+                            <td className="px-4 py-3">{new Date(order.created_at).toLocaleString()}</td>
+                            <td className="px-4 py-3 font-bold">{order.currency} {order.total.toFixed(2)}</td>
+                            <td className="px-4 py-3">
+                              <span className={`px-3 py-1 rounded-full text-sm font-bold ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                            </td>
+                            <td className="px-4 py-3">{order.payment_status}</td>
+                            <td className="px-4 py-3">{order.tracking || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Wishlist Tab */}
             {activeTab === 'wishlist' && (
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Lista de Deseos</h2>
-                  <button className="flex items-center text-violet-600 hover:text-violet-800 font-bold transition-colors">
-                    Ver Todos
-                  </button>
-                </div>
-                {/* Contenido del tab de lista de deseos */}
+                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
+                  <Heart className="w-7 h-7 text-red-500" fill="currentColor" /> Lista de Deseos
+                </h2>
+                {favLoading ? (
+                  <div className="text-center py-12 text-slate-500">Cargando...</div>
+                ) : favProducts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">Tu lista de deseos está vacía</h3>
+                    <p className="text-slate-500 mb-6">
+                      Guarda productos que te gusten para comprarlos más tarde
+                    </p>
+                    <Link 
+                      href="/productos"
+                      className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                    >
+                      Explorar Productos
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-slate-100 to-gray-100">
+                          <th className="px-4 py-3 font-bold text-slate-700">Imagen</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Nombre</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Categoría</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Precio</th>
+                          <th className="px-4 py-3 font-bold text-slate-700">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {favProducts.filter(product => favorites.includes(product.id)).map((product) => (
+                          <tr key={product.id} className="border-t hover:bg-slate-50 transition-colors">
+                            <td className="px-4 py-3">
+                              <img src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"} alt={product.name} className="w-12 h-12 object-cover rounded-lg" />
+                            </td>
+                            <td className="px-4 py-3 font-bold">
+                              <Link href={`/productos/${product.id}`} className="text-violet-600 hover:text-violet-800">{product.name}</Link>
+                            </td>
+                            <td className="px-4 py-3">{product.category_name}</td>
+                            <td className="px-4 py-3 font-bold">${product.price.toFixed(2)}</td>
+                            <td className="px-4 py-3">
+                              <button
+                                onClick={() => removeFavorite(product.id)}
+                                className={`p-2 rounded-full transition-all ${isFavorite(product.id) ? 'text-red-500 bg-red-100' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
+                                aria-label="Quitar de favoritos"
+                              >
+                                <Heart className="w-5 h-5" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Addresses Tab */}
             {activeTab === 'addresses' && (
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Direcciones</h2>
-                  <button className="flex items-center text-violet-600 hover:text-violet-800 font-bold transition-colors">
-                    Añadir Nueva
-                  </button>
+                  <h2 className="text-2xl font-black text-slate-900">Mis Direcciones</h2>
                 </div>
-                {/* Contenido del tab de direcciones */}
+                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <AddressMapPicker
+                      apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
+                      onChange={setSelectedAddress}
+                    />
+                    <div className="mt-2 text-xs text-slate-500">
+                      Selecciona la ubicación en el mapa o busca tu dirección exacta.
+                    </div>
+                  </div>
+                  <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700">Nombre</label>
+                        <input type="text" name="first_name" value={addressForm.first_name} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700">Apellidos</label>
+                        <input type="text" name="last_name" value={addressForm.last_name} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700">Teléfono</label>
+                      <input type="tel" name="phone" value={addressForm.phone} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700">Dirección 2 (opcional)</label>
+                      <input type="text" name="address2" value={addressForm.address2} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700">Ciudad</label>
+                        <input type="text" name="city" value={addressForm.city} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700">Estado/Provincia</label>
+                        <input type="text" name="state" value={addressForm.state} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700">Código Postal</label>
+                        <input type="text" name="postal_code" value={addressForm.postal_code} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700">País</label>
+                        <input type="text" name="country" value={addressForm.country} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" name="is_default" checked={addressForm.is_default} onChange={handleFormChange} className="rounded" />
+                      <label className="text-sm font-bold">Marcar como dirección principal</label>
+                    </div>
+                    <button
+                      type="submit"
+                      className="mt-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl w-full"
+                      disabled={!selectedAddress}
+                    >
+                      Guardar Dirección
+                    </button>
+                    {addressSaved && selectedAddress && !addressError && (
+                      <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-xl border border-green-200">
+                        Dirección guardada:<br />
+                        <strong>{selectedAddress.address}</strong><br />
+                        <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
+                      </div>
+                    )}
+                    {addressError && (
+                      <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 text-red-800 rounded-xl border border-red-200">
+                        {addressError}
+                      </div>
+                    )}
+                  </form>
+                </div>
               </div>
             )}
+
+            {/* Security Tab */}
             {activeTab === 'security' && (
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Seguridad</h2>
-                  <button className="flex items-center text-violet-600 hover:text-violet-800 font-bold transition-colors">
-                    Cambiar Contraseña
-                  </button>
+                <h2 className="text-2xl font-black text-slate-900 mb-8">Seguridad</h2>
+                
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="font-bold text-slate-900 mb-4">Cambiar Contraseña</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <input
+                        type="password"
+                        placeholder="Contraseña actual"
+                        className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80"
+                      />
+                      <input
+                        type="password"
+                        placeholder="Nueva contraseña"
+                        className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80"
+                      />
+                      <button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl">
+                        Actualizar
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-bold text-slate-900 mb-4">Autenticación de Dos Factores</h3>
+                    <p className="text-slate-600 text-sm mb-4">
+                      Añade una capa extra de seguridad a tu cuenta
+                    </p>
+                    <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
+                      Activar 2FA
+                    </button>
+                  </div>
                 </div>
-                {/* Contenido del tab de seguridad */}
               </div>
             )}
+
+            {/* Settings Tab */}
             {activeTab === 'settings' && (
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Configuración</h2>
-                  <button className="flex items-center text-violet-600 hover:text-violet-800 font-bold transition-colors">
-                    Ver Configuración
+                <h2 className="text-2xl font-black text-slate-900 mb-8">Configuración</h2>
+                
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="font-bold text-slate-900 mb-6">Notificaciones</h3>
+                    <div className="space-y-4">
+                      <label className="flex items-center">
+                        <input type="checkbox" className="mr-3 rounded" defaultChecked />
+                        <span className="text-slate-700 font-medium">Notificaciones por email</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="mr-3 rounded" />
+                        <span className="text-slate-700 font-medium">Notificaciones push</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="mr-3 rounded" defaultChecked />
+                        <span className="text-slate-700 font-medium">Ofertas y promociones</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-bold text-slate-900 mb-6">Privacidad</h3>
+                    <div className="space-y-4">
+                      <label className="flex items-center">
+                        <input type="checkbox" className="mr-3 rounded" defaultChecked />
+                        <span className="text-slate-700 font-medium">Compartir datos de uso</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="mr-3 rounded" />
+                        <span className="text-slate-700 font-medium">Perfil público</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl">
+                    Guardar Configuración
                   </button>
                 </div>
-                {/* Contenido del tab de configuración */}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Modal de detalle de pedido: mejorar visualmente, glass, animaciones, responsive */}
+      {/* Modal de detalle de pedido */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700" onClick={() => setSelectedOrder(null)}>&times;</button>
-            <h3 className="text-lg font-semibold mb-2">Pedido #{selectedOrder.order_number}</h3>
-            <div className="mb-2 text-sm text-gray-500">Fecha: {new Date(selectedOrder.created_at).toLocaleString()}</div>
-            <div className="mb-2 text-sm">Estado: <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedOrder.status === 'delivered' ? 'bg-green-100 text-green-800' : selectedOrder.status === 'shipped' ? 'bg-blue-100 text-blue-800' : selectedOrder.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : selectedOrder.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{selectedOrder.status}</span></div>
-            <div className="mb-2 text-sm">Pago: {selectedOrder.payment_status}</div>
-            <div className="mb-2 text-sm">Tracking: {selectedOrder.tracking || '-'}</div>
-            <div className="mb-4 text-sm">Total: {selectedOrder.currency} {selectedOrder.total.toFixed(2)}</div>
-            <h4 className="font-semibold mb-1">Productos:</h4>
-            <ul className="mb-4 divide-y divide-gray-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+          <div className="glass-premium rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative mx-4 animate-scale-in-premium">
+            <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold" onClick={() => setSelectedOrder(null)}>&times;</button>
+            <h3 className="text-xl font-black text-slate-900 mb-4">Pedido #{selectedOrder.order_number}</h3>
+            <div className="mb-4 text-sm text-slate-500">Fecha: {new Date(selectedOrder.created_at).toLocaleString()}</div>
+            <div className="mb-4 text-sm">Estado: <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedOrder.status === 'delivered' ? 'bg-green-100 text-green-800' : selectedOrder.status === 'shipped' ? 'bg-blue-100 text-blue-800' : selectedOrder.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : selectedOrder.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{selectedOrder.status}</span></div>
+            <div className="mb-4 text-sm">Pago: {selectedOrder.payment_status}</div>
+            <div className="mb-4 text-sm">Tracking: {selectedOrder.tracking || '-'}</div>
+            <div className="mb-6 text-sm font-bold">Total: {selectedOrder.currency} {selectedOrder.total.toFixed(2)}</div>
+            <h4 className="font-bold text-slate-900 mb-4">Productos:</h4>
+            <ul className="mb-6 divide-y divide-gray-200">
               {selectedOrder.items.map(item => (
-                <li key={item.id} className="py-2 flex items-center gap-3">
-                  {item.image_url && <img src={item.image_url.startsWith('http') ? item.image_url : item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded" />}
+                <li key={item.id} className="py-4 flex items-center gap-4">
+                  {item.image_url && <img src={item.image_url.startsWith('http') ? item.image_url : item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />}
                   <div>
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-xs text-gray-500">Cantidad: {item.quantity} &bull; Precio: {selectedOrder.currency} {item.price.toFixed(2)}</div>
+                    <div className="font-bold text-slate-900">{item.name}</div>
+                    <div className="text-xs text-slate-500">Cantidad: {item.quantity} &bull; Precio: {selectedOrder.currency} {item.price.toFixed(2)}</div>
                   </div>
                 </li>
               ))}
             </ul>
             {selectedOrder.shipping_address && (
-              <div className="mb-2 text-sm">
-                <div className="font-semibold">Enviado a:</div>
+              <div className="mb-4 text-sm">
+                <div className="font-bold text-slate-900">Enviado a:</div>
                 <div>{selectedOrder.shipping_address.street}, {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state}, {selectedOrder.shipping_address.zip}, {selectedOrder.shipping_address.country}</div>
               </div>
             )}
             {selectedOrder.notes && (
-              <div className="mb-2 text-sm">
-                <div className="font-semibold">Notas:</div>
+              <div className="mb-4 text-sm">
+                <div className="font-bold text-slate-900">Notas:</div>
                 <div>{selectedOrder.notes}</div>
               </div>
             )}
