@@ -404,7 +404,7 @@ export default function MiCuentaPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {favProducts.filter(product => favorites.includes(product.id)).map((product) => (
+                    {favProducts.filter(product => favorites.map(Number).includes(product.id)).map((product) => (
                       <div key={product.id} className="group bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all">
                         <Link href={`/productos/${product.id}`} className="block">
                           <div className="w-full h-56 bg-gray-200 flex items-center justify-center overflow-hidden relative">
