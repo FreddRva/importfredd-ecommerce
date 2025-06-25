@@ -200,7 +200,7 @@ input:focus, select:focus, textarea:focus {
 @keyframes slide-in-left {
   from {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateX(-40px);
   }
   to {
     opacity: 1;
@@ -211,7 +211,7 @@ input:focus, select:focus, textarea:focus {
 @keyframes slide-in-right {
   from {
     opacity: 0;
-    transform: translateX(50px);
+    transform: translateX(40px);
   }
   to {
     opacity: 1;
@@ -222,7 +222,7 @@ input:focus, select:focus, textarea:focus {
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -232,52 +232,52 @@ input:focus, select:focus, textarea:focus {
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
   }
   50% {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.8);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
   }
 }
 
-/* Clases de utilidad para animaciones */
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
 
 .animate-fade-in {
-  animation: fade-in 1s ease-out;
+  animation: fade-in 0.8s cubic-bezier(.4,0,.2,1) both;
 }
 
 .animate-slide-in-left {
-  animation: slide-in-left 0.8s ease-out;
+  animation: slide-in-left 0.7s cubic-bezier(.4,0,.2,1) both;
 }
 
 .animate-slide-in-right {
-  animation: slide-in-right 0.8s ease-out;
+  animation: slide-in-right 0.7s cubic-bezier(.4,0,.2,1) both;
 }
 
 .animate-scale-in {
-  animation: scale-in 0.6s ease-out;
+  animation: scale-in 0.5s cubic-bezier(.4,0,.2,1) both;
 }
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Efectos de hover mejorados */
+/* Efecto hover-lift mejorado */
 .hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 32px 0 rgba(80, 80, 180, 0.10);
 }
 
-/* Gradientes animados */
+/* Gradiente animado */
 .gradient-animate {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
 }
 
 @keyframes gradient-shift {
@@ -292,29 +292,26 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
-/* Efectos de glassmorphism */
+/* Efecto glassmorphism */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* Scroll suave */
 html {
   scroll-behavior: smooth;
 }
 
-/* Mejoras para móvil */
 @media (max-width: 640px) {
   .mobile-optimized {
-    font-size: 0.875rem;
-    line-height: 1.5;
+    padding: 1rem;
   }
   
   .mobile-padding {
@@ -323,15 +320,14 @@ html {
   }
 }
 
-/* Efectos de partículas */
 .particle {
   position: absolute;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   pointer-events: none;
+  animation: float 3s ease-in-out infinite;
 }
 
-/* Mejoras de accesibilidad */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -340,17 +336,264 @@ html {
   }
 }
 
-/* Efectos de focus mejorados */
 .focus-ring:focus {
-  outline: 2px solid transparent;
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
 
-/* Mejoras para dark mode (si se implementa en el futuro) */
 @media (prefers-color-scheme: dark) {
   .dark-mode-optimized {
-    background: rgba(0, 0, 0, 0.8);
-    color: rgba(255, 255, 255, 0.9);
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+}
+
+/* ===== NUEVAS ANIMACIONES PREMIUM PARA PRODUCTOS ===== */
+
+/* Animación de entrada suave para productos */
+@keyframes fade-in-premium {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.98);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in-premium { 
+  animation: fade-in-premium 0.8s cubic-bezier(0.4, 0, 0.2, 1) both; 
+}
+
+/* Animación de escala mejorada */
+@keyframes scale-in-premium {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in-premium { 
+  animation: scale-in-premium 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; 
+}
+
+/* Animación de deslizamiento desde la izquierda */
+@keyframes slide-in-left-premium {
+  from { 
+    opacity: 0; 
+    transform: translateX(-50px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left-premium { 
+  animation: slide-in-left-premium 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; 
+}
+
+/* Animación de deslizamiento desde la derecha */
+@keyframes slide-in-right-premium {
+  from { 
+    opacity: 0; 
+    transform: translateX(50px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right-premium { 
+  animation: slide-in-right-premium 0.7s cubic-bezier(0.4, 0, 0.2, 1) both; 
+}
+
+/* Efecto hover-lift premium para cards de productos */
+.hover-lift-premium {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.hover-lift-premium:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* Animación de partículas para el hero */
+@keyframes particle-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+.particle-animate {
+  animation: particle-float 4s ease-in-out infinite;
+}
+
+/* Animación de delay para elementos en secuencia */
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+.animation-delay-800 {
+  animation-delay: 0.8s;
+}
+
+/* Efecto de brillo en hover para botones premium */
+.button-glow:hover {
+  box-shadow: 
+    0 0 20px rgba(139, 92, 246, 0.3),
+    0 0 40px rgba(139, 92, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Animación de pulso para elementos importantes */
+@keyframes pulse-premium {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-premium {
+  animation: pulse-premium 2s ease-in-out infinite;
+}
+
+/* Efecto de ondulación para botones */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s ease-out;
+}
+
+/* Efecto de glassmorphism mejorado */
+.glass-premium {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Animación de carga mejorada */
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  animation: loading-spin 1s linear infinite;
+}
+
+/* Efecto de gradiente animado para backgrounds */
+@keyframes gradient-shift-premium {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-animate-premium {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background-size: 400% 400%;
+  animation: gradient-shift-premium 15s ease infinite;
+}
+
+/* Efecto de sombra dinámica */
+@keyframes shadow-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.shadow-pulse {
+  animation: shadow-pulse 3s ease-in-out infinite;
+}
+
+/* Optimización para dispositivos móviles */
+@media (max-width: 768px) {
+  .hover-lift-premium:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+  
+  .glass-premium {
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Reducción de movimiento para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-premium,
+  .animate-scale-in-premium,
+  .animate-slide-in-left-premium,
+  .animate-slide-in-right-premium,
+  .hover-lift-premium,
+  .particle-animate,
+  .animate-pulse-premium,
+  .gradient-animate-premium,
+  .shadow-pulse {
+    animation: none !important;
+    transition: none !important;
   }
 }
