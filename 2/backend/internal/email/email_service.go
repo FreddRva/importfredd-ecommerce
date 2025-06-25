@@ -85,9 +85,13 @@ func (s *EmailService) SendOrderConfirmation(user *models.User, order *models.Or
 		</html>
 	`, user.Email, order.ID, order.Total, order.Status, order.CreatedAt.Format("02/01/2006 15:04"))
 
+	fromEmail := os.Getenv("EMAIL_FROM")
+	if fromEmail == "" {
+		fromEmail = "noreply@axiora.pro"
+	}
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "noreply@axiora.pro",
+			Email: fromEmail,
 			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
@@ -162,9 +166,13 @@ func (s *EmailService) SendPaymentConfirmation(user *models.User, payment *model
 		</html>
 	`, user.Email, payment.TransactionID, payment.Amount, payment.Status, payment.PaymentMethod, payment.CreatedAt.Format("02/01/2006 15:04"))
 
+	fromEmail := os.Getenv("EMAIL_FROM")
+	if fromEmail == "" {
+		fromEmail = "noreply@axiora.pro"
+	}
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "noreply@axiora.pro",
+			Email: fromEmail,
 			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
@@ -227,9 +235,13 @@ func (s *EmailService) SendTestEmail(to, subject, body string) error {
 		</html>
 	`, subject, body)
 
+	fromEmail := os.Getenv("EMAIL_FROM")
+	if fromEmail == "" {
+		fromEmail = "noreply@axiora.pro"
+	}
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "noreply@axiora.pro",
+			Email: fromEmail,
 			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
@@ -296,9 +308,13 @@ func SendVerificationEmail(to, token string) error {
 		</html>
 	`, verificationLink, verificationLink)
 
+	fromEmail := os.Getenv("EMAIL_FROM")
+	if fromEmail == "" {
+		fromEmail = "noreply@axiora.pro"
+	}
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "noreply@axiora.pro",
+			Email: fromEmail,
 			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
@@ -364,9 +380,13 @@ func SendVerificationCodeEmail(to, code string) error {
 		</html>
 	`, code)
 
+	fromEmail := os.Getenv("EMAIL_FROM")
+	if fromEmail == "" {
+		fromEmail = "noreply@axiora.pro"
+	}
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "noreply@axiora.pro",
+			Email: fromEmail,
 			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
