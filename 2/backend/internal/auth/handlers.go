@@ -13,6 +13,7 @@ import (
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tuusuario/ecommerce-backend/internal/db"
+	"github.com/tuusuario/ecommerce-backend/internal/email"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,6 +42,12 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	if err != nil {
 		log.Printf("[ERROR] Error generando código: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo generar el código."})
+		return
+	}
+	// Enviar el código por email
+	if emailErr := email.SendVerificationCodeEmail(req.Email, code); emailErr != nil {
+		log.Printf("[ERROR] Error enviando código de verificación a %s: %v", req.Email, emailErr)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo enviar el código de verificación."})
 		return
 	}
 	hashedCode, err := HashPassword(code)
