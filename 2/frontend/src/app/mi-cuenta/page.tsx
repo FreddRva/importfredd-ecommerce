@@ -7,6 +7,7 @@ import { User, ShoppingBag, Settings, LogOut, Edit, Shield, Heart, MapPin } from
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/context/FavoritesContext';
 import { API_BASE_URL } from '@/lib/api';
+import AddressMapPicker from '@/components/AddressMapPicker';
 
 interface Product {
   id: number;
@@ -63,6 +64,9 @@ export default function MiCuentaPage() {
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail|null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
+  const [selectedAddress, setSelectedAddress] = useState<{ address: string; lat: number; lng: number } | null>(null);
+  const [addressSaved, setAddressSaved] = useState(false);
+  const [addressError, setAddressError] = useState<string | null>(null);
 
   const handleLogout = () => {
     logout();
@@ -122,6 +126,45 @@ export default function MiCuentaPage() {
       }
     } catch (err) {
       console.error('Error fetching order details:', err);
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    setAddressError(null);
+    setAddressSaved(false);
+    if (!selectedAddress || !token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/addresses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: 'shipping',
+          first_name: '',
+          last_name: '',
+          company: '',
+          address1: selectedAddress.address,
+          address2: '',
+          city: '',
+          state: '',
+          postal_code: '',
+          country: '',
+          phone: '',
+          is_default: true,
+          lat: selectedAddress.lat,
+          lng: selectedAddress.lng,
+        }),
+      });
+      if (!res.ok) {
+        const errorText = await res.text();
+        setAddressError('Error al guardar la dirección: ' + errorText);
+        return;
+      }
+      setAddressSaved(true);
+    } catch (err: any) {
+      setAddressError('Error de red al guardar la dirección');
     }
   };
 
@@ -453,35 +496,34 @@ export default function MiCuentaPage() {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Mis Direcciones</h2>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    Agregar Dirección
+                </div>
+                <div className="mb-6">
+                  <AddressMapPicker
+                    apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
+                    onChange={setSelectedAddress}
+                  />
+                  <button
+                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    disabled={!selectedAddress}
+                    onClick={handleSaveAddress}
+                  >
+                    Guardar Dirección
                   </button>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium text-gray-900">Casa</h3>
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Principal</span>
+                  {addressSaved && selectedAddress && !addressError && (
+                    <div className="mt-4 p-3 bg-green-100 text-green-800 rounded">
+                      Dirección guardada:<br />
+                      <strong>{selectedAddress.address}</strong><br />
+                      <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
                     </div>
-                    <p className="text-gray-600 text-sm">
-                      Calle Principal 123<br />
-                      Madrid, Madrid 28001<br />
-                      España
-                    </p>
-                  </div>
-                  
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium text-gray-900">Trabajo</h3>
+                  )}
+                  {addressError && (
+                    <div className="mt-4 p-3 bg-red-100 text-red-800 rounded">
+                      {addressError}
                     </div>
-                    <p className="text-gray-600 text-sm">
-                      Avenida del Trabajo 456<br />
-                      Barcelona, Barcelona 08001<br />
-                      España
-                    </p>
-                  </div>
+                  )}
                 </div>
+                {/* Aquí puedes mostrar la lista de direcciones guardadas del usuario */}
+                {/* ... */}
               </div>
             )}
 
