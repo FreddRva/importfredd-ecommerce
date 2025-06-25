@@ -65,8 +65,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   // Añadir favorito
   const addFavorite = async (productId: number) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
+      if (!isAuthenticated || !token) {
         alert('Debes iniciar sesión para agregar favoritos');
         return;
       }
@@ -89,8 +88,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   // Quitar favorito
   const removeFavorite = async (productId: number) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!isAuthenticated || !token) return;
 
       const res = await fetch(`${API_BASE_URL}/api/favorites`, {
         method: 'DELETE',
