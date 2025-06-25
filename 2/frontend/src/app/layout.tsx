@@ -28,7 +28,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("DEBUG: layout.tsx montado");
   return (
     <html lang="es">
       <body className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] font-sans">

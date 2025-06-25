@@ -48,9 +48,6 @@ export default function AdminProductsPage() {
     setIsClient(true);
   }, []);
 
-  // DEPURACIÓN: log de token y autenticación
-  console.log('ADMIN PRODUCTS PAGE - token:', token);
-
   const fetchProducts = useCallback(async () => {
     if (!token) return;
     setLoading(true);

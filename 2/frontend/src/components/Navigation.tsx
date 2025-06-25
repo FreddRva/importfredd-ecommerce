@@ -34,9 +34,6 @@ export default function Navigation() {
     };
   }, [adminMenuRef]);
 
-  // Log para debug
-  console.log('Navigation - isAuthenticated:', isAuthenticated, 'isAdmin:', isAdmin, 'user:', user);
-
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
       isScrolled 
@@ -105,14 +102,6 @@ export default function Navigation() {
 
           {/* Right side icons */}
           <div className="flex items-center space-x-3">
-            {/* Debug indicator - Temporal */}
-            {isAuthenticated && (
-              <div className="hidden md:flex items-center space-x-1 text-xs">
-                <span className={`w-2 h-2 rounded-full ${isAdmin ? 'bg-green-500' : 'bg-gray-400'} animate-pulse`}></span>
-                <span className="text-gray-500 font-semibold">{isAdmin ? 'Admin' : 'User'}</span>
-              </div>
-            )}
-
             {/* Admin Button - Solo visible para administradores */}
             {isAuthenticated && isAdmin && (
               <div className="relative" ref={adminMenuRef}>

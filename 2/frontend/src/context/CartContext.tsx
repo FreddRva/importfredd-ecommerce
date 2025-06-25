@@ -46,26 +46,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const fetchCart = useCallback(async () => {
-    console.log('fetchCart llamado - isAuthenticated:', isAuthenticated, 'token:', token ? 'existe' : 'no existe');
-    
     if (!isAuthenticated || !token) {
-      console.log('Usuario no autenticado, usando carrito local');
       setCart(getLocalCart());
       setLoading(false);
       return;
     }
 
-    console.log('Usuario autenticado, llamando a API del carrito');
     setLoading(true);
     try {
-      console.log('Enviando token:', token ? token.substring(0, 20) + '...' : 'no existe');
       const response = await fetch(`${API_BASE_URL}/api/cart`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      console.log('Respuesta del backend:', response.status, response.statusText);
       if (!response.ok) {
         const errorText = await response.text();
-        console.log('Error response:', errorText);
         throw new Error('Failed to fetch cart');
       }
       const data: CartItem[] = await response.json();
@@ -197,13 +190,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isAuthenticated, token, fetchCart]);
 
   useEffect(() => {
-    console.log('CartContext useEffect - isAuthenticated:', isAuthenticated, 'isLoading:', false);
-    
     if (isAuthenticated) {
-      console.log('Usuario autenticado, llamando fetchCart');
       fetchCart();
     } else {
-      console.log('Usuario no autenticado, usando carrito local');
       setCart(getLocalCart());
       setLoading(false);
     }

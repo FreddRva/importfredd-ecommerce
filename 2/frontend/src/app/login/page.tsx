@@ -31,9 +31,6 @@ export default function LoginPage() {
 
     try {
       const result = await loginPasskey(email);
-      console.log('Resultado del login:', result);
-      console.log('Token recibido:', result.access_token ? result.access_token.substring(0, 20) + '...' : 'no existe');
-      console.log('User recibido:', result.user);
       
       if (result.access_token && result.refresh_token && result.user) {
         console.log('Guardando token en contexto...');
