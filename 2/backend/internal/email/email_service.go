@@ -15,7 +15,13 @@ var (
 )
 
 func InitEmailService() {
+	apiKey := os.Getenv("MAILERSEND_API_KEY")
+	if apiKey == "" {
+		log.Fatalf("FATAL: MAILERSEND_API_KEY es requerida para el servicio de email. La aplicación no puede arrancar.")
+	}
+
 	DefaultEmailService = NewEmailService()
+	log.Println("✅ Servicio de Email (MailerSend) inicializado correctamente.")
 }
 
 type EmailService struct {
