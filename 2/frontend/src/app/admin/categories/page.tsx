@@ -46,13 +46,87 @@ export default function AdminCategoriesPage() {
     }
   }, [token]);
 
+  // --- NUEVO: Funciones CRUD de categoría ---
+  // Abrir modal para nueva categoría
+  const openNewCategoryModal = () => {
+    setCurrentCategory(null);
+    setCategoryName('');
+    setCategoryDescription('');
+    setIsModalOpen(true);
+    setError('');
+  };
+
+  // Abrir modal para editar
+  const openEditCategoryModal = (category: Category) => {
+    setCurrentCategory(category);
+    setCategoryName(category.name);
+    setCategoryDescription(category.description || '');
+    setIsModalOpen(true);
+    setError('');
+  };
+
+  // Guardar (crear o editar)
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryName.trim()) {
+      setError('El nombre es obligatorio');
+      return;
+    }
+    setError('');
+    try {
+      const isEdit = !!currentCategory;
+      const url = isEdit
+        ? `${API_BASE_URL}/admin/categories/${currentCategory!.id}`
+        : `${API_BASE_URL}/admin/categories`;
+      const method = isEdit ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: categoryName,
+          description: categoryDescription,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al guardar la categoría');
+      setIsModalOpen(false);
+      setCurrentCategory(null);
+      setCategoryName('');
+      setCategoryDescription('');
+      await fetchCategories();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  // Eliminar categoría
+  const handleDeleteCategory = async (category: Category) => {
+    if (!window.confirm(`¿Seguro que deseas eliminar la categoría "${category.name}"?`)) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/categories/${category.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al eliminar la categoría');
+      await fetchCategories();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  // --- FIN CRUD ---
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-50 via-white to-blue-50 pt-32 pb-16">
       <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
           <h1 className="text-3xl font-extrabold text-gray-900 text-center sm:text-left">Gestionar Categorías</h1>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={openNewCategoryModal}
             className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2 shadow-lg border-2 border-green-400 hover:border-blue-600 transition-all duration-200 text-lg"
           >
             <PlusCircle size={20} /> Nueva Categoría
@@ -77,10 +151,10 @@ export default function AdminCategoriesPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-bold">{category.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-600">{category.description}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right flex justify-end gap-2">
-                    <button onClick={() => setCurrentCategory(category)} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors" title="Editar">
+                    <button onClick={() => openEditCategoryModal(category)} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors" title="Editar">
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => {/* handleDelete aquí */}} className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors" title="Eliminar">
+                    <button onClick={() => handleDeleteCategory(category)} className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors" title="Eliminar">
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -89,10 +163,53 @@ export default function AdminCategoriesPage() {
             </tbody>
           </table>
         </div>
-        {/* Modal y lógica adicional aquí */}
+        {/* Modal para agregar/editar categoría */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fade-in">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+                title="Cerrar"
+              >
+                <X size={24} />
+              </button>
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">
+                {currentCategory ? 'Editar Categoría' : 'Nueva Categoría'}
+              </h2>
+              <form onSubmit={handleSaveCategory} className="space-y-6">
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Nombre</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg"
+                    value={categoryName}
+                    onChange={e => setCategoryName(e.target.value)}
+                    maxLength={50}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700 font-semibold mb-2">Descripción</label>
+                  <textarea
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg"
+                    value={categoryDescription}
+                    onChange={e => setCategoryDescription(e.target.value)}
+                    maxLength={200}
+                    rows={3}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 text-white font-bold py-3 rounded-xl shadow-lg text-lg transition-all duration-200"
+                >
+                  {currentCategory ? 'Guardar Cambios' : 'Crear Categoría'}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-}
-
-// ... el resto del código original queda comentado o eliminado temporalmente para esta prueba ... 
+} 
