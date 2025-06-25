@@ -66,7 +66,12 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const addFavorite = async (productId: number) => {
     try {
       if (!isAuthenticated || !token) {
-        alert('Debes iniciar sesión para agregar favoritos');
+        // Invitado: guardar en localStorage y estado local
+        setFavorites(prev => {
+          const updated = prev.includes(productId) ? prev : [...prev, productId];
+          localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
+          return updated;
+        });
         return;
       }
 
@@ -89,15 +94,22 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   // Quitar favorito
   const removeFavorite = async (productId: number) => {
     try {
-      if (!isAuthenticated || !token) return;
+      if (!isAuthenticated || !token) {
+        // Invitado: quitar de localStorage y estado local
+        setFavorites(prev => {
+          const updated = prev.filter(id => id !== productId);
+          localStorage.setItem(LOCAL_KEY, JSON.stringify(updated));
+          return updated;
+        });
+        return;
+      }
 
-      await fetch(`${API_BASE_URL}/api/favorites`, {
+      await fetch(`${API_BASE_URL}/api/favorites/${productId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ product_id: productId }),
       });
 
       // Refrescar desde la API para asegurar que se eliminó
