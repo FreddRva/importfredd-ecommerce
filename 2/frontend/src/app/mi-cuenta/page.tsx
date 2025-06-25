@@ -85,7 +85,7 @@ export default function MiCuentaPage() {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
       const res = await fetch(`${API_BASE_URL}/api/orders`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -100,7 +100,7 @@ export default function MiCuentaPage() {
 
   const fetchOrderDetails = async (orderId: number) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('accessToken');
       const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
