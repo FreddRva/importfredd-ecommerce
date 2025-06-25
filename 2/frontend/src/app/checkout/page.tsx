@@ -34,7 +34,7 @@ interface Order {
 
 export default function CheckoutPage() {
   const { cart, totalPrice, itemCount, clearLocalCart } = useCart();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
   const router = useRouter();
   
   const [shippingAddress, setShippingAddress] = useState<Address>({
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           shipping_address: {
@@ -140,7 +140,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           payment_intent_id: paymentIntentId,
