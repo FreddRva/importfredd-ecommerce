@@ -15,20 +15,20 @@ import (
 // CreateProduct crea un nuevo producto
 func CreateProduct(db *pgxpool.Pool, product *models.Product) (*models.Product, error) {
 	query := `
-		INSERT INTO products (name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-		RETURNING id, name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at
+		INSERT INTO products (name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at, model_url)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		RETURNING id, name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at, model_url
 	`
 
 	err := db.QueryRow(context.Background(), query,
 		product.Name, product.Description, product.Price, product.ImageURL,
 		product.CategoryID, product.Stock, product.SKU, product.Weight,
-		product.Dimensions, product.IsActive, product.CreatedAt, product.UpdatedAt,
+		product.Dimensions, product.IsActive, product.CreatedAt, product.UpdatedAt, product.ModelURL,
 	).Scan(
 		&product.ID, &product.Name, &product.Description, &product.Price,
 		&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
 		&product.Weight, &product.Dimensions, &product.IsActive,
-		&product.CreatedAt, &product.UpdatedAt,
+		&product.CreatedAt, &product.UpdatedAt, &product.ModelURL,
 	)
 
 	if err != nil {
@@ -44,20 +44,20 @@ func UpdateProduct(db *pgxpool.Pool, product *models.Product) (*models.Product, 
 		UPDATE products 
 		SET name = $1, description = $2, price = $3, image_url = $4, 
 			category_id = $5, stock = $6, sku = $7, weight = $8, 
-			dimensions = $9, is_active = $10, updated_at = $11, featured = $12
-		WHERE id = $13
-		RETURNING id, name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at, featured
+			dimensions = $9, is_active = $10, updated_at = $11, featured = $12, model_url = $13
+		WHERE id = $14
+		RETURNING id, name, description, price, image_url, category_id, stock, sku, weight, dimensions, is_active, created_at, updated_at, featured, model_url
 	`
 
 	err := db.QueryRow(context.Background(), query,
 		product.Name, product.Description, product.Price, product.ImageURL,
 		product.CategoryID, product.Stock, product.SKU, product.Weight,
-		product.Dimensions, product.IsActive, product.UpdatedAt, product.Featured, product.ID,
+		product.Dimensions, product.IsActive, product.UpdatedAt, product.Featured, product.ModelURL, product.ID,
 	).Scan(
 		&product.ID, &product.Name, &product.Description, &product.Price,
 		&product.ImageURL, &product.CategoryID, &product.Stock, &product.SKU,
 		&product.Weight, &product.Dimensions, &product.IsActive,
-		&product.CreatedAt, &product.UpdatedAt, &product.Featured,
+		&product.CreatedAt, &product.UpdatedAt, &product.Featured, &product.ModelURL,
 	)
 
 	if err != nil {

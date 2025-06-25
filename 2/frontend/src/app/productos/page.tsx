@@ -101,6 +101,11 @@ function ProductosContent() {
         const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`);
         if (!response.ok) throw new Error('Error al cargar productos');
         const data = await response.json();
+        
+        // Debug: Log the products data to see if model_url is present
+        console.log('Products data from API:', data.products);
+        console.log('First product model_url:', data.products?.[0]?.model_url);
+        
         setProducts(data.products || []);
         setTotalPages(Math.ceil((data.total || 0) / 12));
         
