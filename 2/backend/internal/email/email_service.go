@@ -87,8 +87,8 @@ func (s *EmailService) SendOrderConfirmation(user *models.User, order *models.Or
 
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "info@test-y7zpl98n2ro45vx6.mlsender.net",
-			Name:  "Tu E-commerce",
+			Email: "noreply@axiora.pro",
+			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
 			{
@@ -164,8 +164,8 @@ func (s *EmailService) SendPaymentConfirmation(user *models.User, payment *model
 
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "info@test-y7zpl98n2ro45vx6.mlsender.net",
-			Name:  "Tu E-commerce",
+			Email: "noreply@axiora.pro",
+			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
 			{
@@ -229,8 +229,8 @@ func (s *EmailService) SendTestEmail(to, subject, body string) error {
 
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "info@test-y7zpl98n2ro45vx6.mlsender.net",
-			Name:  "Tu E-commerce",
+			Email: "noreply@axiora.pro",
+			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
 			{
@@ -298,8 +298,8 @@ func SendVerificationEmail(to, token string) error {
 
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "info@test-y7zpl98n2ro45vx6.mlsender.net",
-			Name:  "Tu E-commerce",
+			Email: "noreply@axiora.pro",
+			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
 			{
@@ -366,8 +366,8 @@ func SendVerificationCodeEmail(to, code string) error {
 
 	message := &mailersend.Message{
 		From: mailersend.From{
-			Email: "info@test-y7zpl98n2ro45vx6.mlsender.net",
-			Name:  "Tu E-commerce",
+			Email: "noreply@axiora.pro",
+			Name:  "Axiora E-commerce",
 		},
 		Recipients: []mailersend.Recipient{
 			{
