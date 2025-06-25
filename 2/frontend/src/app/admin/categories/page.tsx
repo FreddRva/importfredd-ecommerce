@@ -9,6 +9,7 @@ interface Category {
   id: number;
   name: string;
   description: string;
+  is_active: boolean;
 }
 
 export default function AdminCategoriesPage() {
@@ -20,6 +21,7 @@ export default function AdminCategoriesPage() {
   const [currentCategory, setCurrentCategory] = useState<Partial<Category> | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
+  const [showDeleted, setShowDeleted] = useState(false);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -120,6 +122,9 @@ export default function AdminCategoriesPage() {
 
   // --- FIN CRUD ---
 
+  // Filtrar categorías según el toggle
+  const visibleCategories = showDeleted ? categories : categories.filter(cat => cat.is_active !== false);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-50 via-white to-blue-50 pt-32 pb-16">
       <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
@@ -132,6 +137,15 @@ export default function AdminCategoriesPage() {
             <PlusCircle size={20} /> Nueva Categoría
           </button>
         </div>
+        {/* Toggle para mostrar eliminadas (opcional, futuro) */}
+        {/*
+        <div className="mb-4 flex justify-end">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={showDeleted} onChange={() => setShowDeleted(v => !v)} />
+            <span className="text-sm text-gray-600">Mostrar eliminadas</span>
+          </label>
+        </div>
+        */}
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-base mb-4 font-semibold text-center">{error}</div>}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -145,16 +159,16 @@ export default function AdminCategoriesPage() {
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {loading && <tr><td colSpan={4} className="text-center py-6 text-lg font-semibold text-gray-400">Cargando...</td></tr>}
-              {!loading && categories.map((category) => (
-                <tr key={category.id} className="hover:bg-blue-50 transition-colors">
+              {!loading && visibleCategories.map((category) => (
+                <tr key={category.id} className={`hover:bg-blue-50 transition-colors ${category.is_active === false ? 'opacity-50' : ''}`}>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-700 font-semibold">{category.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-bold">{category.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-600">{category.description}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right flex justify-end gap-2">
-                    <button onClick={() => openEditCategoryModal(category)} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors" title="Editar">
+                    <button onClick={() => openEditCategoryModal(category)} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors" title="Editar" disabled={category.is_active === false}>
                       <Edit size={18} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category)} className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors" title="Eliminar">
+                    <button onClick={() => handleDeleteCategory(category)} className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors" title="Eliminar" disabled={category.is_active === false}>
                       <Trash2 size={18} />
                     </button>
                   </td>
