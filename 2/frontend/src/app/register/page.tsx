@@ -25,10 +25,6 @@ export default function RegisterPage() {
     try {
       const result = await requestVerificationCode(email);
       setSuccess(result.message);
-      if (result.debug_code) {
-        setDebugCode(result.debug_code);
-        setCode(result.debug_code); // Autorellenar el campo para conveniencia
-      }
       setStep('code');
     } catch (error: any) {
       setError(error.message || 'Error al solicitar el código.');
@@ -138,23 +134,6 @@ export default function RegisterPage() {
      </form>
   );
 
-  const renderDebugBox = () => (
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-6 rounded-r-lg" role="alert">
-      <div className="flex">
-        <div className="py-1"><Info className="h-5 w-5 mr-3"/></div>
-        <div>
-          <p className="font-bold">Modo de Demostración</p>
-          <p className="text-sm">
-            La cuenta de envío de correos es de prueba. En un entorno de producción, este código llegaría a tu email.
-          </p>
-          <p className="text-sm mt-2">
-            Tu código de verificación es: <strong className="text-lg font-mono">{debugCode}</strong>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -173,7 +152,6 @@ export default function RegisterPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-          {debugCode && step === 'code' && renderDebugBox()}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
               {error}
