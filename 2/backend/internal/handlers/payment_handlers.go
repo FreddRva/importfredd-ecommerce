@@ -174,21 +174,21 @@ func (h *PaymentHandler) ConfirmPayment(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Payment Intent ID requerido"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Payment Intent ID requerido"})
 		return
 	}
 
 	// Obtener el PaymentIntent de Stripe
 	pi, err := paymentintent.Get(req.PaymentIntentID, nil)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Payment Intent no encontrado"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Payment Intent no encontrado"})
 		return
 	}
 
 	// Obtener el pago de la base de datos
 	payment, err := db.GetPaymentByStripeIntentID(h.DB, req.PaymentIntentID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Pago no encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "Pago no encontrado"})
 		return
 	}
 
@@ -196,7 +196,7 @@ func (h *PaymentHandler) ConfirmPayment(c *gin.Context) {
 	userID := c.GetInt("user_id")
 	order, err := db.GetOrderByID(h.DB, payment.OrderID)
 	if err != nil || order.UserID != userID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "No tienes permisos para este pago"})
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "error": "No tienes permisos para este pago"})
 		return
 	}
 
@@ -216,10 +216,16 @@ func (h *PaymentHandler) ConfirmPayment(c *gin.Context) {
 
 	case stripe.PaymentIntentStatusCanceled:
 		newStatus = "canceled"
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "El pago fue cancelado"})
+		return
 	case stripe.PaymentIntentStatusRequiresPaymentMethod:
 		newStatus = "requires_payment_method"
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "El método de pago no es válido o fue rechazado"})
+		return
 	default:
 		newStatus = "pending"
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "El pago está pendiente o en estado desconocido"})
+		return
 	}
 
 	// Actualizar el pago en la base de datos
@@ -230,11 +236,12 @@ func (h *PaymentHandler) ConfirmPayment(c *gin.Context) {
 	err = db.UpdatePayment(h.DB, payment)
 	if err != nil {
 		log.Printf("Error actualizando pago: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando pago"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "Error actualizando pago"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"success":           true,
 		"status":            newStatus,
 		"payment_intent_id": pi.ID,
 		"amount":            pi.Amount,
