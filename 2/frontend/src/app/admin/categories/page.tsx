@@ -112,6 +112,7 @@ export default function AdminCategoriesPage() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Gestionar Categorías</h1>
+        <span style={{color: 'red', fontWeight: 'bold', marginRight: 16}}>DEBUG: Aquí debería estar el botón</span>
         <button
           onClick={() => openModal()}
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow-lg border-2 border-green-700"
