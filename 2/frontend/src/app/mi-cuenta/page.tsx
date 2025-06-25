@@ -70,9 +70,12 @@ export default function MiCuentaPage() {
   };
 
   const fetchFavoriteProducts = async () => {
-    if (favorites.length === 0) return;
-    
+    setFavLoading(true);
     try {
+      if (favorites.length === 0) {
+        setFavProducts([]);
+        return;
+      }
       const res = await fetch(`${API_BASE_URL}/products?ids=${favorites.join(',')}`);
       if (res.ok) {
         const data = await res.json();
@@ -80,6 +83,8 @@ export default function MiCuentaPage() {
       }
     } catch (err) {
       console.error('Error fetching favorite products:', err);
+    } finally {
+      setFavLoading(false);
     }
   };
 
