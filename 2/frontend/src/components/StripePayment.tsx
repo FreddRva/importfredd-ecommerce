@@ -9,6 +9,7 @@ import {
   useElements,
 } from '@stripe/react-stripe-js';
 import { API_BASE_URL } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 // Cargar Stripe (en producción, usar la clave pública real)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_...');
@@ -130,6 +131,7 @@ const StripePayment: React.FC<StripePaymentProps> = ({
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const { token } = useAuth();
 
   useEffect(() => {
     const createPaymentIntent = async () => {
@@ -145,7 +147,7 @@ const StripePayment: React.FC<StripePaymentProps> = ({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
             amount: amount,
@@ -176,7 +178,7 @@ const StripePayment: React.FC<StripePaymentProps> = ({
     };
 
     createPaymentIntent();
-  }, [orderId, amount, currency, customerEmail, onError]);
+  }, [orderId, amount, currency, customerEmail, onError, token]);
 
   if (isLoading) {
     return (
