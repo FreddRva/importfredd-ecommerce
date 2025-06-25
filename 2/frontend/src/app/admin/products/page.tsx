@@ -240,107 +240,130 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">Gestión de Productos</h1>
-        <button
-          onClick={handleAddNew}
-          style={{ background: 'red', zIndex: 9999, position: 'relative' }}
-          className="text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
-        >
-          <PlusCircle size={16} /> Nuevo Producto
-        </button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg shadow">
-          <thead>
-            <tr>
-              <th className="px-4 py-2">ID</th>
-              <th className="px-4 py-2">Nombre</th>
-              <th className="px-4 py-2">Categoría</th>
-              <th className="px-4 py-2">Precio</th>
-              <th className="px-4 py-2">Stock</th>
-              <th className="px-4 py-2">Activo</th>
-              <th className="px-4 py-2">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {safeProducts.map((product) => (
-              <tr key={product.id} className="border-t">
-                <td className="px-4 py-2">{product.id}</td>
-                <td className="px-4 py-2">{product.name}</td>
-                <td className="px-4 py-2">{safeCategories.find(c => c.id === product.category_id)?.name || '-'}</td>
-                <td className="px-4 py-2">${product.price}</td>
-                <td className="px-4 py-2">{product.stock}</td>
-                <td className="px-4 py-2">{product.is_active ? 'Sí' : 'No'}</td>
-                <td className="px-4 py-2 flex gap-2">
-                  <button onClick={() => handleEdit(product)} className="text-blue-600 hover:underline"><Edit size={16} /></button>
-                  <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:underline"><Trash2 size={16} /></button>
-                </td>
+    <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-50 via-white to-blue-50 pt-32 pb-16">
+      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+          <h1 className="text-3xl font-extrabold text-gray-900 text-center sm:text-left">Gestionar Productos</h1>
+          <button
+            onClick={handleAddNew}
+            className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2 shadow-lg border-2 border-green-400 hover:border-blue-600 transition-all duration-200 text-lg"
+          >
+            <PlusCircle size={20} /> Nuevo Producto
+          </button>
+        </div>
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-base mb-4 font-semibold text-center">{error}</div>}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Categoría</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Precio</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stock</th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Activo</th>
+                <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {(isCreating || currentProduct) && (
-        <form onSubmit={handleSubmit} className="mt-8 bg-gray-50 p-6 rounded-lg shadow-md max-w-xl mx-auto">
-          <h2 className="text-xl font-bold mb-4">{isCreating ? 'Nuevo Producto' : 'Editar Producto'}</h2>
-          {error && <div className="mb-4 text-red-600">{error}</div>}
-          <div className="mb-4">
-            <label className="block mb-1">Nombre</label>
-            <input name="name" value={currentProduct?.name || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Descripción</label>
-            <textarea name="description" value={currentProduct?.description || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Precio</label>
-            <input type="number" name="price" value={currentProduct?.price || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Stock</label>
-            <input type="number" name="stock" value={currentProduct?.stock || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Categoría</label>
-            <select name="category_id" value={currentProduct?.category_id || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required>
-              <option value="">Selecciona una categoría</option>
-              {safeCategories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {loading && <tr><td colSpan={7} className="text-center py-6 text-lg font-semibold text-gray-400">Cargando...</td></tr>}
+              {!loading && safeProducts.map((product) => (
+                <tr key={product.id} className="hover:bg-blue-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-700 font-semibold">{product.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-bold">{product.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-600">{safeCategories.find(c => c.id === product.category_id)?.name || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-green-700 font-bold">${product.price.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-blue-700 font-semibold">{product.stock}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {product.is_active ? <span className="inline-block px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Sí</span> : <span className="inline-block px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">No</span>}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right flex justify-end gap-2">
+                    <button onClick={() => handleEdit(product)} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors" title="Editar">
+                      <Edit size={18} />
+                    </button>
+                    <button onClick={() => handleDelete(product.id)} className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors" title="Eliminar">
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
               ))}
-            </select>
+            </tbody>
+          </table>
+        </div>
+        {/* Modal de producto: mejora visual si ya existe */}
+        {currentProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative animate-fade-in">
+              <button
+                onClick={handleCancel}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+                title="Cerrar"
+              >
+                <span className="sr-only">Cerrar</span>
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+              <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">
+                {isCreating ? 'Nuevo Producto' : 'Editar Producto'}
+              </h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="mb-4">
+                  <label className="block mb-1">Nombre</label>
+                  <input name="name" value={currentProduct?.name || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Descripción</label>
+                  <textarea name="description" value={currentProduct?.description || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Precio</label>
+                  <input type="number" name="price" value={currentProduct?.price || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Stock</label>
+                  <input type="number" name="stock" value={currentProduct?.stock || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Categoría</label>
+                  <select name="category_id" value={currentProduct?.category_id || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required>
+                    <option value="">Selecciona una categoría</option>
+                    {safeCategories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Dimensiones físicas</label>
+                  <input name="dimensions" value={currentProduct?.dimensions || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Ej: 10x10x10" />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Imagen</label>
+                  <input type="file" accept="image/*" onChange={handleImageChange} />
+                  {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 h-24" />}
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-1">Modelo 3D (.glb, .gltf, .obj)</label>
+                  <input type="file" accept=".glb,.gltf,.obj,.fbx,.dae" onChange={handleModelChange} />
+                  {modelName && <span className="ml-2">{modelName}</span>}
+                </div>
+                <div className="mb-4 flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="is_active" checked={currentProduct?.is_active || false} onChange={handleCheckboxChange} />
+                    Activo
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" name="featured" checked={currentProduct?.featured || false} onChange={handleCheckboxChange} />
+                    Producto destacado
+                  </label>
+                </div>
+                <div className="flex gap-4">
+                  <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">{isCreating ? 'Crear' : 'Actualizar'}</button>
+                  <button type="button" onClick={handleCancel} className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">Cancelar</button>
+                </div>
+              </form>
+            </div>
           </div>
-          <div className="mb-4">
-            <label className="block mb-1">Dimensiones físicas</label>
-            <input name="dimensions" value={currentProduct?.dimensions || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Ej: 10x10x10" />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Imagen</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 h-24" />}
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Modelo 3D (.glb, .gltf, .obj)</label>
-            <input type="file" accept=".glb,.gltf,.obj,.fbx,.dae" onChange={handleModelChange} />
-            {modelName && <span className="ml-2">{modelName}</span>}
-          </div>
-          <div className="mb-4 flex items-center gap-4">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="is_active" checked={currentProduct?.is_active || false} onChange={handleCheckboxChange} />
-              Activo
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="featured" checked={currentProduct?.featured || false} onChange={handleCheckboxChange} />
-              Producto destacado
-            </label>
-          </div>
-          <div className="flex gap-4">
-            <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">{isCreating ? 'Crear' : 'Actualizar'}</button>
-            <button type="button" onClick={handleCancel} className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">Cancelar</button>
-          </div>
-        </form>
-      )}
+        )}
+      </div>
     </div>
   );
 }
