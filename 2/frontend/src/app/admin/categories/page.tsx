@@ -114,7 +114,7 @@ export default function AdminCategoriesPage() {
         <h1 className="text-3xl font-bold">Gestionar Categorías</h1>
         <button
           onClick={() => openModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2"
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow-lg border-2 border-green-700"
         >
           <PlusCircle size={16} /> Nueva Categoría
         </button>
