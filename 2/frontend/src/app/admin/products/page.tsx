@@ -16,6 +16,7 @@ interface Product {
   dimensions: string; // Dimensiones físicas (ej: "10x10x10")
   model_url?: string; // Ruta del archivo 3D (.glb)
   is_active: boolean;
+  featured?: boolean;
 }
 
 interface Category {
@@ -140,6 +141,7 @@ export default function AdminProductsPage() {
         stock: 0,
         category_id: 0,
         is_active: true,
+        featured: false,
         image_url: '',
         dimensions: ''
     });
@@ -197,6 +199,7 @@ export default function AdminProductsPage() {
     formData.append('stock', String(currentProduct.stock));
     formData.append('category_id', String(currentProduct.category_id));
     formData.append('is_active', String(currentProduct.is_active || false));
+    formData.append('featured', String(currentProduct.featured || false));
     if (newImage) formData.append('image', newImage);
     if (newModel) formData.append('model3d', newModel);
 
@@ -329,6 +332,10 @@ export default function AdminProductsPage() {
             <label className="flex items-center gap-2">
               <input type="checkbox" name="is_active" checked={currentProduct?.is_active || false} onChange={handleCheckboxChange} />
               Activo
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="featured" checked={currentProduct?.featured || false} onChange={handleCheckboxChange} />
+              Producto destacado
             </label>
           </div>
           <div className="flex gap-4">
