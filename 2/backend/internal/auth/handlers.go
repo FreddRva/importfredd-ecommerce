@@ -248,7 +248,10 @@ func (h *AuthHandler) FinishRegistration(c *gin.Context) {
 	}
 
 	delete(sessionStore, user.Email)
-	c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Registro completado exitosamente",
+	})
 }
 
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
