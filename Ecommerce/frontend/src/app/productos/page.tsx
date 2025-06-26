@@ -60,8 +60,8 @@ function ProductosContent() {
   const [error, setError] = useState('');
 
   // State for the search input field itself, separate from URL
-  const [inputValue, setInputValue] = useState(searchTermFromUrl);
-  const debouncedInputValue = useDebounce(inputValue, 400); // Debounce de 400ms
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
 
   // State for suggestions
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -73,21 +73,6 @@ function ProductosContent() {
   // Estado para saber si está cargando productos (pero no limpiar la grilla)
   const [isFetching, setIsFetching] = useState(false);
 
-  // Effect to update URL when debounced input changes
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('page', '1');
-    if (debouncedInputValue) {
-      params.set('search', debouncedInputValue);
-    } else {
-      params.delete('search');
-    }
-    
-    if (debouncedInputValue !== searchTermFromUrl) {
-      router.push(`/productos?${params.toString()}`, { scroll: false });
-    }
-  }, [debouncedInputValue, router, searchTermFromUrl, searchParams]);
-  
   // Effect to fetch products when URL parameters change
   useEffect(() => {
     const fetchProducts = async () => {
@@ -97,7 +82,7 @@ function ProductosContent() {
         page: String(pageFromUrl),
         limit: '12',
       });
-      if (searchTermFromUrl) params.set('search', searchTermFromUrl);
+      if (debouncedSearchTerm) params.set('search', debouncedSearchTerm);
       if (categoryFromUrl) params.set('category_id', String(categoryFromUrl));
 
       try {
@@ -106,9 +91,9 @@ function ProductosContent() {
         const data = await response.json();
         setProducts(data.products || []);
         setTotalPages(Math.ceil((data.total || 0) / 12));
-        if (response.ok && searchTermFromUrl) {
+        if (response.ok && debouncedSearchTerm) {
           setRecentSearches(prevSearches => {
-            const newSearches = [searchTermFromUrl, ...prevSearches.filter(s => s !== searchTermFromUrl)].slice(0, MAX_RECENT_SEARCHES);
+            const newSearches = [debouncedSearchTerm, ...prevSearches.filter(s => s !== debouncedSearchTerm)].slice(0, MAX_RECENT_SEARCHES);
             localStorage.setItem('recentSearches', JSON.stringify(newSearches));
             return newSearches;
           });
@@ -121,7 +106,7 @@ function ProductosContent() {
       }
     };
     fetchProducts();
-  }, [searchTermFromUrl, categoryFromUrl, pageFromUrl]);
+  }, [debouncedSearchTerm, categoryFromUrl, pageFromUrl]);
 
   // Effect to fetch categories (runs once)
   useEffect(() => {
@@ -147,12 +132,12 @@ function ProductosContent() {
   // Effect to fetch autocomplete suggestions
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (debouncedInputValue.length < 2) {
+      if (debouncedSearchTerm.length < 2) {
         setSuggestions([]);
         return;
       }
       try {
-        const response = await fetch(`${API_BASE_URL}/products/suggestions?q=${debouncedInputValue}`);
+        const response = await fetch(`${API_BASE_URL}/products/suggestions?q=${debouncedSearchTerm}`);
         if (response.ok) {
           const data = await response.json();
           setSuggestions(data.suggestions || []);
@@ -163,7 +148,7 @@ function ProductosContent() {
       } catch (error) { console.error(error); }
     };
     fetchSuggestions();
-  }, [debouncedInputValue]);
+  }, [debouncedSearchTerm]);
 
   // Effect to close suggestions when clicking outside
   useEffect(() => {
@@ -199,12 +184,12 @@ function ProductosContent() {
   };
   
   const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
+    setSearchTerm(suggestion);
     setIsSuggestionsOpen(false);
   };
 
   const handleInputFocus = () => {
-    if (inputValue.length === 0 && recentSearches.length > 0) {
+    if (searchTerm.length === 0 && recentSearches.length > 0) {
       setSuggestions(recentSearches);
       setIsSuggestionsOpen(true);
     }
@@ -345,11 +330,14 @@ function ProductosContent() {
                       ref={searchInputRef}
                       type="text"
                       placeholder="Buscar productos premium..."
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                       onFocus={handleInputFocus}
-                      className="block w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-indigo-300 focus:ring-0 sm:text-sm bg-transparent"
+                      className="block w-full pl-4 pr-12 py-4 border-0 rounded-2xl text-fuchsia-200 placeholder-indigo-300 focus:ring-0 sm:text-sm bg-transparent"
                     />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <Search className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                    </div>
                   </div>
                   {isSuggestionsOpen && suggestions.length > 0 && (
                     <ul className="absolute z-10 mt-2 w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800/95 backdrop-blur-xl shadow-2xl max-h-60 rounded-2xl py-2 text-base ring-1 ring-black/5 overflow-auto focus:outline-none sm:text-sm border border-fuchsia-800/30">
@@ -423,7 +411,7 @@ function ProductosContent() {
                 <p className="text-slate-600 mb-8">Intenta ajustar tus filtros de búsqueda</p>
                 <button 
                   onClick={() => {
-                    setInputValue('');
+                    setSearchTerm('');
                     handleCategoryChange(null);
                     searchInputRef.current?.focus();
                   }} 
@@ -440,13 +428,13 @@ function ProductosContent() {
                   <p className="text-slate-600 mb-2 sm:mb-0">
                     Mostrando <span className="font-bold text-slate-900">{(pageFromUrl - 1) * 12 + 1}-{Math.min(pageFromUrl * 12, products.length + (pageFromUrl - 1) * 12)}</span> de <span className="font-bold text-slate-900">{(totalPages * 12)}</span> productos
                   </p>
-                  {searchTermFromUrl && (
+                  {searchTerm && (
                     <div className="flex items-center">
                       <span className="text-sm text-slate-500 mr-2">Búsqueda:</span>
                       <span className="bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800 text-sm font-bold px-4 py-2 rounded-full flex items-center border border-purple-200">
-                        {searchTermFromUrl}
+                        {searchTerm}
                         <button 
-                          onClick={() => setInputValue('')} 
+                          onClick={() => setSearchTerm('')} 
                           className="ml-2 inline-flex items-center p-1 rounded-full text-purple-400 hover:bg-purple-200 hover:text-purple-900 transition-all duration-200"
                         >
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
