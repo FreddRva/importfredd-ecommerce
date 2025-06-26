@@ -1,12 +1,11 @@
 package email
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/mailersend/mailersend-go"
+	resend "github.com/resendlabs/resend-go"
 	"github.com/tuusuario/ecommerce-backend/internal/models"
 )
 
@@ -15,27 +14,27 @@ var (
 )
 
 func InitEmailService() {
-	apiKey := os.Getenv("MAILERSEND_API_KEY")
+	apiKey := os.Getenv("RESEND_API_KEY")
 	if apiKey == "" {
-		log.Fatalf("FATAL: MAILERSEND_API_KEY es requerida para el servicio de email. La aplicación no puede arrancar.")
+		log.Fatalf("FATAL: RESEND_API_KEY es requerida para el servicio de email. La aplicación no puede arrancar.")
 	}
 
 	DefaultEmailService = NewEmailService()
-	log.Println("✅ Servicio de Email (MailerSend) inicializado correctamente.")
+	log.Println("✅ Servicio de Email (Resend) inicializado correctamente.")
 }
 
 type EmailService struct {
-	client *mailersend.Mailersend
+	client *resend.Client
 }
 
 func NewEmailService() *EmailService {
-	apiKey := os.Getenv("MAILERSEND_API_KEY")
+	apiKey := os.Getenv("RESEND_API_KEY")
 	if apiKey == "" {
-		log.Println("⚠️ MAILERSEND_API_KEY no encontrada en variables de entorno")
+		log.Println("⚠️ RESEND_API_KEY no encontrada en variables de entorno")
 		return nil
 	}
 
-	client := mailersend.NewMailersend(apiKey)
+	client := resend.NewClient(apiKey)
 	return &EmailService{
 		client: client,
 	}
@@ -95,23 +94,15 @@ func (s *EmailService) SendOrderConfirmation(user *models.User, order *models.Or
 	if fromEmail == "" {
 		fromEmail = "noreply@axiora.pro"
 	}
-	message := &mailersend.Message{
-		From: mailersend.From{
-			Email: fromEmail,
-			Name:  "Axiora E-commerce",
-		},
-		Recipients: []mailersend.Recipient{
-			{
-				Email: user.Email,
-				Name:  user.Email,
-			},
-		},
+
+	params := &resend.SendEmailRequest{
+		From:    fromEmail,
+		To:      []string{user.Email},
 		Subject: subject,
-		HTML:    htmlContent,
+		Html:    htmlContent,
 	}
 
-	ctx := context.Background()
-	_, err := s.client.Email.Send(ctx, message)
+	_, err := s.client.Emails.Send(params)
 	if err != nil {
 		log.Printf("❌ Error enviando email de confirmación: %v", err)
 		return err
@@ -170,29 +161,21 @@ func (s *EmailService) SendPaymentConfirmation(user *models.User, payment *model
 			</div>
 		</body>
 		</html>
-	`, user.Email, payment.TransactionID, payment.Amount, payment.Status, payment.PaymentMethod, payment.CreatedAt.Format("02/01/2006 15:04"))
+	`, user.Email, payment.ID, payment.Amount, payment.Status, payment.PaymentMethod, payment.CreatedAt.Format("02/01/2006 15:04"))
 
 	fromEmail := os.Getenv("EMAIL_FROM")
 	if fromEmail == "" {
 		fromEmail = "noreply@axiora.pro"
 	}
-	message := &mailersend.Message{
-		From: mailersend.From{
-			Email: fromEmail,
-			Name:  "Axiora E-commerce",
-		},
-		Recipients: []mailersend.Recipient{
-			{
-				Email: user.Email,
-				Name:  user.Email,
-			},
-		},
+
+	params := &resend.SendEmailRequest{
+		From:    fromEmail,
+		To:      []string{user.Email},
 		Subject: subject,
-		HTML:    htmlContent,
+		Html:    htmlContent,
 	}
 
-	ctx := context.Background()
-	_, err := s.client.Email.Send(ctx, message)
+	_, err := s.client.Emails.Send(params)
 	if err != nil {
 		log.Printf("❌ Error enviando email de pago: %v", err)
 		return err
@@ -228,10 +211,10 @@ func (s *EmailService) SendTestEmail(to, subject, body string) error {
 				</div>
 				<div class="content">
 					<h2>¡Hola!</h2>
-					<p>Este es un email de prueba desde tu aplicación e-commerce con MailerSend.</p>
+					<p>Este es un email de prueba desde tu aplicación e-commerce con Resend.</p>
 					<p><strong>Asunto:</strong> %s</p>
 					<p><strong>Mensaje:</strong> %s</p>
-					<p>Si recibes este email, significa que tu configuración de MailerSend está funcionando correctamente.</p>
+					<p>Si recibes este email, significa que tu configuración de Resend está funcionando correctamente.</p>
 				</div>
 				<div class="footer">
 					<p>Enviado desde tu aplicación e-commerce</p>
@@ -245,23 +228,15 @@ func (s *EmailService) SendTestEmail(to, subject, body string) error {
 	if fromEmail == "" {
 		fromEmail = "noreply@axiora.pro"
 	}
-	message := &mailersend.Message{
-		From: mailersend.From{
-			Email: fromEmail,
-			Name:  "Axiora E-commerce",
-		},
-		Recipients: []mailersend.Recipient{
-			{
-				Email: to,
-				Name:  to,
-			},
-		},
+
+	params := &resend.SendEmailRequest{
+		From:    fromEmail,
+		To:      []string{to},
 		Subject: subject,
-		HTML:    htmlContent,
+		Html:    htmlContent,
 	}
 
-	ctx := context.Background()
-	_, err := s.client.Email.Send(ctx, message)
+	_, err := s.client.Emails.Send(params)
 	if err != nil {
 		log.Printf("❌ Error enviando email de prueba: %v", err)
 		return err
@@ -318,22 +293,15 @@ func SendVerificationEmail(to, token string) error {
 	if fromEmail == "" {
 		fromEmail = "noreply@axiora.pro"
 	}
-	message := &mailersend.Message{
-		From: mailersend.From{
-			Email: fromEmail,
-			Name:  "Axiora E-commerce",
-		},
-		Recipients: []mailersend.Recipient{
-			{
-				Email: to,
-			},
-		},
+
+	params := &resend.SendEmailRequest{
+		From:    fromEmail,
+		To:      []string{to},
 		Subject: subject,
-		HTML:    htmlContent,
+		Html:    htmlContent,
 	}
 
-	ctx := context.Background()
-	_, err := DefaultEmailService.client.Email.Send(ctx, message)
+	_, err := DefaultEmailService.client.Emails.Send(params)
 	if err != nil {
 		log.Printf("❌ Error enviando email de verificación: %v", err)
 		return err
@@ -390,22 +358,15 @@ func SendVerificationCodeEmail(to, code string) error {
 	if fromEmail == "" {
 		fromEmail = "noreply@axiora.pro"
 	}
-	message := &mailersend.Message{
-		From: mailersend.From{
-			Email: fromEmail,
-			Name:  "Axiora E-commerce",
-		},
-		Recipients: []mailersend.Recipient{
-			{
-				Email: to,
-			},
-		},
+
+	params := &resend.SendEmailRequest{
+		From:    fromEmail,
+		To:      []string{to},
 		Subject: subject,
-		HTML:    htmlContent,
+		Html:    htmlContent,
 	}
 
-	ctx := context.Background()
-	_, err := DefaultEmailService.client.Email.Send(ctx, message)
+	_, err := DefaultEmailService.client.Emails.Send(params)
 	if err != nil {
 		log.Printf("❌ Error enviando email con código de verificación: %v", err)
 		return err

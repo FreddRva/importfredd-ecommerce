@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   
   // Configuración de imágenes
   images: {
-    domains: ['localhost', 'tu-backend.herokuapp.com'],
+    domains: ['localhost', 'tu-backend.herokuapp.com', 'axiora.pro', 'importfredd-ecommerce.onrender.com'],
     formats: ['image/webp', 'image/avif'],
   },
   
@@ -37,8 +37,8 @@ const nextConfig: NextConfig = {
   
   // Configuración de WebAuthn para producción
   env: {
-    NEXT_PUBLIC_WEBAUTHN_RPID: process.env.NEXT_PUBLIC_WEBAUTHN_RPID || 'localhost',
-    NEXT_PUBLIC_WEBAUTHN_RP_ORIGIN: process.env.NEXT_PUBLIC_WEBAUTHN_RP_ORIGIN || 'http://localhost:3000',
+    NEXT_PUBLIC_WEBAUTHN_RPID: process.env.NEXT_PUBLIC_WEBAUTHN_RPID || 'axiora.pro',
+    NEXT_PUBLIC_WEBAUTHN_RP_ORIGIN: process.env.NEXT_PUBLIC_WEBAUTHN_RP_ORIGIN || 'https://axiora.pro',
   },
 };
 

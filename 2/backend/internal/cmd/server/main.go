@@ -45,7 +45,8 @@ func main() {
 	// Configurar CORS
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
-		"https://importfredd-ecommercerv.vercel.app",                             // producción
+		"https://axiora.pro",                                                     // producción con dominio personalizado
+		"https://importfredd-ecommercerv.vercel.app",                             // producción Vercel
 		"https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app", // preview Vercel
 		"http://localhost:3000",                                                  // desarrollo local
 	}

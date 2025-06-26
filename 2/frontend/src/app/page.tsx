@@ -487,8 +487,8 @@ export default function HomePage() {
             <div className="w-1 h-1 sm:w-2 sm:h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
           </div>
           <p className="text-xs sm:text-sm text-slate-400">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 font-black">ImportFredd</span> - 
-            Revolucionando tu experiencia de compra online
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 font-black">Axiora</span> - 
+            Revolucionando tu experiencia de compra online en <span className="text-purple-300">axiora.pro</span>
           </p>
         </div>
       </div>

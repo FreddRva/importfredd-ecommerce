@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ImportFredd - Tienda Online Premium",
-  description: "Descubre nuestra colección exclusiva de productos premium. Zapatillas, ropa y accesorios de la más alta calidad.",
-  keywords: "ecommerce, zapatillas, ropa, accesorios, premium, moda",
+  title: "Axiora - Tienda Online Premium",
+  description: "Descubre nuestra colección exclusiva de productos premium en axiora.pro. Zapatillas, ropa y accesorios de la más alta calidad.",
+  keywords: "ecommerce, zapatillas, ropa, accesorios, premium, moda, axiora",
 };
 
 export default function RootLayout({

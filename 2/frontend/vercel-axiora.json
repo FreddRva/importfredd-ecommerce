@@ -20,9 +20,9 @@
   "env": {
     "NEXT_PUBLIC_API_URL": "https://importfredd-ecommerce.onrender.com",
     "NEXT_PUBLIC_WEBAUTHN_RPID": "axiora.pro",
-    "NEXT_PUBLIC_WEBAUTHN_RP_ORIGIN": "https://axiora.pro",
-    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_..."
+    "NEXT_PUBLIC_WEBAUTHN_RP_ORIGIN": "https://axiora.pro"
   },
+  "domains": ["axiora.pro"],
   "functions": {
     "app/api/**/*.ts": {
       "maxDuration": 30
