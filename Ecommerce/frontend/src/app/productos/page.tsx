@@ -456,6 +456,19 @@ function ProductosContent() {
                       }
                       style={{ animationDelay: `${index * 0.07}s` }}
                     >
+                      {/* Botón de favoritos destacado arriba a la derecha */}
+                      <div className="absolute top-4 right-4 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
+                          }}
+                          className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : ''}`}
+                          aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                        >
+                          <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+                        </button>
+                      </div>
                       {viewMode === 'grid' ? (
                         <>
                           <div className="relative">
