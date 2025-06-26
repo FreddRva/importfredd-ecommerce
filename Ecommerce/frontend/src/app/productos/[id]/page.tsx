@@ -107,9 +107,13 @@ export default function ProductDetailPage() {
           <Star className="absolute top-10 left-10 w-10 h-10 text-yellow-400/30 animate-float-slow" />
           <ShoppingCart className="absolute bottom-20 right-20 w-14 h-14 text-fuchsia-400/20 animate-float-medium" />
           <Orbit className="absolute top-1/2 left-1/3 w-16 h-16 text-cyan-400/20 animate-float-fast" />
+          <Star className="absolute bottom-10 left-1/4 w-8 h-8 text-fuchsia-400/20 animate-float-medium" />
+          <ShoppingCart className="absolute top-1/4 right-1/4 w-10 h-10 text-yellow-400/10 animate-float-slow" />
+          <Orbit className="absolute bottom-1/3 right-10 w-12 h-12 text-cyan-400/10 animate-float-fast" />
+          <Star className="absolute top-1/3 right-1/3 w-6 h-6 text-fuchsia-400/10 animate-float-slow" />
         </div>
         <div className="container mx-auto px-4 py-8 sm:py-12 relative z-10">
-          <div className="mb-6">
+          <div className="mb-16">
             <Link href="/productos" className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 animate-fade-in">
               <ArrowLeft size={20} />
               Volver al catálogo
