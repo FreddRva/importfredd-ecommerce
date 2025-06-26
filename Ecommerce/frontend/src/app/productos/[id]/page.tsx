@@ -26,6 +26,7 @@ interface Product {
   dimensions: string; // URL del modelo 3D
   is_active: boolean; // Necesitamos este campo
   model_url?: string;
+  stock: number;
 }
 
 export default function ProductDetailPage() {
@@ -160,14 +161,22 @@ export default function ProductDetailPage() {
               <p className="text-fuchsia-100 text-lg leading-relaxed mb-2 animate-fade-in drop-shadow-xl">{product.description}</p>
               <div className="text-5xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent mb-6 drop-shadow-xl animate-glow">${product.price.toFixed(2)}</div>
               <button
-                onClick={handleAddToCart}
+                onClick={product.stock === 0 ? undefined : handleAddToCart}
+                disabled={product.stock === 0}
                 className={`w-full flex items-center justify-center px-8 py-5 rounded-2xl text-xl font-extrabold shadow-xl transition-all duration-300 animate-glow
-                  ${addedToCart
-                    ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-slate-900 hover:from-green-500 hover:to-emerald-500'
-                    : 'bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-white hover:from-yellow-400 hover:to-fuchsia-600'}
+                  ${product.stock === 0
+                    ? 'bg-gradient-to-r from-slate-700 to-slate-900 text-fuchsia-200 cursor-not-allowed opacity-60'
+                    : addedToCart
+                      ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-slate-900 hover:from-green-500 hover:to-emerald-500'
+                      : 'bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-white hover:from-yellow-400 hover:to-fuchsia-600'}
                 `}
               >
-                {addedToCart ? (
+                {product.stock === 0 ? (
+                  <>
+                    <ShoppingCart className="mr-3" size={28} />
+                    Producto agotado
+                  </>
+                ) : addedToCart ? (
                   <>
                     <CheckCircle className="mr-3 animate-bounce-in" size={28} />
                     Añadido al carrito
