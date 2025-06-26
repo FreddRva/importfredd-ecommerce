@@ -2,6 +2,7 @@ package auth
 
 import (
 	"log"
+	"os"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 )
@@ -9,13 +10,25 @@ import (
 var WebAuthn *webauthn.WebAuthn
 
 func InitWebAuthn() {
+	// Obtener configuración desde variables de entorno
+	rpID := os.Getenv("WEBAUTHN_RPID")
+	if rpID == "" {
+		rpID = "axiora.pro" // Valor por defecto para producción
+	}
+
+	rpOrigin := os.Getenv("WEBAUTHN_RP_ORIGIN")
+	if rpOrigin == "" {
+		rpOrigin = "https://axiora.pro" // Valor por defecto para producción
+	}
+
 	var err error
 	WebAuthn, err = webauthn.New(&webauthn.Config{
-		RPDisplayName: "NextGen E-commerce",
-		RPID:          "localhost",
+		RPDisplayName: "Axiora E-commerce",
+		RPID:          rpID,
 		RPOrigins: []string{
-			"http://localhost:3000",
-			"http://192.168.1.100:3000",
+			rpOrigin,
+			"https://axiora.pro",    // Dominio principal
+			"http://localhost:3000", // Desarrollo local
 		},
 		// Configuración más permisiva para desarrollo
 		AttestationPreference: "none", // No requiere attestation
@@ -23,5 +36,5 @@ func InitWebAuthn() {
 	if err != nil {
 		log.Fatalf("Fallo al inicializar WebAuthn: %v", err)
 	}
-	log.Println("WebAuthn inicializado con éxito")
+	log.Printf("WebAuthn inicializado con éxito - RPID: %s, RPOrigin: %s", rpID, rpOrigin)
 }

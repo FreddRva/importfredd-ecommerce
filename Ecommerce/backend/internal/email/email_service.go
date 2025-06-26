@@ -252,7 +252,13 @@ func SendVerificationEmail(to, token string) error {
 	}
 
 	subject := "Verifica tu dirección de correo electrónico"
-	verificationLink := fmt.Sprintf("http://localhost:3000/auth/verify-email?token=%s", token)
+
+	// Usar el dominio de producción en lugar de localhost
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "https://axiora.pro"
+	}
+	verificationLink := fmt.Sprintf("%s/auth/verify-email?token=%s", frontendURL, token)
 
 	htmlContent := fmt.Sprintf(`
 		<!DOCTYPE html>

@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   
   // Configuración de imágenes
   images: {
-    domains: ['localhost', 'tu-backend.herokuapp.com', 'axiora.pro', 'importfredd-ecommerce.onrender.com'],
+    domains: ['localhost', 'axiora.pro', 'importfredd-ecommerce.onrender.com'],
     formats: ['image/webp', 'image/avif'],
   },
   

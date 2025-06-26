@@ -2,10 +2,10 @@ package auth
 
 import (
 	"crypto/rand"
-	"fmt"
 	"log"
 	"math/big"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -108,17 +108,28 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 
 // Nueva función para obtener la instancia de WebAuthn según el Origin
 func getWebAuthnByOrigin(origin string) (*webauthn.WebAuthn, error) {
+	// Determinar RPID y RPOrigin basado en el origen de la petición
 	var rpID, rpOrigin string
-
 	switch origin {
-	case "https://importfredd-ecommercerv.vercel.app":
-		rpID = "importfredd-ecommercerv.vercel.app"
-		rpOrigin = "https://importfredd-ecommercerv.vercel.app"
-	case "https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app":
-		rpID = "importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app"
-		rpOrigin = "https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app"
+	case "https://axiora.pro":
+		rpID = "axiora.pro"
+		rpOrigin = "https://axiora.pro"
+	case "https://importfredd-axiora.vercel.app":
+		rpID = "axiora.pro"
+		rpOrigin = "https://axiora.pro"
+	case "http://localhost:3000":
+		rpID = "localhost"
+		rpOrigin = "http://localhost:3000"
 	default:
-		return nil, fmt.Errorf("Origin no permitido para WebAuthn: %s", origin)
+		// Para cualquier otro origen, usar la configuración por defecto
+		rpID = os.Getenv("WEBAUTHN_RPID")
+		if rpID == "" {
+			rpID = "axiora.pro"
+		}
+		rpOrigin = os.Getenv("WEBAUTHN_RP_ORIGIN")
+		if rpOrigin == "" {
+			rpOrigin = "https://axiora.pro"
+		}
 	}
 
 	waconfig := &webauthn.Config{
