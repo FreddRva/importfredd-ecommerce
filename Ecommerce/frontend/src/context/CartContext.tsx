@@ -25,6 +25,7 @@ interface CartContextType {
   removeFromCart: (itemId: number) => Promise<void>;
   clearLocalCart: () => void;
   mergeLocalAndDbCart: () => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -189,6 +190,23 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isAuthenticated, token, fetchCart]);
 
+  const clearCart = async () => {
+    if (!isAuthenticated || !token) {
+      localStorage.removeItem('cart');
+      setCart([]);
+      return;
+    }
+    try {
+      await fetch(`${API_BASE_URL}/api/cart/clear`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      await fetchCart();
+    } catch (err: any) {
+      setError('No se pudo limpiar el carrito: ' + err.message);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchCart();
@@ -213,7 +231,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     <CartContext.Provider value={{ 
         cart: safeCart, loading, error, itemCount, totalPrice,
         fetchCart, addToCart, updateQuantity, removeFromCart, 
-        clearLocalCart, mergeLocalAndDbCart 
+        clearLocalCart, mergeLocalAndDbCart, clearCart
     }}>
       {children}
     </CartContext.Provider>
