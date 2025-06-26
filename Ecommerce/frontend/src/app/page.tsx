@@ -6,6 +6,7 @@ import { ArrowRight, Star, ShoppingCart, Eye, Heart, Settings, Sparkles, Zap, Tr
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/context/CartContext';
 import { API_BASE_URL } from '@/lib/api';
+import { useFavorites } from '@/context/FavoritesContext';
 
 export default function HomePage() {
   const [currentDate, setCurrentDate] = useState('');
@@ -21,6 +22,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [errorCategories, setErrorCategories] = useState("");
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
   // Paleta de colores premium
   const colors = {
@@ -289,18 +291,12 @@ export default function HomePage() {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          if (typeof window !== 'undefined') {
-                            const favs = JSON.parse(localStorage.getItem('importfredd_favs') || '[]');
-                            const isFav = favs.includes(product.id);
-                            const newFavs = isFav ? favs.filter((id: number) => id !== product.id) : [...favs, product.id];
-                            localStorage.setItem('importfredd_favs', JSON.stringify(newFavs));
-                            window.dispatchEvent(new Event('storage'));
-                          }
+                          isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
                         }}
-                        className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in`}
-                        aria-label="Agregar a favoritos"
+                        className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : ''}`}
+                        aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                       >
-                        <Heart className="w-6 h-6" />
+                        <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
                       </button>
                       <Link href={`/productos/${product.id}`} className="p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 shadow-md transition-all duration-300 animate-fade-in flex items-center justify-center" aria-label="Ver detalles">
                         <Eye className="w-6 h-6" />
