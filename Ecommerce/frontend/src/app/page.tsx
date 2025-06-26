@@ -284,7 +284,29 @@ export default function HomePage() {
                     className="group relative min-w-[260px] max-w-xs w-full bg-gradient-to-br from-indigo-900/60 via-slate-900/60 to-fuchsia-900/60 backdrop-blur-xl border border-fuchsia-700/30 rounded-3xl shadow-2xl p-5 flex flex-col items-center justify-between transition-transform duration-300 hover:scale-105 hover:shadow-fuchsia-500/30 hover:-translate-y-2 cursor-pointer snap-center animate-fade-in"
                     style={{ animationDelay: `${idx * 0.1}s` }}
                   >
-                    <div className="absolute top-4 right-4 z-10">
+                    {/* Botones destacados: Favoritos y Ver detalles */}
+                    <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (typeof window !== 'undefined') {
+                            const favs = JSON.parse(localStorage.getItem('importfredd_favs') || '[]');
+                            const isFav = favs.includes(product.id);
+                            const newFavs = isFav ? favs.filter((id: number) => id !== product.id) : [...favs, product.id];
+                            localStorage.setItem('importfredd_favs', JSON.stringify(newFavs));
+                            window.dispatchEvent(new Event('storage'));
+                          }
+                        }}
+                        className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in`}
+                        aria-label="Agregar a favoritos"
+                      >
+                        <Heart className="w-6 h-6" />
+                      </button>
+                      <Link href={`/productos/${product.id}`} className="p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 shadow-md transition-all duration-300 animate-fade-in flex items-center justify-center" aria-label="Ver detalles">
+                        <Eye className="w-6 h-6" />
+                      </Link>
+                    </div>
+                    <div className="absolute top-4 left-4 z-10">
                       <span className={`px-3 py-1 rounded-full text-xs font-bold border ${stock.bgColor} ${stock.color} ${stock.borderColor} shadow-sm flex items-center gap-1 animate-pulse bg-slate-900/80`}> <span>{stock.icon}</span> {stock.text} </span>
                     </div>
                     <div className="w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center mb-4 relative">
