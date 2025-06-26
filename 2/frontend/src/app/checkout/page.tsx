@@ -175,7 +175,7 @@ export default function CheckoutPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-40">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
 
   if (itemCount === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-40">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />

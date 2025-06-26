@@ -231,7 +231,7 @@ export default function MiCuentaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 relative overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-40 relative overflow-x-hidden">
       {/* Partículas animadas */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-20 left-10 w-2 h-2 bg-purple-400/30 rounded-full animate-ping"></div>
