@@ -131,6 +131,14 @@ export default function HomePage() {
       <svg className="absolute left-1/3 bottom-10 animate-spin-reverse opacity-20" width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#34d399" strokeWidth="1.5"/><rect x="9" y="17" width="6" height="2" rx="1" stroke="#fbbf24" strokeWidth="1.5"/></svg>
       {/* Casa */}
       <svg className="absolute right-10 bottom-20 animate-float opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7Z" stroke="#f472b6" strokeWidth="1.5"/><rect x="9" y="14" width="6" height="5" rx="1" stroke="#38bdf8" strokeWidth="1.5"/></svg>
+      {/* Accesorio (reloj) */}
+      <svg className="absolute left-1/2 top-1/4 animate-spin-slow opacity-25" width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fbbf24" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="#a78bfa" strokeWidth="1.5"/></svg>
+      {/* Electrónica (auriculares) */}
+      <svg className="absolute right-1/3 top-10 animate-float opacity-20" width="56" height="56" viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="8" rx="4" stroke="#34d399" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" stroke="#f472b6" strokeWidth="1.5"/><circle cx="16" cy="12" r="2" stroke="#f472b6" strokeWidth="1.5"/></svg>
+      {/* Bolsa de compras */}
+      <svg className="absolute left-24 bottom-1/4 animate-spin-reverse opacity-20" width="52" height="52" viewBox="0 0 24 24" fill="none"><rect x="5" y="7" width="14" height="13" rx="2" stroke="#fbbf24" strokeWidth="1.5"/><path d="M7 7V5a5 5 0 0 1 10 0v2" stroke="#a78bfa" strokeWidth="1.5"/></svg>
+      {/* Camiseta */}
+      <svg className="absolute right-1/4 bottom-10 animate-float opacity-25" width="54" height="54" viewBox="0 0 24 24" fill="none"><path d="M4 4l4 2 4-2 4 2 4-2" stroke="#38bdf8" strokeWidth="1.5"/><rect x="6" y="6" width="12" height="12" rx="2" stroke="#f472b6" strokeWidth="1.5"/></svg>
     </div>
   );
 
