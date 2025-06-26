@@ -323,9 +323,6 @@ function ProductosContent() {
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative bg-gradient-to-br from-slate-900/80 to-indigo-900/80 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-yellow-400 focus-within:ring-2 focus-within:ring-yellow-400/20 transition-all duration-300 group-hover:bg-slate-900/90 group-hover:shadow-lg">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-indigo-200 group-hover:text-yellow-400 transition-colors duration-300" />
-                    </div>
                     <input
                       ref={searchInputRef}
                       type="text"
@@ -333,11 +330,8 @@ function ProductosContent() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onFocus={handleInputFocus}
-                      className="block w-full pl-4 pr-12 py-4 border-0 rounded-2xl text-fuchsia-200 placeholder-indigo-300 focus:ring-0 sm:text-sm bg-transparent"
+                      className="block w-full pl-4 pr-12 py-4 border-0 rounded-2xl text-fuchsia-700 placeholder-fuchsia-700 focus:ring-0 sm:text-sm bg-transparent"
                     />
-                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
-                    </div>
                   </div>
                   {isSuggestionsOpen && suggestions.length > 0 && (
                     <ul className="absolute z-10 mt-2 w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800/95 backdrop-blur-xl shadow-2xl max-h-60 rounded-2xl py-2 text-base ring-1 ring-black/5 overflow-auto focus:outline-none sm:text-sm border border-fuchsia-800/30">
