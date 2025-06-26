@@ -458,85 +458,98 @@ function ProductosContent() {
                     >
                       {viewMode === 'grid' ? (
                         <>
-                          <Link href={`/productos/${product.id}`} className="block">
-                            <div className="relative aspect-square w-full bg-gradient-to-br from-slate-800/60 to-indigo-900/60 overflow-hidden flex items-center justify-center">
-                              <img 
-                                src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23232b3b'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"} 
-                                alt={product.name} 
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 drop-shadow-xl" 
-                              />
-                              {/* Stock/Fav Badges - Premium */}
-                              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                                {product.stock > 0 ? (
-                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-400/80 to-emerald-400/80 text-slate-900 border border-green-300/40 shadow-md animate-bounce-in">
-                                    ✅ Disponible
+                          <div className="relative">
+                            <Link href={`/productos/${product.id}`} className="block">
+                              <div className="relative aspect-square w-full bg-gradient-to-br from-slate-800/60 to-indigo-900/60 overflow-hidden flex items-center justify-center">
+                                <img 
+                                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23232b3b'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"} 
+                                  alt={product.name} 
+                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 drop-shadow-xl" 
+                                />
+                                {/* Stock/Fav Badges - Premium */}
+                                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                                  {product.stock > 0 ? (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-400/80 to-emerald-400/80 text-slate-900 border border-green-300/40 shadow-md animate-bounce-in">
+                                      ✅ Disponible
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-400/80 to-pink-400/80 text-slate-900 border border-red-300/40 shadow-md animate-pulse">
+                                      ❌ Agotado
+                                    </span>
+                                  )}
+                                </div>
+                                {/* Botones destacados: Favoritos y Ver detalles */}
+                                <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
+                                    }}
+                                    className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : ''}`}
+                                    aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                                  >
+                                    <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+                                  </button>
+                                  <Link href={`/productos/${product.id}`} className="p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 shadow-md transition-all duration-300 animate-fade-in flex items-center justify-center" aria-label="Ver detalles">
+                                    <Eye className="w-6 h-6" />
+                                  </Link>
+                                </div>
+                                {/* Hover Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+                                  <span className="text-white font-bold flex items-center text-lg drop-shadow-xl">
+                                    <Eye className="w-5 h-5 mr-2" /> Ver detalles
                                   </span>
-                                ) : (
-                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-red-400/80 to-pink-400/80 text-slate-900 border border-red-300/40 shadow-md animate-pulse">
-                                    ❌ Agotado
-                                  </span>
-                                )}
-                                {isFavorite(product.id) && (
-                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-pink-400/80 to-fuchsia-400/80 text-slate-900 border border-pink-300/40 shadow-md animate-fade-in">
-                                    <Heart className="w-3 h-3 mr-1" /> Favorito
-                                  </span>
-                                )}
+                                </div>
                               </div>
-                              {/* Hover Overlay */}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                                <span className="text-white font-bold flex items-center text-lg drop-shadow-xl">
-                                  <Eye className="w-5 h-5 mr-2" /> Ver detalles
-                                </span>
+                            </Link>
+                          </div>
+                          <div className="px-6 pt-6 pb-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h3 className="text-xl font-black text-white mb-2 line-clamp-1 group-hover:text-yellow-400 transition-colors duration-300 drop-shadow-xl">{product.name}</h3>
+                                  <p className="text-xs font-bold text-fuchsia-300 uppercase tracking-wider mb-2 bg-fuchsia-900/40 px-3 py-1 rounded-full inline-block shadow-md">{product.category_name}</p>
+                              </div>
+                              <div className="flex items-center text-yellow-400">
+                                <Star size={18} fill="currentColor" />
+                                <span className="text-white text-sm font-bold ml-1">4.5</span>
                               </div>
                             </div>
-                            <div className="px-6 pt-6 pb-4">
-                              <div className="flex justify-between items-start mb-3">
-                                <div>
-                                  <h3 className="text-xl font-black text-white mb-2 line-clamp-1 group-hover:text-yellow-400 transition-colors duration-300 drop-shadow-xl">{product.name}</h3>
-                                  <p className="text-xs font-bold text-fuchsia-300 uppercase tracking-wider mb-2 bg-fuchsia-900/40 px-3 py-1 rounded-full inline-block shadow-md">{product.category_name}</p>
-                                </div>
-                                <div className="flex items-center text-yellow-400">
-                                  <Star size={18} fill="currentColor" />
-                                  <span className="text-white text-sm font-bold ml-1">4.5</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between mb-4">
-                                <span className="text-3xl font-black text-white drop-shadow-xl">${product.price.toFixed(2)}</span>
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
-                                  }}
-                                  className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : 'text-fuchsia-200 hover:text-fuchsia-400 hover:bg-fuchsia-900/30'}`}
-                                  aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                            <div className="flex items-center justify-between mb-4">
+                              <span className="text-3xl font-black text-white drop-shadow-xl">${product.price.toFixed(2)}</span>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
+                                }}
+                                className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : 'text-fuchsia-200 hover:text-fuchsia-400 hover:bg-fuchsia-900/30'}`}
+                                aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                              >
+                                <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+                              </button>
+                            </div>
+                            {product.stock === 0 ? (
+                              <span className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent text-sm font-bold rounded-xl shadow-lg text-slate-400 bg-slate-900/60 cursor-not-allowed">
+                                Producto agotado
+                              </span>
+                            ) : (
+                              <div className="flex gap-3">
+                                <button 
+                                  onClick={() => addToCart({ product_id: product.id, product_name: product.name, price: product.price, quantity: 1, image_url: product.image_url || '' })} 
+                                  className="flex-1 inline-flex justify-center items-center px-6 py-4 border border-transparent text-sm font-bold rounded-xl shadow-lg text-white bg-gradient-to-r from-fuchsia-600 to-yellow-400 hover:from-yellow-400 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500 transition-all duration-300 transform hover:scale-105 animate-glow"
                                 >
-                                  <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+                                  <ShoppingCart className="w-5 h-5 mr-2" />
+                                  Añadir
+                                </button>
+                                <button
+                                  onClick={() => setSelectedModel({ path: product.model_url || '', name: product.name })}
+                                  className="p-4 inline-flex items-center justify-center rounded-xl border border-fuchsia-800/30 bg-slate-900/60 text-fuchsia-200 shadow-lg hover:bg-fuchsia-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500 transition-all duration-300 transform hover:scale-105 animate-fade-in"
+                                  aria-label="Ver en 3D"
+                                >
+                                  <Orbit className="w-5 h-5" />
                                 </button>
                               </div>
-                              {product.stock === 0 ? (
-                                <span className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent text-sm font-bold rounded-xl shadow-lg text-slate-400 bg-slate-900/60 cursor-not-allowed">
-                                  Producto agotado
-                                </span>
-                              ) : (
-                                <div className="flex gap-3">
-                                  <button 
-                                    onClick={() => addToCart({ product_id: product.id, product_name: product.name, price: product.price, quantity: 1, image_url: product.image_url || '' })} 
-                                    className="flex-1 inline-flex justify-center items-center px-6 py-4 border border-transparent text-sm font-bold rounded-xl shadow-lg text-white bg-gradient-to-r from-fuchsia-600 to-yellow-400 hover:from-yellow-400 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500 transition-all duration-300 transform hover:scale-105 animate-glow"
-                                  >
-                                    <ShoppingCart className="w-5 h-5 mr-2" />
-                                    Añadir
-                                  </button>
-                                  <button
-                                    onClick={() => setSelectedModel({ path: product.model_url || '', name: product.name })}
-                                    className="p-4 inline-flex items-center justify-center rounded-xl border border-fuchsia-800/30 bg-slate-900/60 text-fuchsia-200 shadow-lg hover:bg-fuchsia-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-500 transition-all duration-300 transform hover:scale-105 animate-fade-in"
-                                    aria-label="Ver en 3D"
-                                  >
-                                    <Orbit className="w-5 h-5" />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </Link>
+                            )}
+                          </div>
                         </>
                       ) : (
                         <>
@@ -547,8 +560,24 @@ function ProductosContent() {
                                 alt={product.name} 
                                 className="w-full h-full object-cover rounded-l-3xl transition-transform duration-700 group-hover:scale-105 drop-shadow-xl" 
                               />
+                              {/* Botones destacados: Favoritos y Ver detalles */}
+                              <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
+                                  }}
+                                  className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : ''}`}
+                                  aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                                >
+                                  <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+                                </button>
+                                <Link href={`/productos/${product.id}`} className="p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 shadow-md transition-all duration-300 animate-fade-in flex items-center justify-center" aria-label="Ver detalles">
+                                  <Eye className="w-6 h-6" />
+                                </Link>
+                              </div>
                               {isFavorite(product.id) && (
-                                <div className="absolute top-4 right-4 bg-fuchsia-900/60 rounded-full p-2 shadow-lg animate-fade-in">
+                                <div className="absolute top-4 left-4 bg-fuchsia-900/60 rounded-full p-2 shadow-lg animate-fade-in">
                                   <Heart className="w-4 h-4 text-fuchsia-400" fill="currentColor" />
                                 </div>
                               )}
