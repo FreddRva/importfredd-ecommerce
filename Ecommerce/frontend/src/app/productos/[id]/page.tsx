@@ -87,7 +87,7 @@ export default function ProductDetailPage() {
       <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
         <h2 className="text-2xl font-bold text-red-600 mb-4">{error}</h2>
         <p className="text-gray-600 mb-6">Lo sentimos, no pudimos encontrar el producto que buscas.</p>
-        <Link href="/productos" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <Link href="/productos" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors mt-10">
           Volver al catálogo
         </Link>
       </div>
@@ -102,17 +102,17 @@ export default function ProductDetailPage() {
     <>
       {/* Fondo gradiente y floating icons premium */}
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 relative overflow-x-hidden">
-        {/* Floating icons decorativos */}
+        {/* Floating icons decorativos premium detrás del contenido */}
         <div className="pointer-events-none select-none absolute inset-0 z-0">
-          <Star className="absolute top-10 left-10 w-10 h-10 text-yellow-400/30 animate-float-slow" />
-          <ShoppingCart className="absolute bottom-20 right-20 w-14 h-14 text-fuchsia-400/20 animate-float-medium" />
-          <Orbit className="absolute top-1/2 left-1/3 w-16 h-16 text-cyan-400/20 animate-float-fast" />
-          <Star className="absolute bottom-10 left-1/4 w-8 h-8 text-fuchsia-400/20 animate-float-medium" />
-          <ShoppingCart className="absolute top-1/4 right-1/4 w-10 h-10 text-yellow-400/10 animate-float-slow" />
-          <Orbit className="absolute bottom-1/3 right-10 w-12 h-12 text-cyan-400/10 animate-float-fast" />
-          <Star className="absolute top-1/3 right-1/3 w-6 h-6 text-fuchsia-400/10 animate-float-slow" />
+          <Star className="absolute top-10 left-10 w-16 h-16 text-yellow-400 opacity-10 animate-float-slow" />
+          <ShoppingCart className="absolute bottom-20 right-20 w-24 h-24 text-fuchsia-400 opacity-10 animate-float-medium" />
+          <Orbit className="absolute top-1/2 left-1/3 w-24 h-24 text-cyan-400 opacity-10 animate-float-fast" />
+          <Star className="absolute bottom-10 left-1/4 w-14 h-14 text-fuchsia-400 opacity-10 animate-float-medium" />
+          <ShoppingCart className="absolute top-1/4 right-1/4 w-16 h-16 text-yellow-400 opacity-10 animate-float-slow" />
+          <Orbit className="absolute bottom-1/3 right-10 w-20 h-20 text-cyan-400 opacity-10 animate-float-fast" />
+          <Star className="absolute top-1/3 right-1/3 w-10 h-10 text-fuchsia-400 opacity-10 animate-float-slow" />
         </div>
-        <div className="container mx-auto px-4 py-8 sm:py-12 relative z-10">
+        <div className="container mx-auto px-4 pt-28 pb-8 sm:pt-32 sm:pb-12 relative z-10">
           <div className="mb-16">
             <Link href="/productos" className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 animate-fade-in">
               <ArrowLeft size={20} />
