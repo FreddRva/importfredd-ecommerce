@@ -204,6 +204,38 @@ func (h *Handler) GetCategories(c *gin.Context) {
 	c.JSON(http.StatusOK, cats)
 }
 
+// Obtener categorías con conteo de productos activos
+func (h *Handler) GetCategoriesWithProductCount(c *gin.Context) {
+	rows, err := h.DB.Query(c, `
+		SELECT c.id, c.name, COUNT(p.id) as product_count
+		FROM categories c
+		LEFT JOIN products p ON p.category_id = c.id AND p.is_active = true
+		GROUP BY c.id, c.name
+		ORDER BY c.name ASC
+	`)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Error obteniendo categorías"})
+		return
+	}
+	defer rows.Close()
+
+	var categories []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var name string
+		var count int
+		if err := rows.Scan(&id, &name, &count); err != nil {
+			continue
+		}
+		categories = append(categories, map[string]interface{}{
+			"id":    id,
+			"name":  name,
+			"count": count,
+		})
+	}
+	c.JSON(200, gin.H{"categories": categories})
+}
+
 // ---------------------------
 // PERFIL DE USUARIO
 // ---------------------------

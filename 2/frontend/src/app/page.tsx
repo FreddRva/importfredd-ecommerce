@@ -16,6 +16,9 @@ export default function HomePage() {
   const [errorFeatured, setErrorFeatured] = useState("");
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
   const [scrollY, setScrollY] = useState(0);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [errorCategories, setErrorCategories] = useState("");
 
   // Paleta de colores premium
   const colors = {
@@ -67,14 +70,24 @@ export default function HomePage() {
     fetchFeatured();
   }, []);
 
-  const categories = [
-    { name: "Zapatillas", icon: "👟", count: 10, color: colors.info, gradient: "from-blue-500 to-cyan-500" },
-    { name: "Electrónicos", icon: "📱", count: 23, color: colors.premium, gradient: "from-yellow-400 to-orange-500" },
-    { name: "Ropa", icon: "👕", count: 34, color: colors.danger, gradient: "from-rose-500 to-pink-500" },
-    { name: "Hogar", icon: "🏠", count: 18, color: colors.warning, gradient: "from-amber-400 to-orange-500" },
-    { name: "Deportes", icon: "⚽", count: 12, color: colors.success, gradient: "from-green-500 to-emerald-500" },
-    { name: "Libros", icon: "📚", count: 45, color: colors.secondary, gradient: "from-emerald-500 to-teal-500" }
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      setErrorCategories("");
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const res = await fetch(`${apiUrl}/categories-with-count`);
+        if (!res.ok) throw new Error("Error al cargar categorías");
+        const data = await res.json();
+        setCategories(data.categories || []);
+      } catch (err: any) {
+        setErrorCategories(err.message);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const stats = [
     { icon: Users, value: "50K+", label: "Clientes Satisfechos", color: "from-blue-500 to-cyan-500" },
@@ -211,23 +224,51 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-            {categories.map((category, index) => (
-              <Link 
-                key={index}
-                href="/productos"
-                className={`group relative overflow-hidden px-4 sm:px-6 md:px-8 py-4 sm:py-6 rounded-xl sm:rounded-2xl bg-gradient-to-r ${category.gradient} text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 border-2 border-white/30 backdrop-blur-sm animate-scale-in hover-lift`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-3 text-center">
-                  <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
-                  <div>
-                    <div className="text-sm sm:text-base md:text-lg font-bold">{category.name}</div>
-                    <div className="text-xs sm:text-sm opacity-90">{category.count} productos</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
+            {loadingCategories ? (
+              <>
+                <div className="col-span-6 text-center py-8 text-lg text-gray-400">Cargando categorías...</div>
+              </>
+            ) : errorCategories ? (
+              <>
+                <div className="col-span-6 text-center py-8 text-red-600">{errorCategories}</div>
+              </>
+            ) : categories.length === 0 ? (
+              <>
+                <div className="col-span-6 text-center py-8 text-gray-400">No hay categorías disponibles.</div>
+              </>
+            ) : (
+              categories.map((category: any, index: number) => {
+                // Asignar icono y color por nombre (puedes personalizar más)
+                let icon = "📦";
+                let gradient = "from-blue-500 to-cyan-500";
+                switch (category.name) {
+                  case "Zapatillas": icon = "👟"; gradient = "from-blue-500 to-cyan-500"; break;
+                  case "Electrónicos": icon = "📱"; gradient = "from-yellow-400 to-orange-500"; break;
+                  case "Ropa": icon = "👕"; gradient = "from-rose-500 to-pink-500"; break;
+                  case "Hogar": icon = "🏠"; gradient = "from-amber-400 to-orange-500"; break;
+                  case "Deportes": icon = "⚽"; gradient = "from-green-500 to-emerald-500"; break;
+                  case "Libros": icon = "📚"; gradient = "from-emerald-500 to-teal-500"; break;
+                  default: icon = "📦"; gradient = "from-blue-500 to-cyan-500";
+                }
+                return (
+                  <Link 
+                    key={category.id}
+                    href="/productos"
+                    className={`group relative overflow-hidden px-4 sm:px-6 md:px-8 py-4 sm:py-6 rounded-xl sm:rounded-2xl bg-gradient-to-r ${gradient} text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 border-2 border-white/30 backdrop-blur-sm animate-scale-in hover-lift`}
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-3 text-center">
+                      <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">{icon}</span>
+                      <div>
+                        <div className="text-sm sm:text-base md:text-lg font-bold">{category.name}</div>
+                        <div className="text-xs sm:text-sm opacity-90">{category.count} productos</div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       </section>

@@ -83,6 +83,7 @@ func main() {
 	router.GET("/products/suggestions", h.GetProductSuggestions)
 	router.GET("/products/:id", h.GetProduct)
 	router.GET("/categories", h.GetCategories)
+	router.GET("/categories-with-count", h.GetCategoriesWithProductCount)
 
 	// --- Rutas de Autenticación ---
 	authRoutes := router.Group("/auth")
