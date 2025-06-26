@@ -68,7 +68,7 @@ export default function HomePage() {
   }, []);
 
   const categories = [
-    { name: "Zapatillas", icon: "👟", count: 15, color: colors.info, gradient: "from-blue-500 to-cyan-500" },
+    { name: "Zapatillas", icon: "👟", count: 10, color: colors.info, gradient: "from-blue-500 to-cyan-500" },
     { name: "Electrónicos", icon: "📱", count: 23, color: colors.premium, gradient: "from-yellow-400 to-orange-500" },
     { name: "Ropa", icon: "👕", count: 34, color: colors.danger, gradient: "from-rose-500 to-pink-500" },
     { name: "Hogar", icon: "🏠", count: 18, color: colors.warning, gradient: "from-amber-400 to-orange-500" },
