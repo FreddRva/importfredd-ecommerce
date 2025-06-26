@@ -170,250 +170,132 @@ export default function HomePage() {
                 <ShoppingCart className="mr-2 w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
                 <span className="relative z-10">Ver Carrito</span>
               </Link>
-              {isAuthenticated && isAdmin && (
-                <Link 
-                  href="/admin/products"
-                  className="group bg-gradient-to-r from-purple-700 to-indigo-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold hover:from-purple-800 hover:to-indigo-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center border-2 border-purple-400/50 shadow-xl text-sm sm:text-base focus-ring"
-                >
-                  <Settings className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
-                  Panel Admin
-                </Link>
-              )}
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center z-10 animate-slide-in-right">
             <div className="relative">
-              <div className="w-64 h-64 sm:w-80 sm:h-80 bg-gradient-to-br from-white/10 to-white/5 rounded-full backdrop-blur-md border border-white/20 animate-float"></div>
-              <div className="absolute inset-0 w-64 h-64 sm:w-80 sm:h-80 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full animate-pulse"></div>
-              <div className="absolute inset-4 w-56 h-56 sm:w-72 sm:h-72 bg-gradient-to-br from-purple-400/20 to-indigo-500/20 rounded-full animate-bounce"></div>
+              {/* Imagen de ejemplo para el Hero Section */}
+              <img 
+                src="/Zapatillas.glb" 
+                alt="Producto destacado ImportFredd" 
+                className="w-64 h-64 sm:w-80 sm:h-80 object-contain rounded-full shadow-2xl border-4 border-white/30 bg-white/10 backdrop-blur-md animate-float" 
+                style={{ background: 'linear-gradient(135deg, #fdf6e3 0%, #e0c3fc 100%)' }}
+              />
+              {/* Efectos visuales adicionales pueden ir aquí */}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section - Nuevo */}
-      <section className="py-12 sm:py-16 bg-white/30 backdrop-blur-sm">
+      {/* Stats Section - Rediseño premium y único */}
+      <section className="py-12 bg-gradient-to-br from-white/60 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-8 text-center tracking-tight animate-fade-in">
+            ¿Por qué elegir ImportFredd?
+          </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center group animate-scale-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                  <stat.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              <div key={index} className="group text-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg animate-bounce-in`}>
+                  <stat.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg animate-pulse" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">{stat.value}</div>
-                <div className="text-sm sm:text-base text-slate-600 font-medium">{stat.label}</div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 animate-slide-in-left">{stat.value}</div>
+                <div className="text-base sm:text-lg text-slate-600 dark:text-slate-300 animate-slide-in-right">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categories Section - Chips premium */}
-      <section className="py-12 sm:py-16 md:py-20 bg-white/50 backdrop-blur-sm">
+      {/* Categorías - Rediseño premium y único */}
+      <section className="py-12 bg-gradient-to-br from-purple-50 via-blue-50 to-white/60 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16 animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full px-3 sm:px-4 py-2 mb-4 border border-purple-200 animate-scale-in">
-              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
-              <span className="text-xs sm:text-sm font-bold text-purple-700">Categorías más populares</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-8 text-center tracking-tight animate-fade-in">
+            Explora por Categoría
+          </h2>
+          {loadingCategories ? (
+            <div className="flex justify-center items-center h-32">
+              <span className="loader animate-spin w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full"></span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-3 sm:mb-4 tracking-tight animate-slide-in-left">
-              Explora por Categoría
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4 animate-slide-in-right">
-              Descubre productos únicos en nuestras categorías cuidadosamente seleccionadas
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-            {loadingCategories ? (
-              <>
-                <div className="col-span-6 text-center py-8 text-lg text-gray-400">Cargando categorías...</div>
-              </>
-            ) : errorCategories ? (
-              <>
-                <div className="col-span-6 text-center py-8 text-red-600">{errorCategories}</div>
-              </>
-            ) : categories.length === 0 ? (
-              <>
-                <div className="col-span-6 text-center py-8 text-gray-400">No hay categorías disponibles.</div>
-              </>
-            ) : (
-              categories.map((category: any, index: number) => {
-                // Asignar icono y color por nombre (puedes personalizar más)
-                let icon = "📦";
-                let gradient = "from-blue-500 to-cyan-500";
-                switch (category.name) {
-                  case "Zapatillas": icon = "👟"; gradient = "from-blue-500 to-cyan-500"; break;
-                  case "Electrónicos": icon = "📱"; gradient = "from-yellow-400 to-orange-500"; break;
-                  case "Ropa": icon = "👕"; gradient = "from-rose-500 to-pink-500"; break;
-                  case "Hogar": icon = "🏠"; gradient = "from-amber-400 to-orange-500"; break;
-                  case "Deportes": icon = "⚽"; gradient = "from-green-500 to-emerald-500"; break;
-                  case "Libros": icon = "📚"; gradient = "from-emerald-500 to-teal-500"; break;
-                  default: icon = "📦"; gradient = "from-blue-500 to-cyan-500";
-                }
-                return (
-                  <Link 
-                    key={category.id}
-                    href="/productos"
-                    className={`group relative overflow-hidden px-4 sm:px-6 md:px-8 py-4 sm:py-6 rounded-xl sm:rounded-2xl bg-gradient-to-r ${gradient} text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 border-2 border-white/30 backdrop-blur-sm animate-scale-in hover-lift`}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative z-10 flex flex-col items-center gap-2 sm:gap-3 text-center">
-                      <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300">{icon}</span>
-                      <div>
-                        <div className="text-sm sm:text-base md:text-lg font-bold">{category.name}</div>
-                        <div className="text-xs sm:text-sm opacity-90">{category.count} productos</div>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products - Cards premium */}
-      <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16 md:mb-20 animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-full px-3 sm:px-4 py-2 mb-4 border border-yellow-200 animate-scale-in">
-              <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
-              <span className="text-xs sm:text-sm font-bold text-yellow-700">Productos destacados</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 mb-3 sm:mb-4 tracking-tight animate-slide-in-left">
-              Productos Destacados
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4 animate-slide-in-right">
-              Los productos más vendidos y mejor valorados por nuestra comunidad
-            </p>
-          </div>
-          
-          {loadingFeatured ? (
-            <div className="flex justify-center items-center py-16 sm:py-20">
-              <div className="relative">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
-                <div className="absolute inset-0 w-12 h-12 sm:w-16 sm:h-16 border-4 border-transparent border-t-yellow-400 rounded-full animate-spin animation-delay-200"></div>
-              </div>
-            </div>
-          ) : errorFeatured ? (
-            <div className="text-center py-16 sm:py-20">
-              <div className="inline-flex items-center px-4 sm:px-6 py-3 rounded-full bg-red-100 text-red-700 border border-red-200 text-sm sm:text-base">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {errorFeatured}
-              </div>
-            </div>
-          ) : featuredProducts.length === 0 ? (
-            <div className="text-center py-16 sm:py-20 text-slate-500">
-              <div className="text-4xl sm:text-6xl mb-4">📦</div>
-              <p className="text-base sm:text-lg">No hay productos destacados disponibles en este momento.</p>
-            </div>
+          ) : errorCategories ? (
+            <div className="text-center text-red-500 font-semibold">{errorCategories}</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-              {featuredProducts.map((product, index) => (
-                <div 
-                  key={product.id} 
-                  className="group relative bg-white/70 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl hover:shadow-3xl transition-all duration-700 transform hover:-translate-y-2 sm:hover:-translate-y-4 border border-white/50 overflow-hidden animate-scale-in hover-lift"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-3 lg:grid-cols-5 md:gap-8 md:overflow-x-visible">
+              {categories.map((cat, idx) => (
+                <a
+                  key={cat.id}
+                  href={`/productos?categoria=${cat.slug}`}
+                  className="group min-w-[160px] max-w-xs w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg p-5 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer snap-center animate-fade-in"
+                  style={{ animationDelay: `${idx * 0.1}s` }}
                 >
-                  {/* Efecto de brillo en hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-yellow-400/0 to-orange-500/0 group-hover:from-purple-500/10 group-hover:via-yellow-400/10 group-hover:to-orange-500/10 transition-all duration-700"></div>
-                  
-                  <div className="relative">
-                    {product.isNew && (
-                      <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20">
-                        <span className="inline-flex items-center gap-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 sm:px-3 py-1 rounded-full font-black shadow-lg animate-pulse">
-                          <Sparkles className="w-2 h-2 sm:w-3 sm:h-3" />
-                          NUEVO
-                        </span>
-                      </div>
-                    )}
-                    <div className="w-full h-48 sm:h-56 md:h-64 bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-50 rounded-t-2xl sm:rounded-t-3xl flex items-center justify-center overflow-hidden relative">
-                      {product.image_url?.startsWith('http') ? (
-                        <img 
-                          src={product.image_url} 
-                          alt={product.name} 
-                          className="w-full h-full object-contain transition-all duration-700 group-hover:scale-110 group-hover:rotate-2" 
-                        />
-                      ) : (
-                        <img 
-                          src={`${API_BASE_URL}${product.image_url}`} 
-                          alt={product.name} 
-                          className="w-full h-full object-contain transition-all duration-700 group-hover:scale-110 group-hover:rotate-2" 
-                        />
-                      )}
-                      {/* Overlay de gradiente */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </div>
+                  <div className="w-12 h-12 mb-3 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 via-purple-200 to-blue-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 shadow-md group-hover:scale-110 transition-transform">
+                    <img src={cat.icon_url || '/globe.svg'} alt={cat.name} className="w-8 h-8 object-contain" />
                   </div>
-                  
-                  <div className="p-4 sm:p-6 relative">
-                    <div className="flex items-center justify-between mb-2 sm:mb-3">
-                      <span className="text-xs font-black text-purple-600 uppercase tracking-wider bg-purple-100 px-2 py-1 rounded-full">{product.category_name}</span>
-                      <div className="flex items-center gap-1 bg-yellow-100 px-2 py-1 rounded-full">
-                        <Star className="w-2 h-2 sm:w-3 sm:h-3 text-yellow-500 fill-current" />
-                        <span className="text-xs font-bold text-yellow-700">4.5</span>
-                      </div>
-                    </div>
-                    
-                    <h3 className="font-black text-slate-900 mb-2 sm:mb-3 group-hover:text-purple-600 transition-colors duration-300 line-clamp-2 text-sm sm:text-base md:text-lg">
-                      {product.name}
-                    </h3>
-                    
-                    <div className="mb-3 sm:mb-4">
-                      <span className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-sm ${getStockStatus(product.stock).bgColor} ${getStockStatus(product.stock).color} ${getStockStatus(product.stock).borderColor}`}>
-                        <span>{getStockStatus(product.stock).icon}</span>
-                        {getStockStatus(product.stock).text}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="text-lg sm:text-xl md:text-2xl font-black text-slate-900">
-                        ${product.price.toFixed(2)}
-                      </div>
-                      <div className="flex gap-1 sm:gap-2">
-                        <Link 
-                          href={`/productos/${product.id}`} 
-                          className="group/btn bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl font-bold hover:from-slate-200 hover:to-slate-300 transition-all duration-300 text-xs sm:text-sm flex items-center border border-slate-200 hover:shadow-lg focus-ring"
-                        >
-                          <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1 group-hover/btn:scale-110 transition-transform" />
-                          Ver
-                        </Link>
-                        <button 
-                          onClick={() => handleAddToCart(product)}
-                          disabled={addingToCart === product.id || product.stock <= 0}
-                          className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm flex items-center border transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus-ring ${
-                            product.stock <= 0 
-                              ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-500 border-gray-300 cursor-not-allowed' 
-                              : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:from-yellow-500 hover:to-orange-600 border-yellow-300 hover:shadow-lg hover:scale-105'
-                          }`}
-                        >
-                          {addingToCart === product.id ? (
-                            <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-slate-900 mr-1"></div>
-                          ) : (
-                            <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                          )}
-                          {addingToCart === product.id ? 'Agregando...' : product.stock <= 0 ? 'Agotado' : 'Agregar'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  <span className="text-base font-bold text-slate-900 dark:text-white text-center mb-1 animate-slide-in-left">{cat.name}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-300 animate-slide-in-right">{cat.product_count} productos</span>
+                </a>
               ))}
             </div>
           )}
-          
-          <div className="text-center mt-12 sm:mt-16 md:mt-20 animate-fade-in">
-            <Link 
-              href="/productos"
-              className="group inline-flex items-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-xl sm:rounded-2xl font-black hover:from-purple-700 hover:to-indigo-700 transition-all duration-500 shadow-xl sm:shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 border-2 border-purple-400/50 text-sm sm:text-base focus-ring"
-            >
-              <span>Ver Catálogo Completo</span>
-              <ArrowRight className="ml-2 sm:ml-3 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform duration-300" />
-            </Link>
-          </div>
+        </div>
+      </section>
+
+      {/* Productos Destacados - Rediseño premium y único */}
+      <section className="py-16 bg-gradient-to-br from-white/60 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-8 text-center tracking-tight animate-fade-in">
+            Productos Destacados
+          </h2>
+          {loadingFeatured ? (
+            <div className="flex justify-center items-center h-40">
+              <span className="loader animate-spin w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full"></span>
+            </div>
+          ) : errorFeatured ? (
+            <div className="text-center text-red-500 font-semibold">{errorFeatured}</div>
+          ) : (
+            <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:overflow-x-visible">
+              {featuredProducts.map((product, idx) => {
+                const stock = getStockStatus(product.stock);
+                return (
+                  <div
+                    key={product.id}
+                    className="group relative min-w-[260px] max-w-xs w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-5 flex flex-col items-center justify-between transition-transform duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer snap-center animate-fade-in"
+                    style={{ animationDelay: `${idx * 0.1}s` }}
+                  >
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${stock.bgColor} ${stock.color} ${stock.borderColor} shadow-sm flex items-center gap-1 animate-pulse`}>
+                        <span>{stock.icon}</span> {stock.text}
+                      </span>
+                    </div>
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center mb-4 relative">
+                      <img
+                        src={product.image_url || '/file.svg'}
+                        alt={product.name}
+                        className="w-full h-full object-contain rounded-2xl shadow-lg group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500 bg-gradient-to-br from-yellow-100/40 to-purple-100/40 dark:from-slate-800/40 dark:to-slate-900/40"
+                        loading="lazy"
+                      />
+                      <span className="absolute bottom-2 right-2 bg-white/80 dark:bg-slate-800/80 rounded-full px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-md animate-fade-in">
+                        ${product.price}
+                      </span>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 text-center line-clamp-2 animate-slide-in-left">{product.name}</h3>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 text-center line-clamp-2 animate-slide-in-right">{product.description}</p>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={addingToCart === product.id || product.stock <= 0}
+                      className={`group/addcart mt-auto px-6 py-3 rounded-xl font-bold text-base shadow-lg transition-all duration-300 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2
+                        ${product.stock <= 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:from-yellow-500 hover:to-orange-600 hover:scale-105'}
+                        relative overflow-hidden animate-bounce-in`}
+                    >
+                      <span className="relative z-10">{addingToCart === product.id ? 'Agregando...' : 'Agregar al carrito'}</span>
+                      <ShoppingCart className="w-5 h-5 relative z-10 group-hover/addcart:translate-x-1 transition-transform" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-orange-400 opacity-0 group-hover/addcart:opacity-20 transition-opacity duration-300"></div>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
