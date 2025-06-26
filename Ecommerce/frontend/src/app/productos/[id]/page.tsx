@@ -100,70 +100,77 @@ export default function ProductDetailPage() {
 
   return (
     <>
-      <div className="bg-gray-50 min-h-screen">
-        <div className="container mx-auto px-4 py-8 sm:py-12">
+      {/* Fondo gradiente y floating icons premium */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 relative overflow-x-hidden">
+        {/* Floating icons decorativos */}
+        <div className="pointer-events-none select-none absolute inset-0 z-0">
+          <Star className="absolute top-10 left-10 w-10 h-10 text-yellow-400/30 animate-float-slow" />
+          <ShoppingCart className="absolute bottom-20 right-20 w-14 h-14 text-fuchsia-400/20 animate-float-medium" />
+          <Orbit className="absolute top-1/2 left-1/3 w-16 h-16 text-cyan-400/20 animate-float-fast" />
+        </div>
+        <div className="container mx-auto px-4 py-8 sm:py-12 relative z-10">
           <div className="mb-6">
-            <Link href="/productos" className="flex items-center text-gray-600 hover:text-blue-600 font-medium transition-colors">
-              <ArrowLeft size={18} className="mr-2" />
-              Volver a Productos
+            <Link href="/productos" className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 animate-fade-in">
+              <ArrowLeft size={20} />
+              Volver al catálogo
             </Link>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8 sm:p-12 animate-scale-in">
             {/* Columna de Imagen / Visor 3D */}
-            <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden relative">
+            <div className="w-full aspect-square bg-gradient-to-br from-slate-800/60 to-indigo-900/60 rounded-2xl flex items-center justify-center overflow-hidden relative shadow-xl border border-fuchsia-800/30 animate-float-medium">
               {product.model_url ? (
-                <ThreeJSViewer 
-                  modelPath={product.model_url}
-                  width={600}
-                  height={600}
-                />
+                <>
+                  <span className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 text-xs font-bold px-4 py-2 rounded-full shadow-md animate-bounce-in z-10">Visor 3D</span>
+                  <ThreeJSViewer 
+                    modelPath={product.model_url}
+                    width={600}
+                    height={600}
+                  />
+                </>
               ) : (
                 <img
-                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"}
+                  src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23232b3b'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-2xl drop-shadow-xl"
                 />
               )}
             </div>
-            
             {/* Columna de Detalles */}
-            <div className="flex flex-col justify-center">
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">{product.name}</h1>
-              
-              <div className="flex items-center mb-4">
+            <div className="flex flex-col justify-center gap-6">
+              <h1 className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent tracking-tight mb-2 animate-fade-in">{product.name}</h1>
+              <div className="flex flex-wrap items-center gap-3 mb-2 animate-fade-in">
+                <span className="px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-fuchsia-900/60 to-indigo-900/60 text-fuchsia-200 border border-fuchsia-800/30 shadow-md">ID: {product.id}</span>
+                <span className="px-4 py-2 rounded-full text-xs font-bold bg-gradient-to-r from-green-400/80 to-emerald-400/80 text-slate-900 border border-green-300/40 shadow-md">Activo</span>
+                {/* Puedes agregar más chips aquí si hay stock, categoría, etc. */}
+              </div>
+              <div className="flex items-center gap-2 mb-4 animate-fade-in">
                 <div className="flex text-yellow-400">
-                  <Star size={20} fill="currentColor" />
-                  <Star size={20} fill="currentColor" />
-                  <Star size={20} fill="currentColor" />
-                  <Star size={20} fill="currentColor" />
-                  <Star size={20} className="text-gray-300" fill="currentColor" />
+                  <Star size={22} fill="currentColor" className="animate-glow" />
+                  <Star size={22} fill="currentColor" className="animate-glow" />
+                  <Star size={22} fill="currentColor" className="animate-glow" />
+                  <Star size={22} fill="currentColor" className="animate-glow" />
+                  <Star size={22} className="text-fuchsia-900" fill="currentColor" />
                 </div>
-                <span className="ml-2 text-sm text-gray-500">(12 reseñas)</span>
+                <span className="ml-2 text-sm text-fuchsia-200">(12 reseñas)</span>
               </div>
-
-              <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
-              
-              <div className="text-4xl sm:text-5xl font-bold text-gray-800 mb-6">
-                ${product.price.toFixed(2)}
-              </div>
-
+              <p className="text-fuchsia-100 text-lg leading-relaxed mb-2 animate-fade-in drop-shadow-xl">{product.description}</p>
+              <div className="text-5xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent mb-6 drop-shadow-xl animate-glow">${product.price.toFixed(2)}</div>
               <button
                 onClick={handleAddToCart}
-                className={`w-full flex items-center justify-center px-8 py-4 rounded-xl text-lg font-semibold text-white transition-all duration-300 ${
-                  addedToCart
-                    ? 'bg-green-500 hover:bg-green-600'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className={`w-full flex items-center justify-center px-8 py-5 rounded-2xl text-xl font-extrabold shadow-xl transition-all duration-300 animate-glow
+                  ${addedToCart
+                    ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-slate-900 hover:from-green-500 hover:to-emerald-500'
+                    : 'bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-white hover:from-yellow-400 hover:to-fuchsia-600'}
+                `}
               >
                 {addedToCart ? (
                   <>
-                    <CheckCircle className="mr-2" size={24} />
+                    <CheckCircle className="mr-3 animate-bounce-in" size={28} />
                     Añadido al carrito
                   </>
                 ) : (
                   <>
-                    <ShoppingCart className="mr-2" size={24} />
+                    <ShoppingCart className="mr-3 animate-float-fast" size={28} />
                     Añadir al carrito
                   </>
                 )}
