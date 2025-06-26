@@ -478,22 +478,6 @@ function ProductosContent() {
                                     </span>
                                   )}
                                 </div>
-                                {/* Botones destacados: Favoritos y Ver detalles */}
-                                <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
-                                    }}
-                                    className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : ''}`}
-                                    aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-                                  >
-                                    <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
-                                  </button>
-                                  <Link href={`/productos/${product.id}`} className="p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 shadow-md transition-all duration-300 animate-fade-in flex items-center justify-center" aria-label="Ver detalles">
-                                    <Eye className="w-6 h-6" />
-                                  </Link>
-                                </div>
                                 {/* Hover Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
                                   <span className="text-white font-bold flex items-center text-lg drop-shadow-xl">
@@ -516,16 +500,6 @@ function ProductosContent() {
                             </div>
                             <div className="flex items-center justify-between mb-4">
                               <span className="text-3xl font-black text-white drop-shadow-xl">${product.price.toFixed(2)}</span>
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
-                                }}
-                                className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : 'text-fuchsia-200 hover:text-fuchsia-400 hover:bg-fuchsia-900/30'}`}
-                                aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-                              >
-                                <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
-                              </button>
                             </div>
                             {product.stock === 0 ? (
                               <span className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent text-sm font-bold rounded-xl shadow-lg text-slate-400 bg-slate-900/60 cursor-not-allowed">
@@ -560,27 +534,12 @@ function ProductosContent() {
                                 alt={product.name} 
                                 className="w-full h-full object-cover rounded-l-3xl transition-transform duration-700 group-hover:scale-105 drop-shadow-xl" 
                               />
-                              {/* Botones destacados: Favoritos y Ver detalles */}
-                              <div className="absolute top-4 right-4 flex flex-col gap-3 z-10">
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    isFavorite(product.id) ? removeFavorite(product.id) : addFavorite(product.id);
-                                  }}
-                                  className={`p-2 rounded-full transition-all duration-300 shadow-md border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-fuchsia-400 animate-fade-in ${isFavorite(product.id) ? 'text-fuchsia-400 bg-fuchsia-900/40' : ''}`}
-                                  aria-label={isFavorite(product.id) ? 'Quitar de favoritos' : 'Añadir a favoritos'}
-                                >
-                                  <Heart className="w-6 h-6" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
-                                </button>
-                                <Link href={`/productos/${product.id}`} className="p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 shadow-md transition-all duration-300 animate-fade-in flex items-center justify-center" aria-label="Ver detalles">
-                                  <Eye className="w-6 h-6" />
-                                </Link>
+                              {/* Hover Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+                                <span className="text-white font-bold flex items-center text-lg drop-shadow-xl">
+                                  <Eye className="w-5 h-5 mr-2" /> Ver detalles
+                                </span>
                               </div>
-                              {isFavorite(product.id) && (
-                                <div className="absolute top-4 left-4 bg-fuchsia-900/60 rounded-full p-2 shadow-lg animate-fade-in">
-                                  <Heart className="w-4 h-4 text-fuchsia-400" fill="currentColor" />
-                                </div>
-                              )}
                             </Link>
                           </div>
                           <div className="flex-1 px-8 py-6">
