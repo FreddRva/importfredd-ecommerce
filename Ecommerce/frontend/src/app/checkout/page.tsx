@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CreditCard, Truck, CheckCircle, Lock, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, CheckCircle, Lock, ShoppingBag, MapPin, User, Phone, Mail, Shield, Sparkles, Package, Clock, Star } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import StripePayment from '@/components/StripePayment';
@@ -175,18 +175,23 @@ export default function CheckoutPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-40">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-40 text-white">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-            <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Acceso requerido</h2>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-red-500/20 to-fuchsia-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-400/30 shadow-lg">
+              <Lock className="w-10 h-10 text-red-400" />
+            </div>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-red-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent mb-4">
+              Acceso Requerido
+            </h2>
+            <p className="text-fuchsia-200 mb-6 text-lg">
               Necesitas iniciar sesión para continuar con la compra
             </p>
             <Link 
               href="/login"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 font-black rounded-2xl hover:from-yellow-400 hover:to-fuchsia-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-fuchsia-400/30"
             >
+              <User className="mr-3 h-6 w-6" />
               Iniciar Sesión
             </Link>
           </div>
@@ -197,18 +202,23 @@ export default function CheckoutPage() {
 
   if (itemCount === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-40">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 pt-40 text-white">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-            <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Carrito vacío</h2>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-fuchsia-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-yellow-400/30 shadow-lg">
+              <ShoppingBag className="w-10 h-10 text-yellow-400" />
+            </div>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4">
+              Carrito Vacío
+            </h2>
+            <p className="text-fuchsia-200 mb-6 text-lg">
               Tu carrito está vacío. Agrega productos para continuar
             </p>
             <Link 
               href="/productos"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 font-black rounded-2xl hover:from-yellow-400 hover:to-fuchsia-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-fuchsia-400/30"
             >
+              <Package className="mr-3 h-6 w-6" />
               Ver Productos
             </Link>
           </div>
@@ -218,57 +228,88 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 py-8 pt-40 text-white relative overflow-hidden">
+      {/* Floating Icons Decorativos */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-3 h-3 bg-fuchsia-400/20 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-20 w-2 h-2 bg-yellow-400/30 rounded-full animate-float-delayed"></div>
+        <div className="absolute bottom-20 left-1/4 w-4 h-4 bg-cyan-400/15 rounded-full animate-float"></div>
+        <div className="absolute top-1/2 right-1/3 w-2 h-2 bg-fuchsia-400/25 rounded-full animate-float-delayed"></div>
+        <div className="absolute bottom-40 right-10 w-3 h-3 bg-yellow-400/20 rounded-full animate-float"></div>
+        <div className="absolute top-1/3 left-20 w-2 h-2 bg-cyan-400/30 rounded-full animate-float-delayed"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Header Premium */}
         <div className="mb-8">
           <Link 
             href="/carrito"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 animate-fade-in mb-4"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
             Volver al Carrito
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Finalizar Compra</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent tracking-tight mb-4 animate-fade-in">
+            Finalizar Compra
+          </h1>
+          <p className="text-xl text-fuchsia-200 font-medium animate-fade-in">
             Completa tu información para procesar el pedido
           </p>
         </div>
 
-        {/* Progress Steps */}
+        {/* Progress Steps Premium */}
         <div className="mb-8">
           <div className="flex items-center justify-center">
             <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                step === 'shipping' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                step === 'shipping' 
+                  ? 'bg-gradient-to-r from-fuchsia-600 to-yellow-400 border-fuchsia-400 text-slate-900 shadow-lg' 
+                  : step === 'payment' || step === 'review' || step === 'success'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-400 border-green-400 text-white shadow-lg'
+                  : 'bg-slate-800/60 border-fuchsia-800/30 text-fuchsia-300'
               }`}>
-                {step === 'shipping' ? '1' : <CheckCircle className="w-5 h-5" />}
+                {step === 'shipping' ? '1' : <CheckCircle className="w-6 h-6" />}
               </div>
-              <div className={`ml-2 ${step === 'shipping' ? 'text-blue-600' : 'text-gray-600'}`}>
+              <div className={`ml-3 font-bold ${step === 'shipping' ? 'text-yellow-400' : step === 'payment' || step === 'review' || step === 'success' ? 'text-green-400' : 'text-fuchsia-300'}`}>
                 Envío
               </div>
             </div>
-            <div className={`w-16 h-1 mx-4 ${step !== 'shipping' ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+            <div className={`w-20 h-1 mx-6 rounded-full transition-all duration-300 ${
+              step === 'payment' || step === 'review' || step === 'success' 
+                ? 'bg-gradient-to-r from-green-400 to-emerald-400' 
+                : 'bg-fuchsia-800/30'
+            }`}></div>
             <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                step === 'payment' ? 'bg-blue-600 text-white' : 
-                step === 'review' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                step === 'payment' 
+                  ? 'bg-gradient-to-r from-fuchsia-600 to-yellow-400 border-fuchsia-400 text-slate-900 shadow-lg' 
+                  : step === 'review' || step === 'success'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-400 border-green-400 text-white shadow-lg'
+                  : 'bg-slate-800/60 border-fuchsia-800/30 text-fuchsia-300'
               }`}>
-                {step === 'review' ? <CheckCircle className="w-5 h-5" /> : '2'}
+                {step === 'review' || step === 'success' ? <CheckCircle className="w-6 h-6" /> : '2'}
               </div>
-              <div className={`ml-2 ${step === 'payment' || step === 'review' ? 'text-blue-600' : 'text-gray-600'}`}>
+              <div className={`ml-3 font-bold ${step === 'payment' ? 'text-yellow-400' : step === 'review' || step === 'success' ? 'text-green-400' : 'text-fuchsia-300'}`}>
                 Pago
               </div>
             </div>
-            <div className={`w-16 h-1 mx-4 ${step === 'review' ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+            <div className={`w-20 h-1 mx-6 rounded-full transition-all duration-300 ${
+              step === 'review' || step === 'success' 
+                ? 'bg-gradient-to-r from-green-400 to-emerald-400' 
+                : 'bg-fuchsia-800/30'
+            }`}></div>
             <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                step === 'review' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                step === 'review' 
+                  ? 'bg-gradient-to-r from-fuchsia-600 to-yellow-400 border-fuchsia-400 text-slate-900 shadow-lg' 
+                  : step === 'success'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-400 border-green-400 text-white shadow-lg'
+                  : 'bg-slate-800/60 border-fuchsia-800/30 text-fuchsia-300'
               }`}>
-                3
+                {step === 'success' ? <CheckCircle className="w-6 h-6" /> : '3'}
               </div>
-              <div className={`ml-2 ${step === 'review' ? 'text-blue-600' : 'text-gray-600'}`}>
-                Revisión
+              <div className={`ml-3 font-bold ${step === 'review' ? 'text-yellow-400' : step === 'success' ? 'text-green-400' : 'text-fuchsia-300'}`}>
+                Confirmación
               </div>
             </div>
           </div>
@@ -277,187 +318,273 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8 animate-scale-in">
               {step === 'shipping' && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                    <Truck className="w-5 h-5 mr-2" />
+                  <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-6 flex items-center">
+                    <Truck className="w-6 h-6 mr-3" />
                     Información de Envío
                   </h2>
                   
                   {/* Dirección de Envío */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-fuchsia-200">
                           Nombre *
                         </label>
-                        <input
-                          type="text"
-                          name="firstName"
-                          value={shippingAddress.firstName}
-                          onChange={(e) => handleAddressChange('shipping', 'firstName', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        />
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                              <User className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                            </div>
+                            <input
+                              type="text"
+                              name="firstName"
+                              value={shippingAddress.firstName}
+                              onChange={(e) => handleAddressChange('shipping', 'firstName', e.target.value)}
+                              className="w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                              placeholder="Tu nombre"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-fuchsia-200">
                           Apellidos *
                         </label>
-                        <input
-                          type="text"
-                          name="lastName"
-                          value={shippingAddress.lastName}
-                          onChange={(e) => handleAddressChange('shipping', 'lastName', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        />
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                              <User className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                            </div>
+                            <input
+                              type="text"
+                              name="lastName"
+                              value={shippingAddress.lastName}
+                              onChange={(e) => handleAddressChange('shipping', 'lastName', e.target.value)}
+                              className="w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                              placeholder="Tus apellidos"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-fuchsia-200">
                         Dirección *
                       </label>
-                      <input
-                        type="text"
-                        name="address1"
-                        value={shippingAddress.address1}
-                        onChange={(e) => handleAddressChange('shipping', 'address1', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
-                      />
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <MapPin className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                          </div>
+                          <input
+                            type="text"
+                            name="address1"
+                            value={shippingAddress.address1}
+                            onChange={(e) => handleAddressChange('shipping', 'address1', e.target.value)}
+                            className="w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                            placeholder="Calle, número, piso..."
+                            required
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-fuchsia-200">
                           Ciudad *
                         </label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={shippingAddress.city}
-                          onChange={(e) => handleAddressChange('shipping', 'city', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        />
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                            <input
+                              type="text"
+                              name="city"
+                              value={shippingAddress.city}
+                              onChange={(e) => handleAddressChange('shipping', 'city', e.target.value)}
+                              className="w-full px-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                              placeholder="Madrid"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-fuchsia-200">
                           Provincia *
                         </label>
-                        <input
-                          type="text"
-                          name="state"
-                          value={shippingAddress.state}
-                          onChange={(e) => handleAddressChange('shipping', 'state', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        />
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                            <input
+                              type="text"
+                              name="state"
+                              value={shippingAddress.state}
+                              onChange={(e) => handleAddressChange('shipping', 'state', e.target.value)}
+                              className="w-full px-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                              placeholder="Madrid"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-bold text-fuchsia-200">
                           Código Postal *
                         </label>
-                        <input
-                          type="text"
-                          name="postalCode"
-                          value={shippingAddress.postalCode}
-                          onChange={(e) => handleAddressChange('shipping', 'postalCode', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          required
-                        />
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                            <input
+                              type="text"
+                              name="postalCode"
+                              value={shippingAddress.postalCode}
+                              onChange={(e) => handleAddressChange('shipping', 'postalCode', e.target.value)}
+                              className="w-full px-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                              placeholder="28001"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-fuchsia-200">
                         Teléfono *
                       </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={shippingAddress.phone}
-                        onChange={(e) => handleAddressChange('shipping', 'phone', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required
-                      />
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Phone className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                          </div>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={shippingAddress.phone}
+                            onChange={(e) => handleAddressChange('shipping', 'phone', e.target.value)}
+                            className="w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                            placeholder="+34 600 000 000"
+                            required
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Usar misma dirección para facturación */}
-                    <div className="flex items-center">
+                    <div className="flex items-center p-4 bg-gradient-to-r from-fuchsia-900/40 to-indigo-900/40 border border-fuchsia-800/30 rounded-2xl backdrop-blur-sm">
                       <input
                         type="checkbox"
                         id="sameAddress"
                         checked={useSameAddress}
                         onChange={(e) => setUseSameAddress(e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-5 w-5 text-fuchsia-600 focus:ring-fuchsia-500 border-fuchsia-800/30 rounded bg-slate-900/60"
                       />
-                      <label htmlFor="sameAddress" className="ml-2 block text-sm text-gray-900">
+                      <label htmlFor="sameAddress" className="ml-3 block text-sm font-bold text-fuchsia-200">
                         Usar la misma dirección para facturación
                       </label>
                     </div>
 
                     {/* Dirección de Facturación (si es diferente) */}
                     {!useSameAddress && (
-                      <div className="border-t pt-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Dirección de Facturación</h3>
+                      <div className="border-t border-fuchsia-800/30 pt-6">
+                        <h3 className="text-lg font-bold text-yellow-400 mb-4">Dirección de Facturación</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <div className="space-y-2">
+                            <label className="block text-sm font-bold text-fuchsia-200">
                               Nombre *
                             </label>
-                            <input
-                              type="text"
-                              name="billingFirstName"
-                              value={billingAddress.firstName}
-                              onChange={(e) => handleAddressChange('billing', 'firstName', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              required
-                            />
+                            <div className="relative group">
+                              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                              <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                  <User className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                                </div>
+                                <input
+                                  type="text"
+                                  name="billingFirstName"
+                                  value={billingAddress.firstName}
+                                  onChange={(e) => handleAddressChange('billing', 'firstName', e.target.value)}
+                                  className="w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                                  placeholder="Nombre de facturación"
+                                  required
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <div className="space-y-2">
+                            <label className="block text-sm font-bold text-fuchsia-200">
                               Apellidos *
                             </label>
-                            <input
-                              type="text"
-                              name="billingLastName"
-                              value={billingAddress.lastName}
-                              onChange={(e) => handleAddressChange('billing', 'lastName', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              required
-                            />
+                            <div className="relative group">
+                              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                              <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                  <User className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                                </div>
+                                <input
+                                  type="text"
+                                  name="billingLastName"
+                                  value={billingAddress.lastName}
+                                  onChange={(e) => handleAddressChange('billing', 'lastName', e.target.value)}
+                                  className="w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent"
+                                  placeholder="Apellidos de facturación"
+                                  required
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        {/* Agregar más campos de facturación si es necesario */}
                       </div>
                     )}
 
                     {/* Notas del pedido */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-fuchsia-200">
                         Notas del pedido (opcional)
                       </label>
-                      <textarea
-                        name="notes"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Instrucciones especiales, comentarios..."
-                      />
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                          <textarea
+                            name="notes"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            rows={3}
+                            className="w-full px-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 bg-transparent resize-none"
+                            placeholder="Instrucciones especiales, comentarios..."
+                          />
+                        </div>
+                      </div>
                     </div>
 
                     <button
                       type="button"
                       onClick={handleCreateOrder}
                       disabled={loading || !shippingAddress.firstName || !shippingAddress.lastName || !shippingAddress.address1 || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postalCode || !shippingAddress.phone}
-                      className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                      className="w-full bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 py-5 rounded-2xl font-black text-lg shadow-xl hover:from-yellow-400 hover:to-fuchsia-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 animate-glow border-2 border-fuchsia-400/30"
                     >
-                      {loading ? 'Creando Pedido...' : 'Continuar al Pago'}
+                      {loading ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-900 mr-3"></div>
+                          <span>Creando Pedido...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center">
+                          <span>Continuar al Pago</span>
+                          <CreditCard className="ml-3 h-6 w-6" />
+                        </div>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -465,14 +592,19 @@ export default function CheckoutPage() {
 
               {step === 'payment' && order && (
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                    <CreditCard className="w-5 h-5 mr-2" />
+                  <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-6 flex items-center">
+                    <CreditCard className="w-6 h-6 mr-3" />
                     Información de Pago
                   </h2>
                   
-                  <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-medium text-blue-900 mb-2">Pedido #{order.orderNumber}</h3>
-                    <p className="text-blue-700">Total: {order.currency} {(order.total).toFixed(2)}</p>
+                  <div className="mb-6 p-6 bg-gradient-to-r from-fuchsia-900/40 to-indigo-900/40 border border-fuchsia-800/30 rounded-2xl backdrop-blur-sm flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-yellow-400 mb-1">Pedido #{order.orderNumber}</h3>
+                      <p className="text-fuchsia-200">Total: <span className="text-yellow-400 font-bold text-xl">{order.currency} {(order.total).toFixed(2)}</span></p>
+                    </div>
+                    <div className="w-12 h-12 bg-gradient-to-r from-fuchsia-500 to-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
                   </div>
 
                   <StripePayment
@@ -488,19 +620,24 @@ export default function CheckoutPage() {
 
               {step === 'review' && order && (
                 <div className="text-center p-8">
-                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Pago realizado con éxito!</h2>
-                  <p className="text-gray-700 mb-6">Revisa los detalles de tu pedido antes de finalizar.</p>
-                  <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left max-w-lg mx-auto">
-                    <h3 className="font-semibold mb-2">Pedido #{order.orderNumber}</h3>
-                    <p className="mb-1">Total: {order.currency} {(order.total).toFixed(2)}</p>
-                    <p className="mb-1">Estado: {order.status}</p>
-                    <p className="mb-1">Fecha: {new Date(order.createdAt).toLocaleString()}</p>
+                  <div className="w-24 h-24 bg-gradient-to-br from-green-500/20 to-fuchsia-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-400/30 shadow-lg">
+                    <CheckCircle className="w-12 h-12 text-green-400" />
+                  </div>
+                  <h2 className="text-3xl font-black bg-gradient-to-r from-green-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent mb-4">
+                    ¡Pago realizado con éxito!
+                  </h2>
+                  <p className="text-fuchsia-200 text-lg mb-6">Revisa los detalles de tu pedido antes de finalizar.</p>
+                  <div className="bg-gradient-to-r from-green-900/40 to-fuchsia-900/40 border border-green-800/30 rounded-2xl p-6 mb-6 text-left max-w-lg mx-auto backdrop-blur-sm">
+                    <h3 className="font-bold text-green-400 mb-3">Pedido #{order.orderNumber}</h3>
+                    <p className="mb-2 text-fuchsia-200">Total: <span className="text-yellow-400 font-bold">{order.currency} {(order.total).toFixed(2)}</span></p>
+                    <p className="mb-2 text-fuchsia-200">Estado: <span className="text-green-400 font-bold">{order.status}</span></p>
+                    <p className="mb-2 text-fuchsia-200">Fecha: <span className="text-cyan-400 font-bold">{new Date(order.createdAt).toLocaleString()}</span></p>
                   </div>
                   <button
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-black hover:from-green-500 hover:to-emerald-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-green-400/30"
                     onClick={() => setStep('success')}
                   >
+                    <CheckCircle className="mr-3 h-6 w-6 inline" />
                     Finalizar compra
                   </button>
                 </div>
@@ -510,54 +647,134 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumen del Pedido</h3>
+            <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8 sticky top-8 animate-scale-in">
+              <h3 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-6 flex items-center">
+                <ShoppingBag className="w-6 h-6 mr-3" />
+                Resumen del Pedido
+              </h3>
               
-              <div className="space-y-4">
+              {/* Productos */}
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-fuchsia-200 font-bold text-lg">Productos ({itemCount})</span>
+                  <div className="w-8 h-8 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-full flex items-center justify-center border border-fuchsia-400/30">
+                    <Package className="w-4 h-4 text-fuchsia-400" />
+                  </div>
+                </div>
+                
                 {cart.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                        {item.image_url ? (
-                          <img 
-                            src={item.image_url} 
-                            alt={item.product_name}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <ShoppingBag className="w-6 h-6 text-gray-400" />
-                        )}
+                  <div key={item.id} className="bg-gradient-to-r from-slate-900/60 to-indigo-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 p-4 hover:from-slate-900/80 hover:to-indigo-900/80 transition-all duration-300 group">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center flex-1">
+                        <div className="w-16 h-16 bg-gradient-to-br from-fuchsia-500/20 to-yellow-500/20 rounded-2xl flex items-center justify-center mr-4 border border-fuchsia-400/30 group-hover:from-fuchsia-500/30 group-hover:to-yellow-500/30 transition-all duration-300">
+                          {item.image_url ? (
+                            <img 
+                              src={item.image_url} 
+                              alt={item.product_name}
+                              className="w-full h-full object-cover rounded-2xl"
+                            />
+                          ) : (
+                            <Package className="w-8 h-8 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-white truncate group-hover:text-yellow-300 transition-colors duration-300">
+                            {item.product_name}
+                          </p>
+                          <div className="flex items-center mt-1">
+                            <span className="text-fuchsia-300 text-sm font-medium">Cantidad: {item.quantity}</span>
+                            <div className="w-2 h-2 bg-fuchsia-400 rounded-full mx-2"></div>
+                            <span className="text-cyan-300 text-sm font-medium">€{item.price.toFixed(2)} c/u</span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{item.product_name}</p>
-                        <p className="text-sm text-gray-500">Cantidad: {item.quantity}</p>
+                      <div className="text-right ml-4">
+                        <p className="font-black text-lg text-yellow-400 group-hover:text-yellow-300 transition-colors duration-300">
+                          €{(item.price * item.quantity).toFixed(2)}
+                        </p>
                       </div>
                     </div>
-                    <p className="font-medium text-gray-900">
-                      €{(item.price * item.quantity).toFixed(2)}
-                    </p>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t pt-4 mt-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="text-gray-900">€{totalPrice.toFixed(2)}</span>
+              {/* Resumen de costos */}
+              <div className="bg-gradient-to-r from-fuchsia-900/40 to-indigo-900/40 border border-fuchsia-800/30 rounded-2xl p-6 backdrop-blur-sm">
+                <h4 className="text-lg font-bold text-yellow-400 mb-4 flex items-center">
+                  <CreditCard className="w-5 h-5 mr-2" />
+                  Resumen de Costos
+                </h4>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-fuchsia-200 font-medium">Subtotal</span>
+                    <span className="text-white font-bold">€{totalPrice.toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-fuchsia-200 font-medium">IVA (16%)</span>
+                    <span className="text-cyan-400 font-bold">€{(totalPrice * 0.16).toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-fuchsia-200 font-medium">Envío</span>
+                    <div className="flex items-center">
+                      <span className="text-green-400 font-bold mr-2">Gratis</span>
+                      <div className="w-4 h-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full flex items-center justify-center border border-green-400/30">
+                        <CheckCircle className="w-2 h-2 text-green-400" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-fuchsia-800/30 pt-3 mt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent">
+                        Total
+                      </span>
+                      <span className="text-2xl font-black text-yellow-400">
+                        €{(totalPrice * 1.16).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">IVA (16%)</span>
-                  <span className="text-gray-900">€{(totalPrice * 0.16).toFixed(2)}</span>
+              </div>
+
+              {/* Información adicional */}
+              <div className="mt-6 space-y-4">
+                <div className="bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border border-cyan-800/30 rounded-2xl p-4 backdrop-blur-sm">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full flex items-center justify-center mr-3 border border-cyan-400/30">
+                      <Truck className="w-5 h-5 text-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-cyan-200 font-bold text-sm">Envío Gratuito</p>
+                      <p className="text-cyan-300 text-xs">Entrega en 2-3 días hábiles</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-600">Envío</span>
-                  <span className="text-gray-900">Gratis</span>
+
+                <div className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-800/30 rounded-2xl p-4 backdrop-blur-sm">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full flex items-center justify-center mr-3 border border-green-400/30">
+                      <Shield className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-green-200 font-bold text-sm">Pago Seguro</p>
+                      <p className="text-green-300 text-xs">Protegido con Stripe</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <span className="text-lg font-semibold text-gray-900">Total</span>
-                  <span className="text-lg font-semibold text-gray-900">
-                    €{(totalPrice * 1.16).toFixed(2)}
-                  </span>
+
+                <div className="bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border border-yellow-800/30 rounded-2xl p-4 backdrop-blur-sm">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full flex items-center justify-center mr-3 border border-yellow-400/30">
+                      <Star className="w-5 h-5 text-yellow-400" />
+                    </div>
+                    <div>
+                      <p className="text-yellow-200 font-bold text-sm">Garantía Premium</p>
+                      <p className="text-yellow-300 text-xs">30 días de devolución</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -565,11 +782,21 @@ export default function CheckoutPage() {
         </div>
 
         {step === 'success' && (
-          <div className="text-center p-8">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Gracias por tu compra!</h2>
-            <p className="text-gray-700 mb-6">Tu pedido ha sido procesado correctamente. Te enviaremos un correo con los detalles.</p>
-            <Link href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+          <div className="text-center p-12 animate-fade-in">
+            <div className="w-28 h-28 bg-gradient-to-br from-yellow-500/20 via-fuchsia-500/20 to-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-8 border-2 border-yellow-400/30 shadow-2xl animate-glow">
+              <Sparkles className="w-16 h-16 text-yellow-400 animate-bounce" />
+            </div>
+            <h2 className="text-4xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4 animate-fade-in">
+              ¡Gracias por tu compra!
+            </h2>
+            <p className="text-fuchsia-200 text-lg mb-8 animate-fade-in">
+              Tu pedido ha sido procesado correctamente.<br />Te enviaremos un correo con los detalles y pronto recibirás tu paquete.
+            </p>
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 font-black rounded-2xl hover:from-yellow-400 hover:to-fuchsia-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-fuchsia-400/30 text-xl animate-glow"
+            >
+              <Star className="w-7 h-7" />
               Volver al inicio
             </Link>
           </div>
