@@ -120,14 +120,17 @@ export default function HomePage() {
     return { text: 'Disponible', color: 'text-green-600', bgColor: 'bg-green-100/80', borderColor: 'border-green-200', icon: '✅' };
   };
 
-  // Iconos SVG para fondo animado
+  // Iconos SVG inline para fondo animado
   const FloatingIcons = () => (
     <div className="pointer-events-none select-none absolute inset-0 w-full h-full overflow-hidden z-0">
-      <svg className="absolute left-10 top-10 animate-spin-slow opacity-30" width="80" height="80" viewBox="0 0 80 80"><image href="/file.svg" width="80" height="80" /></svg>
-      <svg className="absolute right-20 top-1/4 animate-float opacity-40" width="70" height="70" viewBox="0 0 70 70"><image href="/globe.svg" width="70" height="70" /></svg>
-      <svg className="absolute left-1/3 bottom-10 animate-spin-reverse opacity-20" width="90" height="90" viewBox="0 0 90 90"><image href="/window.svg" width="90" height="90" /></svg>
-      <svg className="absolute right-10 bottom-20 animate-float opacity-30" width="60" height="60" viewBox="0 0 60 60"><image href="/vercel.svg" width="60" height="60" /></svg>
-      <svg className="absolute left-1/4 top-1/2 animate-spin-slow opacity-25" width="100" height="100" viewBox="0 0 100 100"><image href="/Zapatillas.glb" width="100" height="100" /></svg>
+      {/* Zapatilla */}
+      <svg className="absolute left-10 top-10 animate-spin-slow opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M2 17c0-2 2-4 4-4h10c2 0 4 2 4 4v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1Z" stroke="#fbbf24" strokeWidth="1.5"/><path d="M6 13V7a5 5 0 0 1 5-5c2.5 0 4 2 4 4v7" stroke="#f472b6" strokeWidth="1.5"/></svg>
+      {/* Ropa */}
+      <svg className="absolute right-20 top-1/4 animate-float opacity-40" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M4 4l4 2 4-2 4 2 4-2" stroke="#38bdf8" strokeWidth="1.5"/><path d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4" stroke="#a78bfa" strokeWidth="1.5"/></svg>
+      {/* Tecnología */}
+      <svg className="absolute left-1/3 bottom-10 animate-spin-reverse opacity-20" width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#34d399" strokeWidth="1.5"/><rect x="9" y="17" width="6" height="2" rx="1" stroke="#fbbf24" strokeWidth="1.5"/></svg>
+      {/* Casa */}
+      <svg className="absolute right-10 bottom-20 animate-float opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7Z" stroke="#f472b6" strokeWidth="1.5"/><rect x="9" y="14" width="6" height="5" rx="1" stroke="#38bdf8" strokeWidth="1.5"/></svg>
     </div>
   );
 
@@ -313,85 +316,72 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section - Impactante */}
-      <section className="py-20 sm:py-24 md:py-32 bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-700/30 via-indigo-700/30 to-blue-700/30"></div>
-        <div className="relative max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 border border-white/20">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" />
-            <span className="text-xs sm:text-sm font-bold">Experiencia Premium</span>
+      {/* Bloques destacados de servicios premium */}
+      <section className="relative z-10 py-12 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 text-white">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-gradient-to-br from-fuchsia-900/60 via-indigo-900/60 to-slate-900/60 rounded-2xl p-8 shadow-xl flex flex-col items-center text-center animate-fade-in">
+            <Truck className="w-10 h-10 mb-4 text-yellow-400 animate-bounce-in" />
+            <h3 className="text-xl font-bold mb-2">Envío Express</h3>
+            <p className="text-indigo-100">Entrega ultra rápida en 24-48 horas con seguimiento en tiempo real</p>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black mb-6 sm:mb-8 leading-tight">
-            ¿Listo para una experiencia de compra
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
-              revolucionaria?
-            </span>
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-8 sm:mb-10 md:mb-12 text-purple-100/90 max-w-4xl mx-auto leading-relaxed px-4">
-            Únete a miles de clientes satisfechos y descubre por qué somos la elección preferida 
-            para compras online de calidad premium.
-          </p>
-          <Link 
-            href="/productos"
-            className="group inline-flex items-center bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 rounded-xl sm:rounded-2xl font-black hover:from-yellow-500 hover:to-orange-600 transition-all duration-500 transform hover:scale-105 shadow-xl sm:shadow-2xl hover:shadow-yellow-500/25 border-2 border-yellow-300 text-sm sm:text-base md:text-lg"
-          >
-            <span>Comenzar a Explorar</span>
-            <ArrowRight className="ml-2 sm:ml-3 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-transform duration-300" />
-          </Link>
+          <div className="bg-gradient-to-br from-fuchsia-900/60 via-indigo-900/60 to-slate-900/60 rounded-2xl p-8 shadow-xl flex flex-col items-center text-center animate-fade-in">
+            <Shield className="w-10 h-10 mb-4 text-green-400 animate-bounce-in" />
+            <h3 className="text-xl font-bold mb-2">Garantía Premium</h3>
+            <p className="text-indigo-100">Hasta 3 años de garantía extendida en productos seleccionados</p>
+          </div>
+          <div className="bg-gradient-to-br from-fuchsia-900/60 via-indigo-900/60 to-slate-900/60 rounded-2xl p-8 shadow-xl flex flex-col items-center text-center animate-fade-in">
+            <Users className="w-10 h-10 mb-4 text-cyan-400 animate-bounce-in" />
+            <h3 className="text-xl font-bold mb-2">Soporte VIP</h3>
+            <p className="text-indigo-100">Asistencia personalizada 24/7 con expertos especializados</p>
+          </div>
         </div>
       </section>
 
-      {/* Admin Section - Solo visible para administradores */}
-      {isAuthenticated && isAdmin && (
-        <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 text-white">
-          <div className="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-8 sm:p-12 border border-white/10 shadow-2xl">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8 border border-purple-400/30">
-                <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-purple-300" />
-                <span className="text-xs sm:text-sm font-bold text-purple-200">Panel de Administración</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-4 sm:mb-6">
-                Consola de Administración Premium
-              </h2>
-              <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 text-slate-300 leading-relaxed px-4">
-                Gestiona todos los aspectos de tu tienda con nuestras herramientas profesionales 
-                de última generación
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-                <Link 
-                  href="/admin/products"
-                  className="group bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-xl sm:rounded-2xl font-black hover:from-purple-700 hover:to-indigo-700 transition-all duration-500 flex items-center justify-center shadow-xl hover:shadow-purple-500/25 transform hover:scale-105 border-2 border-purple-400/50 text-sm sm:text-base"
-                >
-                  <ShoppingCart className="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
-                  Gestión de Productos
-                </Link>
-                <Link 
-                  href="/admin"
-                  className="group border-2 border-white/20 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-xl sm:rounded-2xl font-black hover:bg-white/10 transition-all duration-500 flex items-center justify-center backdrop-blur-sm hover:backdrop-blur-lg transform hover:scale-105 text-sm sm:text-base"
-                >
-                  <Settings className="mr-2 sm:mr-3 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
-                  Panel de Control
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Experiencia Premium + CTA */}
+      <section className="relative z-10 py-16 bg-gradient-to-br from-fuchsia-900 via-indigo-950 to-slate-900 text-white flex flex-col items-center justify-center text-center">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent animate-fade-in">¿Listo para una experiencia de compra revolucionaria?</h2>
+        <p className="text-lg sm:text-xl md:text-2xl text-indigo-100 mb-8 max-w-2xl animate-fade-in">Únete a miles de clientes satisfechos y descubre por qué somos la elección preferida para compras online de calidad premium.</p>
+        <Link href="/productos" className="group bg-gradient-to-r from-fuchsia-500 via-yellow-400 to-orange-500 text-slate-900 px-10 py-5 rounded-2xl font-black shadow-xl hover:shadow-fuchsia-500/25 transition-all duration-500 transform hover:scale-105 flex items-center justify-center border-2 border-yellow-300 relative overflow-hidden text-xl focus-ring animate-bounce-in">
+          Comenzar a Explorar
+        </Link>
+        <div className="mt-8 text-indigo-200 text-sm animate-fade-in">Hoy es {currentDate}</div>
+        <div className="mt-2 text-indigo-300 text-xs animate-fade-in">Axiora - Revolucionando tu experiencia de compra online en axiora.pro</div>
+      </section>
 
-      {/* Footer Info - Premium */}
-      <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 text-white py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-1 h-1 sm:w-2 sm:h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
-            <span className="text-xs sm:text-sm text-slate-300">Hoy es {currentDate}</span>
-            <div className="w-1 h-1 sm:w-2 sm:h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
+      {/* Footer premium */}
+      <footer className="relative z-10 py-12 bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 text-white border-t border-fuchsia-800/30 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="text-xl font-black mb-2">ImportFredd</h3>
+            <p className="text-indigo-100 mb-4">Tu destino para productos premium de la más alta calidad.</p>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 font-black">Axiora</span> - 
-            Revolucionando tu experiencia de compra online en <span className="text-purple-300">axiora.pro</span>
-          </p>
+          <div>
+            <h4 className="font-bold mb-2">Productos</h4>
+            <ul className="space-y-1 text-indigo-100">
+              <li><Link href="/productos?categoria=zapatillas">Zapatillas</Link></li>
+              <li><Link href="/productos?categoria=ropa">Ropa</Link></li>
+              <li><Link href="/productos?categoria=accesorios">Accesorios</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-2">Soporte</h4>
+            <ul className="space-y-1 text-indigo-100">
+              <li><Link href="/contacto">Contacto</Link></li>
+              <li><Link href="/envios">Envíos</Link></li>
+              <li><Link href="/devoluciones">Devoluciones</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-2">Legal</h4>
+            <ul className="space-y-1 text-indigo-100">
+              <li><Link href="/terminos">Términos</Link></li>
+              <li><Link href="/privacidad">Privacidad</Link></li>
+              <li><Link href="/cookies">Cookies</Link></li>
+            </ul>
+          </div>
         </div>
-      </div>
+        <div className="mt-8 text-center text-indigo-300 text-xs">© 2024 ImportFredd. Todos los derechos reservados.</div>
+      </footer>
     </div>
   );
 } 
