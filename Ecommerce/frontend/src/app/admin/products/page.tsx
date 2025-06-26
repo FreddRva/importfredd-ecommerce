@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, ChangeEvent } from "react";
-import { PlusCircle, Edit, Trash2, UploadCloud, Save } from "lucide-react";
+import { PlusCircle, Edit, Trash2, UploadCloud, Save, Search, Filter, Eye, EyeOff, Star, Package, ArrowLeft, Sparkles, Shield, X, CheckCircle, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -13,10 +14,12 @@ interface Product {
   category_id: number;
   stock: number;
   image_url: string;
-  dimensions: string; // Dimensiones físicas (ej: "10x10x10")
-  model_url?: string; // Ruta del archivo 3D (.glb)
+  dimensions: string;
+  model_url?: string;
   is_active: boolean;
   featured?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface Category {
@@ -29,15 +32,24 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [currentProduct, setCurrentProduct] = useState<Partial<Product> | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   
   const [newImage, setNewImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [newModel, setNewModel] = useState<File | null>(null);
   const [modelName, setModelName] = useState<string | null>(null);
+  
+  // Filtros y búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [categoryFilter, setCategoryFilter] = useState<number | "all">("all");
+  const [sortBy, setSortBy] = useState<"name" | "price" | "stock" | "created">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   
   const { token } = useAuth();
   const router = useRouter();
@@ -90,15 +102,61 @@ export default function AdminProductsPage() {
       fetchCategories();
     }
   }, [token, fetchProducts, fetchCategories]);
+
+  // Filtrar y ordenar productos
+  const filteredAndSortedProducts = products
+    .filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || 
+                           (statusFilter === "active" && product.is_active) ||
+                           (statusFilter === "inactive" && !product.is_active);
+      const matchesCategory = categoryFilter === "all" || product.category_id === categoryFilter;
+      
+      return matchesSearch && matchesStatus && matchesCategory;
+    })
+    .sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (sortBy) {
+        case "name":
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case "price":
+          aValue = a.price;
+          bValue = b.price;
+          break;
+        case "stock":
+          aValue = a.stock;
+          bValue = b.stock;
+          break;
+        case "created":
+          aValue = new Date(a.created_at || "").getTime();
+          bValue = new Date(b.created_at || "").getTime();
+          break;
+        default:
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+      }
+      
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
   
   const resetFormState = () => {
     setCurrentProduct(null);
     setIsCreating(false);
+    setIsEditing(false);
     setNewImage(null);
     setImagePreview(null);
     setNewModel(null);
     setModelName(null);
     setError("");
+    setSuccess("");
   };
 
   const handleDelete = async (id: number) => {
@@ -109,7 +167,9 @@ export default function AdminProductsPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
-          fetchProducts(); // Recargar productos
+          setSuccess("Producto eliminado correctamente");
+          fetchProducts();
+          setTimeout(() => setSuccess(""), 3000);
         } else {
           const data = await res.json();
           setError(data.error || "Error al eliminar el producto");
@@ -123,20 +183,20 @@ export default function AdminProductsPage() {
   const handleEdit = (product: Product) => {
     resetFormState();
     setCurrentProduct(product);
+    setIsEditing(true);
     if(product.image_url) {
-      setImagePreview(product.image_url.startsWith('http') ? product.image_url : product.image_url);
+      setImagePreview(product.image_url.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`);
     }
   };
   
   const handleAddNew = () => {
-    console.log("Clic en Nuevo Producto");
     resetFormState();
     setCurrentProduct({
         name: '',
         description: '',
         price: 0,
         stock: 0,
-        category_id: 0,
+        category_id: categories[0]?.id || 0,
         is_active: true,
         featured: false,
         image_url: '',
@@ -197,173 +257,523 @@ export default function AdminProductsPage() {
     formData.append('category_id', String(currentProduct.category_id));
     formData.append('is_active', String(currentProduct.is_active || false));
     formData.append('featured', String(currentProduct.featured || false));
+    formData.append('dimensions', currentProduct.dimensions || '');
     if (newImage) formData.append('image', newImage);
-    if (newModel) formData.append('model3d', newModel);
-
-    const endpoint = isCreating 
-        ? `${API_URL}/admin/products`
-        : `${API_URL}/admin/products/${currentProduct.id}`;
-    const method = isCreating ? "POST" : "PUT";
+    if (newModel) formData.append('model', newModel);
 
     try {
-      const res = await fetch(endpoint, {
+      const url = isCreating 
+        ? `${API_URL}/admin/products` 
+        : `${API_URL}/admin/products/${currentProduct.id}`;
+      
+      const method = isCreating ? 'POST' : 'PUT';
+      
+      const res = await fetch(url, {
         method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       if (res.ok) {
+        const message = isCreating ? "Producto creado correctamente" : "Producto actualizado correctamente";
+        setSuccess(message);
         resetFormState();
         fetchProducts();
+        setTimeout(() => setSuccess(""), 3000);
       } else {
         const data = await res.json();
-        setError(data.error || "Error al actualizar el producto");
+        setError(data.error || `Error al ${isCreating ? 'crear' : 'actualizar'} el producto`);
       }
     } catch (err: any) {
-      setError(err.message || "Error de conexión al actualizar el producto");
+      setError(err.message || "Error de conexión");
     } finally {
       setLoading(false);
     }
   };
 
-  const safeProducts = Array.isArray(products) ? products : [];
-  const safeCategories = Array.isArray(categories) ? categories : [];
+  const toggleProductStatus = async (product: Product) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/products/${product.id}`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...product,
+          is_active: !product.is_active
+        }),
+      });
+      
+      if (res.ok) {
+        setSuccess(`Producto ${product.is_active ? 'desactivado' : 'activado'} correctamente`);
+        fetchProducts();
+        setTimeout(() => setSuccess(""), 3000);
+      } else {
+        const data = await res.json();
+        setError(data.error || "Error al cambiar el estado del producto");
+      }
+    } catch (err: any) {
+      setError(err.message || "Error de conexión");
+    }
+  };
 
-  if (!isClient || !token) {
-    return <div className="p-8 text-center">Cargando autenticación...</div>;
-  }
-
-  if (loading && products.length === 0) {
-    return <div className="p-8 text-center">Cargando productos...</div>;
-  }
+  if (!isClient) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-50 via-white to-blue-50 pt-32 pb-16">
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-          <h1 className="text-3xl font-extrabold text-gray-900 text-center sm:text-left">Gestionar Productos</h1>
-          <button
-            onClick={handleAddNew}
-            className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2 shadow-lg border-2 border-green-400 hover:border-blue-600 transition-all duration-200 text-lg"
-          >
-            <PlusCircle size={20} /> Nuevo Producto
-          </button>
-        </div>
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-base mb-4 font-semibold text-center">{error}</div>}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Categoría</th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Precio</th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Activo</th>
-                <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {loading && <tr><td colSpan={7} className="text-center py-6 text-lg font-semibold text-gray-400">Cargando...</td></tr>}
-              {!loading && safeProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-blue-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-700 font-semibold">{product.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-bold">{product.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-600">{safeCategories.find(c => c.id === product.category_id)?.name || '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-green-700 font-bold">${product.price.toFixed(2)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-blue-700 font-semibold">{product.stock}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    {product.is_active ? <span className="inline-block px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Sí</span> : <span className="inline-block px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">No</span>}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right flex justify-end gap-2">
-                    <button onClick={() => handleEdit(product)} className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors" title="Editar">
-                      <Edit size={18} />
-                    </button>
-                    <button onClick={() => handleDelete(product.id)} className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors" title="Eliminar">
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {/* Modal de producto: mejora visual si ya existe */}
-        {currentProduct && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative animate-fade-in">
-              <button
-                onClick={handleCancel}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
-                title="Cerrar"
-              >
-                <span className="sr-only">Cerrar</span>
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-fuchsia-900 text-white relative overflow-hidden">
+      {/* Floating Icons Decorativos */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-3 h-3 bg-fuchsia-400/20 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-20 w-2 h-2 bg-yellow-400/30 rounded-full animate-float-delayed"></div>
+        <div className="absolute bottom-20 left-1/4 w-4 h-4 bg-cyan-400/15 rounded-full animate-float"></div>
+        <div className="absolute top-1/2 right-1/3 w-2 h-2 bg-fuchsia-400/25 rounded-full animate-float-delayed"></div>
+        <div className="absolute bottom-40 right-10 w-3 h-3 bg-yellow-400/20 rounded-full animate-float"></div>
+        <div className="absolute top-1/3 left-20 w-2 h-2 bg-cyan-400/30 rounded-full animate-float-delayed"></div>
+      </div>
+
+      <div className="relative z-10 p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <Link 
+              href="/admin"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Volver al Dashboard
+            </Link>
+            <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent tracking-tight mb-4">
+              Gestión de Productos
+            </h1>
+            <p className="text-xl text-fuchsia-200">
+              Administra tu catálogo de productos con herramientas avanzadas
+            </p>
+          </div>
+
+          {/* Alertas */}
+          {error && (
+            <div className="bg-gradient-to-r from-red-900/40 to-fuchsia-900/40 border border-red-800/30 rounded-2xl p-4 mb-6 backdrop-blur-sm flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              <p className="text-red-400 font-bold">{error}</p>
+              <button onClick={() => setError("")} className="ml-auto">
+                <X className="w-4 h-4 text-red-400 hover:text-red-300" />
               </button>
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">
-                {isCreating ? 'Nuevo Producto' : 'Editar Producto'}
-              </h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="mb-4">
-                  <label className="block mb-1">Nombre</label>
-                  <input name="name" value={currentProduct?.name || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-800/30 rounded-2xl p-4 mb-6 backdrop-blur-sm flex items-center gap-3">
+              <CheckCircle className="w-5 h-5 text-green-400" />
+              <p className="text-green-400 font-bold">{success}</p>
+              <button onClick={() => setSuccess("")} className="ml-auto">
+                <X className="w-4 h-4 text-green-400 hover:text-green-300" />
+              </button>
+            </div>
+          )}
+
+          {/* Controles y Filtros */}
+          <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-6 mb-8">
+            <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                {/* Búsqueda */}
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fuchsia-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar productos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                  />
                 </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Descripción</label>
-                  <textarea name="description" value={currentProduct?.description || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Precio</label>
-                  <input type="number" name="price" value={currentProduct?.price || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Stock</label>
-                  <input type="number" name="stock" value={currentProduct?.stock || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Categoría</label>
-                  <select name="category_id" value={currentProduct?.category_id || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" required>
-                    <option value="">Selecciona una categoría</option>
-                    {safeCategories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+
+                {/* Filtros */}
+                <div className="flex gap-3">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                  >
+                    <option value="all">Todos los estados</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                  </select>
+
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
+                    className="px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                  >
+                    <option value="all">Todas las categorías</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
                     ))}
                   </select>
                 </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Dimensiones físicas</label>
-                  <input name="dimensions" value={currentProduct?.dimensions || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" placeholder="Ej: 10x10x10" />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Imagen</label>
-                  <input type="file" accept="image/*" onChange={handleImageChange} />
-                  {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 h-24" />}
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Modelo 3D (.glb, .gltf, .obj)</label>
-                  <input type="file" accept=".glb,.gltf,.obj,.fbx,.dae" onChange={handleModelChange} />
-                  {modelName && <span className="ml-2">{modelName}</span>}
-                </div>
-                <div className="mb-4 flex items-center gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" checked={currentProduct?.is_active || false} onChange={handleCheckboxChange} />
-                    Activo
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="featured" checked={currentProduct?.featured || false} onChange={handleCheckboxChange} />
-                    Producto destacado
-                  </label>
-                </div>
-                <div className="flex gap-4">
-                  <button type="submit" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">{isCreating ? 'Crear' : 'Actualizar'}</button>
-                  <button type="button" onClick={handleCancel} className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded">Cancelar</button>
-                </div>
-              </form>
+              </div>
+
+              {/* Botón Nuevo Producto */}
+              <button
+                onClick={handleAddNew}
+                className="bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 px-6 py-3 rounded-2xl font-black hover:from-yellow-400 hover:to-fuchsia-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-fuchsia-400/30 flex items-center gap-2"
+              >
+                <PlusCircle className="w-5 h-5" />
+                Nuevo Producto
+              </button>
+            </div>
+
+            {/* Ordenamiento */}
+            <div className="flex gap-3 mt-4">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-4 py-2 bg-slate-900/60 backdrop-blur-sm rounded-xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+              >
+                <option value="name">Ordenar por nombre</option>
+                <option value="price">Ordenar por precio</option>
+                <option value="stock">Ordenar por stock</option>
+                <option value="created">Ordenar por fecha</option>
+              </select>
+
+              <button
+                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                className="px-4 py-2 bg-slate-900/60 backdrop-blur-sm rounded-xl border border-fuchsia-800/30 text-white hover:bg-slate-900/80 transition-all duration-300"
+              >
+                {sortOrder === "asc" ? "↑" : "↓"}
+              </button>
             </div>
           </div>
-        )}
+
+          {/* Lista de Productos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredAndSortedProducts.map((product) => (
+              <div key={product.id} className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-6 hover:shadow-3xl hover:scale-105 transition-all duration-300 group">
+                {/* Imagen del producto */}
+                <div className="relative mb-4">
+                  <div className="w-full h-48 bg-gradient-to-br from-fuchsia-500/20 to-yellow-500/20 rounded-2xl flex items-center justify-center border border-fuchsia-400/30 overflow-hidden">
+                    {product.image_url ? (
+                      <img 
+                        src={product.image_url.startsWith('http') ? product.image_url : `${API_URL}${product.image_url}`}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Package className="w-16 h-16 text-fuchsia-400" />
+                    )}
+                  </div>
+                  
+                  {/* Badges de estado */}
+                  <div className="absolute top-3 left-3 flex gap-2">
+                    {!product.is_active && (
+                      <div className="bg-red-900/80 backdrop-blur-sm text-red-400 text-xs font-bold px-2 py-1 rounded-full border border-red-400/30">
+                        Inactivo
+                      </div>
+                    )}
+                    {product.featured && (
+                      <div className="bg-yellow-900/80 backdrop-blur-sm text-yellow-400 text-xs font-bold px-2 py-1 rounded-full border border-yellow-400/30 flex items-center gap-1">
+                        <Star className="w-3 h-3" />
+                        Destacado
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Información del producto */}
+                <div className="space-y-3">
+                  <h3 className="text-lg font-black text-white group-hover:text-yellow-300 transition-colors duration-300 truncate">
+                    {product.name}
+                  </h3>
+                  
+                  <p className="text-fuchsia-200 text-sm line-clamp-2">
+                    {product.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-yellow-400">
+                      €{product.price.toFixed(2)}
+                    </span>
+                    <span className={`text-sm font-bold px-2 py-1 rounded-full ${
+                      product.stock > 10 
+                        ? 'bg-green-900/40 text-green-400 border border-green-400/30' 
+                        : product.stock > 0 
+                        ? 'bg-yellow-900/40 text-yellow-400 border border-yellow-400/30'
+                        : 'bg-red-900/40 text-red-400 border border-red-400/30'
+                    }`}>
+                      Stock: {product.stock}
+                    </span>
+                  </div>
+
+                  {/* Categoría */}
+                  <div className="text-xs text-cyan-300">
+                    {categories.find(c => c.id === product.category_id)?.name || 'Sin categoría'}
+                  </div>
+
+                  {/* Acciones */}
+                  <div className="flex gap-2 pt-3 border-t border-fuchsia-800/30">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="flex-1 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 text-cyan-400 px-3 py-2 rounded-xl border border-cyan-400/30 hover:from-blue-600/40 hover:to-cyan-600/40 transition-all duration-300 text-sm font-bold"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Editar
+                    </button>
+                    
+                    <button
+                      onClick={() => toggleProductStatus(product)}
+                      className={`px-3 py-2 rounded-xl border text-sm font-bold transition-all duration-300 ${
+                        product.is_active
+                          ? 'bg-red-600/20 text-red-400 border-red-400/30 hover:from-red-600/40 hover:to-red-600/40'
+                          : 'bg-green-600/20 text-green-400 border-green-400/30 hover:from-green-600/40 hover:to-green-600/40'
+                      }`}
+                    >
+                      {product.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                    
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="px-3 py-2 bg-gradient-to-r from-red-600/20 to-red-600/20 text-red-400 rounded-xl border border-red-400/30 hover:from-red-600/40 hover:to-red-600/40 transition-all duration-300 text-sm font-bold"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Mensaje cuando no hay productos */}
+          {filteredAndSortedProducts.length === 0 && !loading && (
+            <div className="text-center py-12">
+              <Package className="w-16 h-16 text-fuchsia-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-fuchsia-200 mb-2">No se encontraron productos</h3>
+              <p className="text-fuchsia-300">Intenta ajustar los filtros o crear un nuevo producto.</p>
+            </div>
+          )}
+
+          {/* Loading */}
+          {loading && (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 bg-gradient-to-r from-fuchsia-600 to-yellow-400 rounded-full flex items-center justify-center animate-spin mx-auto mb-4">
+                <div className="w-8 h-8 bg-slate-900 rounded-full"></div>
+              </div>
+              <p className="text-fuchsia-200">Cargando productos...</p>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Modal de Formulario */}
+      {(isCreating || isEditing) && currentProduct && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-fuchsia-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent">
+                {isCreating ? 'Crear Nuevo Producto' : 'Editar Producto'}
+              </h2>
+              <button
+                onClick={handleCancel}
+                className="w-8 h-8 bg-red-600/20 text-red-400 rounded-full flex items-center justify-center hover:bg-red-600/40 transition-all duration-300"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Campos básicos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-fuchsia-200">Nombre *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={currentProduct.name || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    placeholder="Nombre del producto"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-fuchsia-200">Precio (€) *</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={currentProduct.price || ''}
+                    onChange={handleChange}
+                    step="0.01"
+                    min="0"
+                    className="w-full px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-fuchsia-200">Stock *</label>
+                  <input
+                    type="number"
+                    name="stock"
+                    value={currentProduct.stock || ''}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    placeholder="0"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-fuchsia-200">Categoría *</label>
+                  <select
+                    name="category_id"
+                    value={currentProduct.category_id || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    required
+                  >
+                    <option value="">Seleccionar categoría</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-fuchsia-200">Descripción</label>
+                <textarea
+                  name="description"
+                  value={currentProduct.description || ''}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300 resize-none"
+                  placeholder="Descripción del producto..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-fuchsia-200">Dimensiones</label>
+                <input
+                  type="text"
+                  name="dimensions"
+                  value={currentProduct.dimensions || ''}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                  placeholder="10x10x10 cm"
+                />
+              </div>
+
+              {/* Imagen */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-fuchsia-200">Imagen del Producto</label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className="w-full h-32 bg-gradient-to-br from-fuchsia-500/20 to-yellow-500/20 rounded-2xl border-2 border-dashed border-fuchsia-400/30 flex flex-col items-center justify-center cursor-pointer hover:from-fuchsia-500/30 hover:to-yellow-500/30 transition-all duration-300"
+                  >
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-2xl" />
+                    ) : (
+                      <>
+                        <UploadCloud className="w-8 h-8 text-fuchsia-400 mb-2" />
+                        <span className="text-fuchsia-200 text-sm">Haz clic para subir una imagen</span>
+                      </>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              {/* Modelo 3D */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-fuchsia-200">Modelo 3D (.glb)</label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept=".glb"
+                    onChange={handleModelChange}
+                    className="hidden"
+                    id="model-upload"
+                  />
+                  <label
+                    htmlFor="model-upload"
+                    className="w-full px-4 py-3 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl border-2 border-dashed border-cyan-400/30 flex items-center justify-center cursor-pointer hover:from-cyan-500/30 hover:to-blue-500/30 transition-all duration-300"
+                  >
+                    <UploadCloud className="w-5 h-5 text-cyan-400 mr-2" />
+                    <span className="text-cyan-200 text-sm">
+                      {modelName || 'Haz clic para subir un modelo 3D'}
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Checkboxes */}
+              <div className="flex gap-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={currentProduct.is_active || false}
+                    onChange={handleCheckboxChange}
+                    className="w-5 h-5 text-fuchsia-600 focus:ring-fuchsia-500 border-fuchsia-800/30 rounded bg-slate-900/60"
+                  />
+                  <span className="text-fuchsia-200 font-bold">Producto Activo</span>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="featured"
+                    checked={currentProduct.featured || false}
+                    onChange={handleCheckboxChange}
+                    className="w-5 h-5 text-yellow-600 focus:ring-yellow-500 border-yellow-800/30 rounded bg-slate-900/60"
+                  />
+                  <span className="text-yellow-200 font-bold">Producto Destacado</span>
+                </label>
+              </div>
+
+              {/* Botones */}
+              <div className="flex gap-4 pt-6">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 py-3 rounded-2xl font-black hover:from-yellow-400 hover:to-fuchsia-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 border-fuchsia-400/30 flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-900"></div>
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5" />
+                      <span>{isCreating ? 'Crear Producto' : 'Guardar Cambios'}</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="px-6 py-3 bg-gradient-to-r from-slate-600/20 to-slate-600/20 text-slate-300 rounded-2xl border border-slate-600/30 hover:from-slate-600/40 hover:to-slate-600/40 transition-all duration-300 font-bold"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
