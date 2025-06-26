@@ -46,8 +46,9 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"https://axiora.pro",                                                     // producción con dominio personalizado
-		"https://importfredd-ecommercerv.vercel.app",                             // producción Vercel
-		"https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app", // preview Vercel
+		"https://importfredd-ecommercerv.vercel.app",                             // producción Vercel antiguo
+		"https://importfredd-ecommercerv-git-main-freddrvas-projects.vercel.app", // preview Vercel antiguo
+		"https://importfredd-axiora.vercel.app",                                  // NUEVO dominio Vercel
 		"http://localhost:3000",                                                  // desarrollo local
 	}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
