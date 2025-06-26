@@ -486,6 +486,94 @@ func UpdateUserStatus(db *pgxpool.Pool, userID int, isAdmin bool, isActive bool)
 	return nil
 }
 
+// DeleteUser elimina completamente un usuario y todos sus datos relacionados
+func DeleteUser(db *pgxpool.Pool, userID int) error {
+	// Iniciar transacción para asegurar consistencia
+	tx, err := db.Begin(context.Background())
+	if err != nil {
+		return fmt.Errorf("error iniciando transacción: %w", err)
+	}
+	defer tx.Rollback(context.Background())
+
+	// Eliminar en orden para evitar problemas de foreign key
+	// 1. Eliminar credenciales WebAuthn
+	_, err = tx.Exec(context.Background(), "DELETE FROM credentials WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando credenciales: %w", err)
+	}
+
+	// 2. Eliminar refresh tokens
+	_, err = tx.Exec(context.Background(), "DELETE FROM refresh_tokens WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando refresh tokens: %w", err)
+	}
+
+	// 3. Eliminar sesiones de usuario
+	_, err = tx.Exec(context.Background(), "DELETE FROM user_sessions WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando sesiones: %w", err)
+	}
+
+	// 4. Eliminar favoritos
+	_, err = tx.Exec(context.Background(), "DELETE FROM favorites WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando favoritos: %w", err)
+	}
+
+	// 5. Eliminar direcciones
+	_, err = tx.Exec(context.Background(), "DELETE FROM addresses WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando direcciones: %w", err)
+	}
+
+	// 6. Eliminar items del carrito
+	_, err = tx.Exec(context.Background(), "DELETE FROM cart_items WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando items del carrito: %w", err)
+	}
+
+	// 7. Eliminar pagos asociados a pedidos del usuario
+	_, err = tx.Exec(context.Background(), `
+		DELETE FROM payments 
+		WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)
+	`, userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando pagos: %w", err)
+	}
+
+	// 8. Eliminar items de pedidos
+	_, err = tx.Exec(context.Background(), `
+		DELETE FROM order_items 
+		WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)
+	`, userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando items de pedidos: %w", err)
+	}
+
+	// 9. Eliminar pedidos
+	_, err = tx.Exec(context.Background(), "DELETE FROM orders WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando pedidos: %w", err)
+	}
+
+	// 10. Finalmente, eliminar el usuario
+	cmd, err := tx.Exec(context.Background(), "DELETE FROM users WHERE id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando usuario: %w", err)
+	}
+	if cmd.RowsAffected() == 0 {
+		return fmt.Errorf("usuario no encontrado")
+	}
+
+	// Confirmar transacción
+	err = tx.Commit(context.Background())
+	if err != nil {
+		return fmt.Errorf("error confirmando transacción: %w", err)
+	}
+
+	return nil
+}
+
 // ===== PEDIDOS (ORDERS) =====
 
 // Listar todos los pedidos con paginación

@@ -92,7 +92,7 @@ export default function AdminUsersPage() {
   };
 
   const handleDelete = async (targetUserId: number) => {
-    if (!window.confirm('¿Estás seguro? Esta acción desactivará al usuario y le quitará el rol de administrador.')) {
+    if (!window.confirm('¿Estás seguro? Esta acción ELIMINARÁ COMPLETAMENTE al usuario y todos sus datos (pedidos, favoritos, direcciones, etc.). Esta acción no se puede deshacer.')) {
         return;
     }
     const originalUsers = [...users];

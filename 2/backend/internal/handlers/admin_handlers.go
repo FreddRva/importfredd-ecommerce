@@ -546,21 +546,14 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// Se realiza un "soft delete" estableciendo is_active = false
-	// Primero obtenemos el estado de 'is_admin' para no alterarlo.
-	user, err := db.GetUserByID(h.DB, userID)
+	// Eliminar completamente el usuario y todos sus datos relacionados
+	err = db.DeleteUser(h.DB, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener el usuario: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error eliminando usuario: " + err.Error()})
 		return
 	}
 
-	err = db.UpdateUserStatus(h.DB, userID, user.IsAdmin, false) // Se mantiene su rol de admin, pero se desactiva
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error desactivando usuario: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Usuario desactivado exitosamente"})
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario eliminado exitosamente"})
 }
 
 // ===== PEDIDOS (ORDERS) =====
