@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Star, ShoppingCart, Eye, Heart, Settings, Sparkles, Zap, TrendingUp, Shield, Truck, Clock, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +16,8 @@ export default function HomePage() {
   const [errorFeatured, setErrorFeatured] = useState("");
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
   const [scrollY, setScrollY] = useState(0);
+  const [maxScroll, setMaxScroll] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [errorCategories, setErrorCategories] = useState("");
@@ -89,6 +91,30 @@ export default function HomePage() {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        setMaxScroll(containerRef.current.scrollHeight - window.innerHeight);
+      } else {
+        setMaxScroll(document.body.scrollHeight - window.innerHeight);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Rebote matemático
+  const bounce = (y: number, amplitude: number, speed: number) => {
+    if (maxScroll === 0) return y;
+    const t = Math.min(y, maxScroll);
+    const norm = t / maxScroll;
+    // Rebote: seno para suavidad, abs para rebote
+    return amplitude * Math.abs(Math.sin(norm * Math.PI * speed));
+  };
+
   const stats = [
     { icon: Users, value: "50K+", label: "Clientes Satisfechos", color: "from-blue-500 to-cyan-500" },
     { icon: Truck, value: "24h", label: "Envío Express", color: "from-green-500 to-emerald-500" },
@@ -120,30 +146,36 @@ export default function HomePage() {
     return { text: 'Disponible', color: 'text-green-600', bgColor: 'bg-green-100/80', borderColor: 'border-green-200', icon: '✅' };
   };
 
-  // Iconos SVG inline para fondo animado y parallax scroll
+  // Iconos SVG inline para fondo animado, parallax scroll y rebote
   const FloatingIcons = () => (
     <div className="pointer-events-none select-none absolute inset-0 w-full h-full overflow-hidden z-0">
-      {/* Zapatilla: sube y baja */}
-      <svg style={{ left: 40, top: 40 + (scrollY * 0.2) }} className="absolute animate-spin-slow opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M2 17c0-2 2-4 4-4h10c2 0 4 2 4 4v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1Z" stroke="#fbbf24" strokeWidth="1.5"/><path d="M6 13V7a5 5 0 0 1 5-5c2.5 0 4 2 4 4v7" stroke="#f472b6" strokeWidth="1.5"/></svg>
-      {/* Ropa: baja y gira */}
-      <svg style={{ right: 80, top: 120 - (scrollY * 0.15), transform: `rotate(${scrollY * 0.2}deg)` }} className="absolute opacity-40" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M4 4l4 2 4-2 4 2 4-2" stroke="#38bdf8" strokeWidth="1.5"/><path d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4" stroke="#a78bfa" strokeWidth="1.5"/></svg>
-      {/* Tecnología: diagonal arriba derecha */}
-      <svg style={{ left: `calc(33% + ${scrollY * 0.1}px)`, bottom: 40 + (scrollY * 0.12) }} className="absolute animate-spin-reverse opacity-20" width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#34d399" strokeWidth="1.5"/><rect x="9" y="17" width="6" height="2" rx="1" stroke="#fbbf24" strokeWidth="1.5"/></svg>
-      {/* Casa: sube más lento */}
-      <svg style={{ right: 40, bottom: 80 + (scrollY * 0.07) }} className="absolute opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7Z" stroke="#f472b6" strokeWidth="1.5"/><rect x="9" y="14" width="6" height="5" rx="1" stroke="#38bdf8" strokeWidth="1.5"/></svg>
-      {/* Accesorio (reloj): diagonal abajo izquierda y gira */}
-      <svg style={{ left: `50%`, top: 120 + (scrollY * 0.18), transform: `rotate(${-scrollY * 0.3}deg)` }} className="absolute opacity-25" width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fbbf24" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="#a78bfa" strokeWidth="1.5"/></svg>
-      {/* Electrónica (auriculares): sube y gira */}
-      <svg style={{ right: `33%`, top: 60 - (scrollY * 0.13), transform: `rotate(${scrollY * 0.4}deg)` }} className="absolute opacity-20" width="56" height="56" viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="8" rx="4" stroke="#34d399" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" stroke="#f472b6" strokeWidth="1.5"/><circle cx="16" cy="12" r="2" stroke="#f472b6" strokeWidth="1.5"/></svg>
-      {/* Bolsa de compras: sube y baja más rápido */}
-      <svg style={{ left: 120, bottom: 120 + (scrollY * 0.25) }} className="absolute opacity-20" width="52" height="52" viewBox="0 0 24 24" fill="none"><rect x="5" y="7" width="14" height="13" rx="2" stroke="#fbbf24" strokeWidth="1.5"/><path d="M7 7V5a5 5 0 0 1 10 0v2" stroke="#a78bfa" strokeWidth="1.5"/></svg>
-      {/* Camiseta: diagonal arriba izquierda y gira */}
-      <svg style={{ right: 120, bottom: 40 + (scrollY * 0.15), transform: `rotate(${-scrollY * 0.2}deg)` }} className="absolute opacity-25" width="54" height="54" viewBox="0 0 24 24" fill="none"><path d="M4 4l4 2 4-2 4 2 4-2" stroke="#38bdf8" strokeWidth="1.5"/><rect x="6" y="6" width="12" height="12" rx="2" stroke="#f472b6" strokeWidth="1.5"/></svg>
+      {/* Zapatilla: sube y rebota */}
+      <svg style={{ left: 40, top: 40 + bounce(scrollY, 200, 1) }} className="absolute animate-spin-slow opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M2 17c0-2 2-4 4-4h10c2 0 4 2 4 4v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1Z" stroke="#fbbf24" strokeWidth="1.5"/><path d="M6 13V7a5 5 0 0 1 5-5c2.5 0 4 2 4 4v7" stroke="#f472b6" strokeWidth="1.5"/></svg>
+      {/* Ropa: baja y rebota más rápido */}
+      <svg style={{ right: 80, top: 120 - bounce(scrollY, 180, 1.5), transform: `rotate(${scrollY * 0.2}deg)` }} className="absolute opacity-40" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M4 4l4 2 4-2 4 2 4-2" stroke="#38bdf8" strokeWidth="1.5"/><path d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4" stroke="#a78bfa" strokeWidth="1.5"/></svg>
+      {/* Tecnología: diagonal arriba derecha y rebota */}
+      <svg style={{ left: `calc(33% + ${bounce(scrollY, 60, 1.2)}px)`, bottom: 40 + bounce(scrollY, 120, 1.1) }} className="absolute animate-spin-reverse opacity-20" width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#34d399" strokeWidth="1.5"/><rect x="9" y="17" width="6" height="2" rx="1" stroke="#fbbf24" strokeWidth="1.5"/></svg>
+      {/* Casa: sube más lento y rebota */}
+      <svg style={{ right: 40, bottom: 80 + bounce(scrollY, 100, 0.7) }} className="absolute opacity-30" width="60" height="60" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7Z" stroke="#f472b6" strokeWidth="1.5"/><rect x="9" y="14" width="6" height="5" rx="1" stroke="#38bdf8" strokeWidth="1.5"/></svg>
+      {/* Accesorio (reloj): diagonal abajo izquierda y rebota */}
+      <svg style={{ left: `50%`, top: 120 + bounce(scrollY, 90, 1.3), transform: `rotate(${-scrollY * 0.3}deg)` }} className="absolute opacity-25" width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fbbf24" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="#a78bfa" strokeWidth="1.5"/></svg>
+      {/* Electrónica (auriculares): sube y gira y rebota */}
+      <svg style={{ right: `33%`, top: 60 - bounce(scrollY, 110, 1.7), transform: `rotate(${scrollY * 0.4}deg)` }} className="absolute opacity-20" width="56" height="56" viewBox="0 0 24 24" fill="none"><rect x="4" y="8" width="16" height="8" rx="4" stroke="#34d399" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" stroke="#f472b6" strokeWidth="1.5"/><circle cx="16" cy="12" r="2" stroke="#f472b6" strokeWidth="1.5"/></svg>
+      {/* Bolsa de compras: sube y baja más rápido y rebota */}
+      <svg style={{ left: 120, bottom: 120 + bounce(scrollY, 140, 2) }} className="absolute opacity-20" width="52" height="52" viewBox="0 0 24 24" fill="none"><rect x="5" y="7" width="14" height="13" rx="2" stroke="#fbbf24" strokeWidth="1.5"/><path d="M7 7V5a5 5 0 0 1 10 0v2" stroke="#a78bfa" strokeWidth="1.5"/></svg>
+      {/* Camiseta: diagonal arriba izquierda y rebota */}
+      <svg style={{ right: 120, bottom: 40 + bounce(scrollY, 80, 1.4), transform: `rotate(${-scrollY * 0.2}deg)` }} className="absolute opacity-25" width="54" height="54" viewBox="0 0 24 24" fill="none"><path d="M4 4l4 2 4-2 4 2 4-2" stroke="#38bdf8" strokeWidth="1.5"/><rect x="6" y="6" width="12" height="12" rx="2" stroke="#f472b6" strokeWidth="1.5"/></svg>
+      {/* Más iconos: estrella */}
+      <svg style={{ left: 200, top: 60 + bounce(scrollY, 160, 1.6) }} className="absolute opacity-20" width="40" height="40" viewBox="0 0 24 24" fill="none"><polygon points="12,2 15,10 23,10 17,15 19,23 12,18 5,23 7,15 1,10 9,10" stroke="#fbbf24" strokeWidth="1.2" fill="none"/></svg>
+      {/* Más iconos: mochila */}
+      <svg style={{ right: 200, top: 80 + bounce(scrollY, 120, 1.8) }} className="absolute opacity-18" width="44" height="44" viewBox="0 0 24 24" fill="none"><rect x="6" y="7" width="12" height="13" rx="3" stroke="#a78bfa" strokeWidth="1.5"/><path d="M9 7V5a3 3 0 0 1 6 0v2" stroke="#fbbf24" strokeWidth="1.5"/></svg>
+      {/* Más iconos: gafas */}
+      <svg style={{ left: 300, bottom: 100 + bounce(scrollY, 100, 1.1) }} className="absolute opacity-18" width="38" height="38" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="12" r="3" stroke="#34d399" strokeWidth="1.2"/><circle cx="16" cy="12" r="3" stroke="#34d399" strokeWidth="1.2"/><rect x="11" y="11" width="2" height="2" fill="#a78bfa"/></svg>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 text-white relative overflow-x-hidden">
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 text-white relative overflow-x-hidden">
       <FloatingIcons />
       {/* Hero Section - Fondo oscuro, iconos flotando, premium */}
       <section className="relative z-10 flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 gap-12">
