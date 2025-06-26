@@ -27,8 +27,9 @@ func InitWebAuthn() {
 		RPID:          rpID,
 		RPOrigins: []string{
 			rpOrigin,
-			"https://axiora.pro",    // Dominio principal
-			"http://localhost:3000", // Desarrollo local
+			"https://axiora.pro",                    // Dominio principal
+			"https://importfredd-axiora.vercel.app", // Dominio Vercel
+			"http://localhost:3000",                 // Desarrollo local
 		},
 		// Configuración más permisiva para desarrollo
 		AttestationPreference: "none", // No requiere attestation

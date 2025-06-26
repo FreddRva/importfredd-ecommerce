@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -115,25 +116,44 @@ func getWebAuthnByOrigin(origin string) (*webauthn.WebAuthn, error) {
 		rpID = "axiora.pro"
 		rpOrigin = "https://axiora.pro"
 	case "https://importfredd-axiora.vercel.app":
-		rpID = "axiora.pro"
-		rpOrigin = "https://axiora.pro"
+		rpID = "importfredd-axiora.vercel.app"
+		rpOrigin = "https://importfredd-axiora.vercel.app"
 	case "http://localhost:3000":
 		rpID = "localhost"
 		rpOrigin = "http://localhost:3000"
 	default:
-		// Para cualquier otro origen, usar la configuración por defecto
-		rpID = os.Getenv("WEBAUTHN_RPID")
-		if rpID == "" {
-			rpID = "axiora.pro"
-		}
-		rpOrigin = os.Getenv("WEBAUTHN_RP_ORIGIN")
-		if rpOrigin == "" {
-			rpOrigin = "https://axiora.pro"
+		// Para cualquier otro origen, extraer el dominio del origin
+		if origin != "" {
+			// Extraer el dominio del origin (remover protocolo y puerto)
+			if strings.HasPrefix(origin, "https://") {
+				rpID = strings.TrimPrefix(origin, "https://")
+			} else if strings.HasPrefix(origin, "http://") {
+				rpID = strings.TrimPrefix(origin, "http://")
+			} else {
+				rpID = origin
+			}
+			// Remover puerto si existe
+			if strings.Contains(rpID, ":") {
+				rpID = strings.Split(rpID, ":")[0]
+			}
+			rpOrigin = origin
+		} else {
+			// Fallback a configuración por defecto
+			rpID = os.Getenv("WEBAUTHN_RPID")
+			if rpID == "" {
+				rpID = "axiora.pro"
+			}
+			rpOrigin = os.Getenv("WEBAUTHN_RP_ORIGIN")
+			if rpOrigin == "" {
+				rpOrigin = "https://axiora.pro"
+			}
 		}
 	}
 
+	log.Printf("WebAuthn config - Origin: %s, RPID: %s, RPOrigin: %s", origin, rpID, rpOrigin)
+
 	waconfig := &webauthn.Config{
-		RPDisplayName: "Go Ecommerce",
+		RPDisplayName: "Axiora E-commerce",
 		RPID:          rpID,
 		RPOrigins:     []string{rpOrigin},
 	}
