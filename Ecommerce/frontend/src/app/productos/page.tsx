@@ -259,12 +259,17 @@ function ProductosContent() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 pt-40 text-white">
       {/* Hero Section - Premium */}
       <div className="relative bg-gradient-to-br from-fuchsia-900 via-indigo-950 to-slate-900 shadow-2xl overflow-hidden rounded-3xl mb-10">
-        <div className="absolute inset-0 pointer-events-none select-none">
-          <div className="absolute top-20 left-10 w-2 h-2 bg-fuchsia-400/30 rounded-full animate-ping"></div>
-          <div className="absolute top-40 right-20 w-1 h-1 bg-yellow-400/50 rounded-full animate-pulse"></div>
-          <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-cyan-400/20 rounded-full animate-bounce"></div>
+        {/* Floating icons decorativos premium detrás del contenido */}
+        <div className="pointer-events-none select-none absolute inset-0 z-0">
+          <Star className="absolute top-10 left-10 w-16 h-16 text-yellow-400 opacity-10 animate-float-slow" />
+          <ShoppingCart className="absolute bottom-20 right-20 w-24 h-24 text-fuchsia-400 opacity-10 animate-float-medium" />
+          <Orbit className="absolute top-1/2 left-1/3 w-24 h-24 text-cyan-400 opacity-10 animate-float-fast" />
+          <Star className="absolute bottom-10 left-1/4 w-14 h-14 text-fuchsia-400 opacity-10 animate-float-medium" />
+          <ShoppingCart className="absolute top-1/4 right-1/4 w-16 h-16 text-yellow-400 opacity-10 animate-float-slow" />
+          <Orbit className="absolute bottom-1/3 right-10 w-20 h-20 text-cyan-400 opacity-10 animate-float-fast" />
+          <Star className="absolute top-1/3 right-1/3 w-10 h-10 text-fuchsia-400 opacity-10 animate-float-slow" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8 md:pt-14 md:pb-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="mb-8 lg:mb-0 text-center lg:text-left animate-slide-in-left">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-4 py-2 mb-6 border border-fuchsia-400/30">
