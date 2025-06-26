@@ -70,6 +70,9 @@ function ProductosContent() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Estado para saber si está cargando productos (pero no limpiar la grilla)
+  const [isFetching, setIsFetching] = useState(false);
+
   // Effect to update URL when debounced input changes
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -88,7 +91,7 @@ function ProductosContent() {
   // Effect to fetch products when URL parameters change
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
+      setIsFetching(true);
       setIsSuggestionsOpen(false);
       const params = new URLSearchParams({
         page: String(pageFromUrl),
@@ -101,10 +104,8 @@ function ProductosContent() {
         const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`);
         if (!response.ok) throw new Error('Error al cargar productos');
         const data = await response.json();
-        
         setProducts(data.products || []);
         setTotalPages(Math.ceil((data.total || 0) / 12));
-        
         if (response.ok && searchTermFromUrl) {
           setRecentSearches(prevSearches => {
             const newSearches = [searchTermFromUrl, ...prevSearches.filter(s => s !== searchTermFromUrl)].slice(0, MAX_RECENT_SEARCHES);
@@ -115,6 +116,7 @@ function ProductosContent() {
       } catch (err: any) {
         setError(err.message);
       } finally {
+        setIsFetching(false);
         setLoading(false);
       }
     };
@@ -324,7 +326,7 @@ function ProductosContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar - Premium */}
-          <div className={`lg:w-80 transition-all duration-500 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <div className={`lg:w-80 transition-all duration-500 ${showFilters ? 'block' : 'hidden'}`}>
             <div className="bg-gradient-to-br from-slate-900/70 via-indigo-900/60 to-fuchsia-900/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-fuchsia-800/30 p-6 sticky top-8 animate-scale-in">
               <div className="flex items-center gap-2 mb-6 pb-4 border-b border-fuchsia-800/30">
                 <Filter className="w-5 h-5 text-yellow-400" />
@@ -401,10 +403,18 @@ function ProductosContent() {
           </div>
           
           {/* Products Grid */}
-          <div className="flex-1">
-            {loading && products.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">Cargando...</div>
-            ) : products.length === 0 ? (
+          <div className="flex-1 relative">
+            {/* Loader overlay premium */}
+            {isFetching && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-slate-800/80 backdrop-blur-xl rounded-3xl animate-fade-in pointer-events-none">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-4 border-fuchsia-400 border-t-yellow-400 rounded-full animate-spin"></div>
+                  <span className="text-lg font-bold text-yellow-300 drop-shadow-xl">Buscando productos...</span>
+                </div>
+              </div>
+            )}
+            {/* Si no hay productos y no está cargando, mostrar mensaje vacío */}
+            {!isFetching && products.length === 0 ? (
               <div className="text-center py-16 bg-white/70 backdrop-blur-md rounded-2xl shadow-xl p-8 animate-scale-in">
                 <div className="mx-auto h-24 w-24 text-slate-400 mb-6">
                   <Search className="w-full h-full" />
