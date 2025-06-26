@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard, Truck } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, CreditCard, Truck, User, Lock, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -20,6 +20,8 @@ export default function CarritoPage() {
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
   const handleQuantityChange = async (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -32,16 +34,24 @@ export default function CarritoPage() {
   };
 
   const handleRemoveItem = async (itemId: number) => {
+    setItemToDelete(itemId);
+  };
+
+  const confirmRemoveItem = async () => {
+    if (itemToDelete === null) return;
+    
     try {
-      await removeFromCart(itemId);
+      await removeFromCart(itemToDelete);
     } catch (error) {
       console.error('Error removing item:', error);
+    } finally {
+      setItemToDelete(null);
     }
   };
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      alert('Por favor, inicia sesión para continuar con la compra');
+      setShowAuthModal(true);
       return;
     }
     // Redirigir al checkout
@@ -141,7 +151,7 @@ export default function CarritoPage() {
                       <div className="flex items-center gap-2 animate-fade-in">
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                          className="w-9 h-9 rounded-full border border-fuchsia-800/30 flex items-center justify-center bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 transition-colors shadow-md"
+                          className="w-9 h-9 rounded-full border border-fuchsia-400/50 flex items-center justify-center bg-gradient-to-br from-fuchsia-600/20 to-yellow-600/20 hover:from-fuchsia-600/40 hover:to-yellow-600/40 text-yellow-300 hover:text-yellow-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           <Minus className="w-5 h-5" />
                         </button>
@@ -150,7 +160,7 @@ export default function CarritoPage() {
                         </span>
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                          className="w-9 h-9 rounded-full border border-fuchsia-800/30 flex items-center justify-center bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-yellow-400 transition-colors shadow-md"
+                          className="w-9 h-9 rounded-full border border-fuchsia-400/50 flex items-center justify-center bg-gradient-to-br from-fuchsia-600/20 to-yellow-600/20 hover:from-fuchsia-600/40 hover:to-yellow-600/40 text-yellow-300 hover:text-yellow-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           <Plus className="w-5 h-5" />
                         </button>
@@ -169,7 +179,7 @@ export default function CarritoPage() {
                       {/* Remove Button */}
                       <button
                         onClick={() => handleRemoveItem(item.id)}
-                        className="flex-shrink-0 p-2 rounded-full border border-fuchsia-800/30 bg-slate-900/60 hover:bg-fuchsia-900/40 text-fuchsia-200 hover:text-red-400 shadow-md transition-colors animate-fade-in"
+                        className="flex-shrink-0 p-2 rounded-full border border-red-400/50 bg-gradient-to-br from-red-600/20 to-fuchsia-600/20 hover:from-red-600/40 hover:to-fuchsia-600/40 text-red-300 hover:text-red-100 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in transform hover:scale-105"
                         aria-label="Eliminar producto"
                       >
                         <Trash2 className="w-6 h-6" />
@@ -226,21 +236,17 @@ export default function CarritoPage() {
                   <span className="text-fuchsia-200">Subtotal ({itemCount} items)</span>
                   <span className="text-yellow-400 font-black text-xl drop-shadow-xl">${formatPrice(totalPrice)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Envío</span>
-                  <span className="text-green-600 font-medium">Gratis</span>
+                <div className="flex justify-between text-base">
+                  <span className="text-fuchsia-200">Envío</span>
+                  <span className="text-green-400 font-bold">Gratis</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Impuestos</span>
-                  <span className="text-gray-900">${formatPrice((totalPrice || 0) * 0.21)}</span>
+                <div className="flex justify-between text-base">
+                  <span className="text-fuchsia-200">Impuestos</span>
+                  <span className="text-cyan-400 font-bold">$18.90</span>
                 </div>
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span className="text-gray-900">Total</span>
-                    <span className="text-gray-900">
-                      ${formatPrice((totalPrice || 0) * 1.21)}
-                    </span>
-                  </div>
+                <div className="flex justify-between text-xl font-black border-t border-fuchsia-800/30 pt-4">
+                  <span className="text-white">Total</span>
+                  <span className="text-yellow-400 drop-shadow-xl">$108.89</span>
                 </div>
               </div>
 
@@ -276,6 +282,108 @@ export default function CarritoPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de autenticación premium */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-fuchsia-900/95 rounded-3xl p-8 shadow-2xl border border-fuchsia-800/30 max-w-md w-full mx-4 animate-scale-in relative overflow-hidden">
+            {/* Floating icons decorativos */}
+            <div className="absolute top-4 right-4 opacity-20 animate-float">
+              <Sparkles className="w-6 h-6 text-fuchsia-400" />
+            </div>
+            <div className="absolute bottom-4 left-4 opacity-20 animate-float-delayed">
+              <Sparkles className="w-5 h-5 text-yellow-400" />
+            </div>
+            
+            <div className="text-center relative z-10">
+              {/* Icono premium */}
+              <div className="w-20 h-20 bg-gradient-to-br from-fuchsia-500/20 to-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-fuchsia-400/30 shadow-lg">
+                <Lock className="w-10 h-10 text-fuchsia-400" />
+              </div>
+              
+              <h3 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4">
+                Acceso Requerido
+              </h3>
+              
+              <p className="text-fuchsia-200 mb-8 text-lg leading-relaxed">
+                Para continuar con tu compra, necesitas iniciar sesión en tu cuenta de <span className="text-yellow-400 font-bold">ImportFredd</span>
+              </p>
+              
+              <div className="space-y-4">
+                <Link
+                  href="/login"
+                  onClick={() => setShowAuthModal(false)}
+                  className="w-full inline-flex items-center justify-center gap-3 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 px-8 py-4 rounded-2xl font-black text-lg shadow-xl hover:from-yellow-400 hover:to-fuchsia-600 transition-all duration-300 animate-glow border-2 border-fuchsia-400/30"
+                >
+                  <User className="w-6 h-6" />
+                  Iniciar Sesión
+                </Link>
+                
+                <Link
+                  href="/register"
+                  onClick={() => setShowAuthModal(false)}
+                  className="w-full inline-flex items-center justify-center gap-3 bg-gradient-to-r from-slate-800/60 to-indigo-900/60 text-fuchsia-200 px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:from-slate-700/60 hover:to-indigo-800/60 transition-all duration-300 border border-fuchsia-800/30"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Crear Cuenta
+                </Link>
+                
+                <button
+                  onClick={() => setShowAuthModal(false)}
+                  className="w-full text-fuchsia-300 hover:text-yellow-400 font-semibold transition-colors duration-300"
+                >
+                  Continuar como invitado
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación para eliminar producto individual */}
+      {itemToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-fuchsia-900/95 rounded-3xl p-8 shadow-2xl border border-fuchsia-800/30 max-w-md w-full mx-4 animate-scale-in relative overflow-hidden">
+            {/* Floating icons decorativos */}
+            <div className="absolute top-4 right-4 opacity-20 animate-float">
+              <Sparkles className="w-6 h-6 text-red-400" />
+            </div>
+            <div className="absolute bottom-4 left-4 opacity-20 animate-float-delayed">
+              <Sparkles className="w-5 h-5 text-fuchsia-400" />
+            </div>
+            
+            <div className="text-center relative z-10">
+              {/* Icono premium */}
+              <div className="w-20 h-20 bg-gradient-to-br from-red-500/20 to-fuchsia-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-400/30 shadow-lg">
+                <Trash2 className="w-10 h-10 text-red-400" />
+              </div>
+              
+              <h3 className="text-2xl font-black bg-gradient-to-r from-red-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent mb-4">
+                ¿Eliminar producto?
+              </h3>
+              
+              <p className="text-fuchsia-200 mb-8 text-lg leading-relaxed">
+                ¿Estás seguro de que quieres eliminar este producto de tu carrito? Esta acción no se puede deshacer.
+              </p>
+              
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setItemToDelete(null)}
+                  className="px-8 py-4 rounded-2xl font-bold bg-gradient-to-r from-slate-800/60 to-indigo-900/60 text-fuchsia-200 hover:from-slate-700/60 hover:to-indigo-800/60 transition-all duration-300 border border-fuchsia-800/30"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmRemoveItem}
+                  className="px-8 py-4 rounded-2xl font-bold bg-gradient-to-r from-red-600 to-fuchsia-600 text-white shadow-lg hover:from-fuchsia-600 hover:to-red-600 transition-all duration-300"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
