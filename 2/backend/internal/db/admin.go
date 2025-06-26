@@ -526,10 +526,23 @@ func DeleteUser(db *pgxpool.Pool, userID int) error {
 		return fmt.Errorf("error eliminando direcciones: %w", err)
 	}
 
-	// 6. Eliminar items del carrito
-	_, err = tx.Exec(context.Background(), "DELETE FROM cart_items WHERE user_id = $1", userID)
-	if err != nil {
-		return fmt.Errorf("error eliminando items del carrito: %w", err)
+	// 6. Eliminar items del carrito y el carrito
+	var cartID int
+	err = tx.QueryRow(context.Background(), "SELECT id FROM carts WHERE user_id = $1", userID).Scan(&cartID)
+	if err == nil {
+		// Si el usuario tiene carrito, elimina los items
+		_, err = tx.Exec(context.Background(), "DELETE FROM cart_items WHERE cart_id = $1", cartID)
+		if err != nil {
+			return fmt.Errorf("error eliminando items del carrito: %w", err)
+		}
+		// Elimina el carrito
+		_, err = tx.Exec(context.Background(), "DELETE FROM carts WHERE id = $1", cartID)
+		if err != nil {
+			return fmt.Errorf("error eliminando carrito: %w", err)
+		}
+	} else if err.Error() != "no rows in result set" {
+		// Si el error no es que no tiene carrito, reporta el error
+		return fmt.Errorf("error buscando carrito: %w", err)
 	}
 
 	// 7. Eliminar pagos asociados a pedidos del usuario
