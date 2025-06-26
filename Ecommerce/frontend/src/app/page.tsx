@@ -120,87 +120,66 @@ export default function HomePage() {
     return { text: 'Disponible', color: 'text-green-600', bgColor: 'bg-green-100/80', borderColor: 'border-green-200', icon: '✅' };
   };
 
+  // Iconos SVG para fondo animado
+  const FloatingIcons = () => (
+    <div className="pointer-events-none select-none absolute inset-0 w-full h-full overflow-hidden z-0">
+      <svg className="absolute left-10 top-10 animate-spin-slow opacity-30" width="80" height="80" viewBox="0 0 80 80"><image href="/file.svg" width="80" height="80" /></svg>
+      <svg className="absolute right-20 top-1/4 animate-float opacity-40" width="70" height="70" viewBox="0 0 70 70"><image href="/globe.svg" width="70" height="70" /></svg>
+      <svg className="absolute left-1/3 bottom-10 animate-spin-reverse opacity-20" width="90" height="90" viewBox="0 0 90 90"><image href="/window.svg" width="90" height="90" /></svg>
+      <svg className="absolute right-10 bottom-20 animate-float opacity-30" width="60" height="60" viewBox="0 0 60 60"><image href="/vercel.svg" width="60" height="60" /></svg>
+      <svg className="absolute left-1/4 top-1/2 animate-spin-slow opacity-25" width="100" height="100" viewBox="0 0 100 100"><image href="/Zapatillas.glb" width="100" height="100" /></svg>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-40">
-      {/* Hero Section - Premium con partículas */}
-      <section className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 text-white overflow-hidden shadow-2xl">
-        {/* Partículas animadas */}
-        <div className="absolute inset-0">
-          <div className="absolute top-20 left-10 w-2 h-2 bg-white/30 rounded-full animate-ping"></div>
-          <div className="absolute top-40 right-20 w-1 h-1 bg-white/50 rounded-full animate-pulse"></div>
-          <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-white/20 rounded-full animate-bounce"></div>
-          <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-white/40 rounded-full animate-ping"></div>
-          <div className="absolute top-1/3 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse"></div>
-        </div>
-        
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
-        <div 
-          className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24 lg:py-32 flex flex-col lg:flex-row items-center gap-8 lg:gap-12"
-          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
-        >
-          <div className="flex-1 text-center lg:text-left z-10 animate-fade-in">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-3 sm:px-4 py-2 mb-4 sm:mb-6 border border-white/20 animate-scale-in">
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
-              <span className="text-xs sm:text-sm font-medium">Nuevo diseño premium</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight drop-shadow-2xl animate-slide-in-left">
-              Descubre el
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-orange-300 to-red-300 animate-pulse">
-                Futuro del Comercio
-              </span>
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-purple-100/90 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-slide-in-left">
-              Una experiencia de compra revolucionaria con productos exclusivos, 
-              tecnología de vanguardia y servicio premium 24/7.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start animate-slide-in-left">
-              <Link 
-                href="/productos"
-                className="group bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black shadow-2xl hover:shadow-yellow-500/25 transition-all duration-500 transform hover:scale-105 flex items-center justify-center border-2 border-yellow-300 relative overflow-hidden text-sm sm:text-base focus-ring"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10">Explorar Catálogo</span>
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link 
-                href="/carrito"
-                className="group border-2 border-white/30 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold hover:bg-white/10 transition-all duration-300 flex items-center justify-center backdrop-blur-md hover:backdrop-blur-lg relative overflow-hidden text-sm sm:text-base focus-ring"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <ShoppingCart className="mr-2 w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
-                <span className="relative z-10">Ver Carrito</span>
-              </Link>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 text-white relative overflow-x-hidden">
+      <FloatingIcons />
+      {/* Hero Section - Fondo oscuro, iconos flotando, premium */}
+      <section className="relative z-10 flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 gap-12">
+        <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-yellow-400 text-slate-900 px-4 py-2 rounded-full mb-6 font-bold shadow-lg animate-bounce-in">
+            <Sparkles className="w-5 h-5 text-yellow-300" />
+            <span>¡Bienvenido a la nueva era ImportFredd!</span>
           </div>
-          <div className="flex-1 flex items-center justify-center z-10 animate-slide-in-right">
-            <div className="relative">
-              {/* Imagen de ejemplo para el Hero Section */}
-              <img 
-                src="/Zapatillas.glb" 
-                alt="Producto destacado ImportFredd" 
-                className="w-64 h-64 sm:w-80 sm:h-80 object-contain rounded-full shadow-2xl border-4 border-white/30 bg-white/10 backdrop-blur-md animate-float" 
-                style={{ background: 'linear-gradient(135deg, #fdf6e3 0%, #e0c3fc 100%)' }}
-              />
-              {/* Efectos visuales adicionales pueden ir aquí */}
-            </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight drop-shadow-2xl animate-slide-in-left bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+            Compra diferente, compra <span className="block">con estilo único</span>
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-indigo-100/90 mb-8 max-w-xl animate-slide-in-left">
+            Descubre productos exclusivos, tecnología de vanguardia y una experiencia visual nunca antes vista en e-commerce.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center lg:justify-start animate-slide-in-left">
+            <Link href="/productos" className="group bg-gradient-to-r from-fuchsia-500 via-yellow-400 to-orange-500 text-slate-900 px-8 py-4 rounded-2xl font-black shadow-xl hover:shadow-fuchsia-500/25 transition-all duration-500 transform hover:scale-105 flex items-center justify-center border-2 border-yellow-300 relative overflow-hidden text-lg focus-ring">
+              <span className="relative z-10">Explorar Catálogo</span>
+              <ArrowRight className="ml-3 w-6 h-6 relative z-10 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/carrito" className="group border-2 border-fuchsia-400 text-white px-8 py-4 rounded-2xl font-bold hover:bg-fuchsia-900/20 transition-all duration-300 flex items-center justify-center backdrop-blur-md hover:backdrop-blur-lg relative overflow-hidden text-lg focus-ring">
+              <ShoppingCart className="mr-3 w-6 h-6 relative z-10" />
+              <span className="relative z-10">Ver Carrito</span>
+            </Link>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center animate-slide-in-right">
+          <div className="relative w-80 h-80 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-fuchsia-700/40 via-yellow-400/20 to-cyan-400/30 blur-2xl animate-pulse"></div>
+            <img src="/Zapatillas.glb" alt="Producto destacado ImportFredd" className="w-64 h-64 object-contain rounded-full shadow-2xl border-4 border-fuchsia-400/30 bg-white/10 backdrop-blur-md animate-float" />
           </div>
         </div>
       </section>
 
       {/* Stats Section - Rediseño premium y único */}
-      <section className="py-12 bg-gradient-to-br from-white/60 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <section className="py-12 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-8 text-center tracking-tight animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-8 text-center tracking-tight animate-fade-in drop-shadow-lg">
             ¿Por qué elegir ImportFredd?
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="group text-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div key={index} className="group text-center bg-gradient-to-br from-indigo-900/60 via-slate-900/60 to-fuchsia-900/60 backdrop-blur-xl border border-fuchsia-700/30 rounded-2xl shadow-2xl p-8 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 hover:shadow-fuchsia-500/30 animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg animate-bounce-in`}>
                   <stat.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg animate-pulse" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 animate-slide-in-left">{stat.value}</div>
-                <div className="text-base sm:text-lg text-slate-600 dark:text-slate-300 animate-slide-in-right">{stat.label}</div>
+                <div className="text-2xl sm:text-3xl font-black text-white mb-2 animate-slide-in-left drop-shadow-lg">{stat.value}</div>
+                <div className="text-base sm:text-lg text-indigo-100 animate-slide-in-right">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -208,31 +187,31 @@ export default function HomePage() {
       </section>
 
       {/* Categorías - Rediseño premium y único */}
-      <section className="py-12 bg-gradient-to-br from-purple-50 via-blue-50 to-white/60 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <section className="py-12 bg-gradient-to-br from-indigo-950 via-slate-900 to-fuchsia-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-8 text-center tracking-tight animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-8 text-center tracking-tight animate-fade-in drop-shadow-lg">
             Explora por Categoría
           </h2>
           {loadingCategories ? (
             <div className="flex justify-center items-center h-32">
-              <span className="loader animate-spin w-8 h-8 border-4 border-purple-400 border-t-transparent rounded-full"></span>
+              <span className="loader animate-spin w-8 h-8 border-4 border-fuchsia-400 border-t-transparent rounded-full"></span>
             </div>
           ) : errorCategories ? (
-            <div className="text-center text-red-500 font-semibold">{errorCategories}</div>
+            <div className="text-center text-red-400 font-semibold">{errorCategories}</div>
           ) : (
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-3 lg:grid-cols-5 md:gap-8 md:overflow-x-visible">
               {categories.map((cat, idx) => (
                 <a
                   key={cat.id}
                   href={`/productos?categoria=${cat.slug}`}
-                  className="group min-w-[160px] max-w-xs w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg p-5 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer snap-center animate-fade-in"
+                  className="group min-w-[160px] max-w-xs w-full bg-gradient-to-br from-slate-900/70 via-indigo-900/60 to-fuchsia-900/60 backdrop-blur-xl border border-fuchsia-700/30 rounded-2xl shadow-xl p-5 flex flex-col items-center justify-center transition-transform duration-300 hover:scale-105 hover:shadow-fuchsia-500/30 cursor-pointer snap-center animate-fade-in"
                   style={{ animationDelay: `${idx * 0.1}s` }}
                 >
-                  <div className="w-12 h-12 mb-3 flex items-center justify-center rounded-full bg-gradient-to-br from-yellow-200 via-purple-200 to-blue-200 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 shadow-md group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 mb-3 flex items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-400 via-yellow-300 to-cyan-400 shadow-md group-hover:scale-110 transition-transform">
                     <img src={cat.icon_url || '/globe.svg'} alt={cat.name} className="w-8 h-8 object-contain" />
                   </div>
-                  <span className="text-base font-bold text-slate-900 dark:text-white text-center mb-1 animate-slide-in-left">{cat.name}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-300 animate-slide-in-right">{cat.product_count} productos</span>
+                  <span className="text-base font-bold text-white text-center mb-1 animate-slide-in-left drop-shadow-lg">{cat.name}</span>
+                  <span className="text-xs text-indigo-100 animate-slide-in-right">{cat.product_count} productos</span>
                 </a>
               ))}
             </div>
@@ -241,9 +220,9 @@ export default function HomePage() {
       </section>
 
       {/* Productos Destacados - Rediseño premium y único */}
-      <section className="py-16 bg-gradient-to-br from-white/60 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <section className="py-16 bg-gradient-to-br from-slate-900 via-fuchsia-900 to-indigo-950 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-8 text-center tracking-tight animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-8 text-center tracking-tight animate-fade-in drop-shadow-lg">
             Productos Destacados
           </h2>
           {loadingFeatured ? (
@@ -251,7 +230,7 @@ export default function HomePage() {
               <span className="loader animate-spin w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full"></span>
             </div>
           ) : errorFeatured ? (
-            <div className="text-center text-red-500 font-semibold">{errorFeatured}</div>
+            <div className="text-center text-red-400 font-semibold">{errorFeatured}</div>
           ) : (
             <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8 md:overflow-x-visible">
               {featuredProducts.map((product, idx) => {
@@ -259,37 +238,35 @@ export default function HomePage() {
                 return (
                   <div
                     key={product.id}
-                    className="group relative min-w-[260px] max-w-xs w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-3xl shadow-xl p-5 flex flex-col items-center justify-between transition-transform duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 cursor-pointer snap-center animate-fade-in"
+                    className="group relative min-w-[260px] max-w-xs w-full bg-gradient-to-br from-indigo-900/60 via-slate-900/60 to-fuchsia-900/60 backdrop-blur-xl border border-fuchsia-700/30 rounded-3xl shadow-2xl p-5 flex flex-col items-center justify-between transition-transform duration-300 hover:scale-105 hover:shadow-fuchsia-500/30 hover:-translate-y-2 cursor-pointer snap-center animate-fade-in"
                     style={{ animationDelay: `${idx * 0.1}s` }}
                   >
                     <div className="absolute top-4 right-4 z-10">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${stock.bgColor} ${stock.color} ${stock.borderColor} shadow-sm flex items-center gap-1 animate-pulse`}>
-                        <span>{stock.icon}</span> {stock.text}
-                      </span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${stock.bgColor} ${stock.color} ${stock.borderColor} shadow-sm flex items-center gap-1 animate-pulse bg-slate-900/80`}> <span>{stock.icon}</span> {stock.text} </span>
                     </div>
                     <div className="w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center mb-4 relative">
                       <img
                         src={product.image_url || '/file.svg'}
                         alt={product.name}
-                        className="w-full h-full object-contain rounded-2xl shadow-lg group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500 bg-gradient-to-br from-yellow-100/40 to-purple-100/40 dark:from-slate-800/40 dark:to-slate-900/40"
+                        className="w-full h-full object-contain rounded-2xl shadow-lg group-hover:scale-110 group-hover:rotate-2 transition-transform duration-500 bg-gradient-to-br from-fuchsia-400/10 to-indigo-400/10"
                         loading="lazy"
                       />
-                      <span className="absolute bottom-2 right-2 bg-white/80 dark:bg-slate-800/80 rounded-full px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-md animate-fade-in">
+                      <span className="absolute bottom-2 right-2 bg-fuchsia-700/80 rounded-full px-2 py-1 text-xs font-semibold text-white shadow-md animate-fade-in">
                         ${product.price}
                       </span>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 text-center line-clamp-2 animate-slide-in-left">{product.name}</h3>
-                    <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 text-center line-clamp-2 animate-slide-in-right">{product.description}</p>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 text-center line-clamp-2 animate-slide-in-left drop-shadow-lg">{product.name}</h3>
+                    <p className="text-indigo-100 text-sm mb-4 text-center line-clamp-2 animate-slide-in-right">{product.description}</p>
                     <button
                       onClick={() => handleAddToCart(product)}
                       disabled={addingToCart === product.id || product.stock <= 0}
-                      className={`group/addcart mt-auto px-6 py-3 rounded-xl font-bold text-base shadow-lg transition-all duration-300 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2
-                        ${product.stock <= 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-slate-900 hover:from-yellow-500 hover:to-orange-600 hover:scale-105'}
+                      className={`group/addcart mt-auto px-6 py-3 rounded-xl font-bold text-base shadow-lg transition-all duration-300 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-fuchsia-400 focus:ring-offset-2
+                        ${product.stock <= 0 ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-fuchsia-500 via-yellow-400 to-orange-500 text-slate-900 hover:from-fuchsia-600 hover:to-yellow-500 hover:scale-105'}
                         relative overflow-hidden animate-bounce-in`}
                     >
                       <span className="relative z-10">{addingToCart === product.id ? 'Agregando...' : 'Agregar al carrito'}</span>
                       <ShoppingCart className="w-5 h-5 relative z-10 group-hover/addcart:translate-x-1 transition-transform" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-orange-400 opacity-0 group-hover/addcart:opacity-20 transition-opacity duration-300"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-400 to-yellow-400 opacity-0 group-hover/addcart:opacity-20 transition-opacity duration-300"></div>
                     </button>
                   </div>
                 );
