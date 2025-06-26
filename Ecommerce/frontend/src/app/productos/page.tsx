@@ -269,7 +269,7 @@ function ProductosContent() {
           <Orbit className="absolute bottom-1/3 right-10 w-20 h-20 text-cyan-400 opacity-10 animate-float-fast" />
           <Star className="absolute top-1/3 right-1/3 w-10 h-10 text-fuchsia-400 opacity-10 animate-float-slow" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8 md:pt-14 md:pb-10">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-8 md:pt-10 md:pb-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="mb-8 lg:mb-0 text-center lg:text-left animate-slide-in-left">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-4 py-2 mb-6 border border-fuchsia-400/30">
