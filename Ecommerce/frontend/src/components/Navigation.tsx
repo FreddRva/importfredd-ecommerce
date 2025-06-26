@@ -228,9 +228,16 @@ export default function Navigation() {
                 )}
               </Link>
               {isAuthenticated ? (
-                <Link href="/mi-cuenta" className="flex items-center gap-2 text-indigo-100 hover:text-yellow-400 transition-all duration-300 font-semibold">
-                  <User className="w-6 h-6" /> Cuenta
-                </Link>
+                <>
+                  {isAdmin && (
+                    <Link href="/admin" className="flex items-center gap-2 text-indigo-100 hover:text-yellow-400 transition-all duration-300 font-semibold">
+                      <LayoutDashboard className="w-6 h-6" /> Dashboard
+                    </Link>
+                  )}
+                  <Link href="/mi-cuenta" className="flex items-center gap-2 text-indigo-100 hover:text-yellow-400 transition-all duration-300 font-semibold">
+                    <User className="w-6 h-6" /> Cuenta
+                  </Link>
+                </>
               ) : (
                 <Link href="/login" className="flex items-center gap-2 text-indigo-100 hover:text-yellow-400 transition-all duration-300 font-semibold">
                   <User className="w-6 h-6" /> Iniciar Sesión
