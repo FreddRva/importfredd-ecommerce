@@ -1,0 +1,31 @@
+# Archivos de configuración con claves secretas
+.env
+.env.local
+.env.production
+
+# Binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Directorios de dependencias
+vendor/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db 
