@@ -335,7 +335,7 @@ export default function AdminProductsPage() {
       <div className="relative z-10 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 mt-8">
             <Link 
               href="/admin"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 mb-4"
@@ -384,7 +384,7 @@ export default function AdminProductsPage() {
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white placeholder-fuchsia-300/50 focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-black placeholder-black focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
                   />
                 </div>
 
@@ -393,7 +393,7 @@ export default function AdminProductsPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value as any)}
-                    className="px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    className="px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-black focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
                   >
                     <option value="all">Todos los estados</option>
                     <option value="active">Activos</option>
@@ -403,7 +403,7 @@ export default function AdminProductsPage() {
                   <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value === "all" ? "all" : Number(e.target.value))}
-                    className="px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    className="px-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-black focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
                   >
                     <option value="all">Todas las categorías</option>
                     {categories.map(category => (
