@@ -5,6 +5,7 @@ import { PlusCircle, Edit, Trash2, UploadCloud, Save, Search, Filter, Eye, EyeOf
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Product {
   id: number;
@@ -46,6 +47,7 @@ export default function AdminProductsPage() {
   
   // Filtros y búsqueda
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [categoryFilter, setCategoryFilter] = useState<number | "all">("all");
   const [sortBy, setSortBy] = useState<"name" | "price" | "stock" | "created">("name");
@@ -106,8 +108,8 @@ export default function AdminProductsPage() {
   // Filtrar y ordenar productos
   const filteredAndSortedProducts = products
     .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                           product.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || 
                            (statusFilter === "active" && product.is_active) ||
                            (statusFilter === "inactive" && !product.is_active);
@@ -428,7 +430,7 @@ export default function AdminProductsPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-4 py-2 bg-slate-900/60 backdrop-blur-sm rounded-xl border border-fuchsia-800/30 text-white focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                className="px-4 py-2 bg-slate-900/60 backdrop-blur-sm rounded-xl border border-fuchsia-800/30 text-black focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
               >
                 <option value="name">Ordenar por nombre</option>
                 <option value="price">Ordenar por precio</option>
