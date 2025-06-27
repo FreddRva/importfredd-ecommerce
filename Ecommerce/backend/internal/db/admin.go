@@ -390,7 +390,7 @@ func GetDashboardStats(db *pgxpool.Pool) (*DashboardStats, error) {
 	}
 
 	// Total Revenue
-	err = db.QueryRow(context.Background(), "SELECT COALESCE(SUM(total), 0) FROM orders WHERE status = 'completed'").Scan(&stats.TotalRevenue)
+	err = db.QueryRow(context.Background(), "SELECT COALESCE(SUM(total), 0) FROM orders WHERE status = 'delivered'").Scan(&stats.TotalRevenue)
 	if err != nil {
 		return nil, fmt.Errorf("error en TotalRevenue: %w", err)
 	}
@@ -402,7 +402,7 @@ func GetDashboardStats(db *pgxpool.Pool) (*DashboardStats, error) {
 	}
 
 	// Completed Orders
-	err = db.QueryRow(context.Background(), "SELECT COUNT(*) FROM orders WHERE status = 'completed'").Scan(&stats.CompletedOrders)
+	err = db.QueryRow(context.Background(), "SELECT COUNT(*) FROM orders WHERE status = 'delivered'").Scan(&stats.CompletedOrders)
 	if err != nil {
 		return nil, fmt.Errorf("error en CompletedOrders: %w", err)
 	}
