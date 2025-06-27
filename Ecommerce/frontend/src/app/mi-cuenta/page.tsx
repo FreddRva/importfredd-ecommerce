@@ -533,28 +533,30 @@ export default function MiCuentaPage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {favProducts.map(product => (
-                      <div key={product.id} className="glass-premium rounded-2xl shadow-xl border border-fuchsia-400/20 p-6 flex flex-col items-center bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 animate-fade-in">
-                        <img src={product.image_url || '/file.svg'} alt={product.name} className="w-32 h-32 object-contain rounded-xl mb-4 shadow-lg bg-gradient-to-br from-fuchsia-400/10 to-indigo-400/10" />
-                        <h3 className="text-lg font-bold text-fuchsia-100 mb-2 text-center line-clamp-2">{product.name}</h3>
-                        <p className="text-fuchsia-300 text-sm mb-2 text-center line-clamp-2">{product.description}</p>
-                        <span className="text-2xl font-black text-yellow-300 mb-4">${product.price}</span>
-                        <div className="flex gap-2 w-full">
-                          <button
-                            onClick={() => removeFavorite(product.id)}
-                            className="flex-1 bg-gradient-to-r from-red-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-bold shadow-md hover:from-fuchsia-600 hover:to-red-600 transition-all animate-bounce-in"
-                          >
-                            Quitar
-                          </button>
-                          <Link
-                            href={`/productos/${product.id}`}
-                            className="flex-1 bg-gradient-to-r from-yellow-400 to-cyan-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-cyan-500 transition-all animate-bounce-in text-center"
-                          >
-                            Ver
-                          </Link>
+                    {favProducts
+                      .filter(product => favorites.includes(product.id))
+                      .map(product => (
+                        <div key={product.id} className="glass-premium rounded-2xl shadow-xl border border-fuchsia-400/20 p-6 flex flex-col items-center bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 animate-fade-in">
+                          <img src={product.image_url || '/file.svg'} alt={product.name} className="w-32 h-32 object-contain rounded-xl mb-4 shadow-lg bg-gradient-to-br from-fuchsia-400/10 to-indigo-400/10" />
+                          <h3 className="text-lg font-bold text-fuchsia-100 mb-2 text-center line-clamp-2">{product.name}</h3>
+                          <p className="text-fuchsia-300 text-sm mb-2 text-center line-clamp-2">{product.description}</p>
+                          <span className="text-2xl font-black text-yellow-300 mb-4">${product.price}</span>
+                          <div className="flex gap-2 w-full">
+                            <button
+                              onClick={() => removeFavorite(product.id)}
+                              className="flex-1 bg-gradient-to-r from-red-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-bold shadow-md hover:from-fuchsia-600 hover:to-red-600 transition-all animate-bounce-in"
+                            >
+                              Quitar
+                            </button>
+                            <Link
+                              href={`/productos/${product.id}`}
+                              className="flex-1 bg-gradient-to-r from-yellow-400 to-cyan-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-cyan-500 transition-all animate-bounce-in text-center"
+                            >
+                              Ver
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </div>
