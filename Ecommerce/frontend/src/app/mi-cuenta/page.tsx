@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/context/FavoritesContext';
 import { API_BASE_URL } from '@/lib/api';
 import AddressMapPicker from '@/components/AddressMapPicker';
+import './premium-animations.css';
 
 interface Product {
   id: number;
@@ -347,39 +348,46 @@ export default function MiCuentaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-40 relative overflow-x-hidden">
-      {/* Partículas animadas */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-purple-400/30 rounded-full animate-ping"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-blue-400/50 rounded-full animate-pulse"></div>
-        <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-indigo-400/20 rounded-full animate-bounce"></div>
-        <div className="absolute top-1/2 right-1/3 w-2 h-2 bg-violet-400/40 rounded-full animate-ping animation-delay-200"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-fuchsia-950 to-indigo-900 pt-40 relative overflow-x-hidden">
+      {/* Fondo animado premium */}
+      <div className="absolute inset-0 pointer-events-none z-0 animate-gradient-x">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-fuchsia-500/30 via-yellow-400/20 to-cyan-400/30 rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-indigo-500/30 via-fuchsia-400/20 to-yellow-400/30 rounded-full blur-2xl animate-pulse animation-delay-200"></div>
+        <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-gradient-to-br from-yellow-400/30 via-fuchsia-400/20 to-cyan-400/30 rounded-full blur-2xl animate-pulse animation-delay-400"></div>
       </div>
 
       <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 z-10">
-        {/* Header */}
-        <div className="mb-8 animate-fade-in-premium">
-          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2 bg-gradient-to-r from-slate-900 via-purple-800 to-indigo-800 bg-clip-text text-transparent">
+        {/* Header premium */}
+        <div className="mb-10 flex flex-col items-center justify-center animate-fade-in-premium">
+          <div className="relative mb-4">
+            <div className="w-32 h-32 bg-gradient-to-br from-fuchsia-600 via-yellow-400 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl border-4 border-fuchsia-400/30 animate-float">
+              <span className="text-white font-black text-5xl drop-shadow-xl">
+                {user.email?.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="absolute bottom-2 right-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 px-4 py-1 rounded-full font-bold text-xs shadow-lg animate-bounce-in">
+              ¡Bienvenido, {user.email?.split('@')[0]}!
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-2">
             Mi Cuenta
           </h1>
-          <p className="text-slate-600 text-lg">
-            Gestiona tu perfil, pedidos y configuraciones
-          </p>
+          <p className="text-indigo-100 text-lg mb-2">Gestiona tu perfil, pedidos y configuraciones</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation Premium */}
+          {/* Sidebar Navigation Premium mejorado */}
           <div className="lg:col-span-1 animate-slide-in-left-premium">
-            <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-6 sticky top-8 flex flex-row lg:flex-col gap-4 lg:gap-0 overflow-x-auto lg:overflow-visible">
-              {/* User Info */}
-              <div className="text-center mb-6 pb-6 border-b border-gray-200">
-                <div className="w-20 h-20 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-premium">
-                  <span className="text-white font-black text-2xl">
+            <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-8 sticky top-8 flex flex-row lg:flex-col gap-4 lg:gap-0 overflow-x-auto lg:overflow-visible backdrop-blur-xl bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+              {/* User Info mejorado */}
+              <div className="text-center mb-8 pb-8 border-b border-fuchsia-400/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-fuchsia-600 via-yellow-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-premium shadow-lg border-4 border-fuchsia-400/30">
+                  <span className="text-white font-black text-4xl">
                     {user.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <h3 className="font-bold text-slate-900">{user.email}</h3>
-                <p className="text-xs text-slate-500">Cliente desde 2024</p>
+                <h3 className="font-bold text-fuchsia-100 text-lg">{user.email}</h3>
+                <p className="text-xs text-fuchsia-300">Cliente desde 2024</p>
               </div>
 
               {/* Navigation Tabs Premium */}
@@ -397,8 +405,8 @@ export default function MiCuentaPage() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`w-full flex items-center px-4 py-3 rounded-xl text-left font-bold transition-all duration-200 text-base ${
                       activeTab === tab.key
-                        ? 'bg-gradient-to-r from-violet-100 to-indigo-100 text-violet-700 border border-violet-200 shadow-md' 
-                        : 'text-slate-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50'
+                        ? 'bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 border border-fuchsia-200 shadow-md scale-105' 
+                        : 'text-fuchsia-100 hover:bg-gradient-to-r hover:from-fuchsia-900/40 hover:to-cyan-900/40 hover:text-yellow-400'
                     }`}
                   >
                     {tab.icon}
@@ -408,10 +416,10 @@ export default function MiCuentaPage() {
               </nav>
 
               {/* Logout Button Premium */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-8 pt-8 border-t border-fuchsia-400/20">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center px-4 py-3 rounded-xl text-left text-red-600 font-bold hover:bg-red-50 transition-all duration-200"
+                  className="w-full flex items-center px-4 py-3 rounded-xl text-left text-red-400 font-bold hover:bg-red-900/20 hover:text-red-200 transition-all duration-200"
                 >
                   <LogOut className="w-5 h-5 mr-3" />
                   Cerrar Sesión
@@ -422,76 +430,76 @@ export default function MiCuentaPage() {
 
           {/* Main Content Premium */}
           <div className="lg:col-span-3 animate-fade-in-premium">
-            {/* Profile Tab */}
+            {/* Profile Tab mejorado */}
             {activeTab === 'profile' && (
-              <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Información del Perfil</h2>
-                  <button className="flex items-center text-violet-600 hover:text-violet-800 font-bold transition-colors">
+              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <div className="flex items-center justify-between mb-10">
+                  <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl">Información del Perfil</h2>
+                  <button className="flex items-center text-fuchsia-300 hover:text-yellow-400 font-bold transition-colors bg-gradient-to-r from-fuchsia-900/40 to-cyan-900/40 px-4 py-2 rounded-xl shadow-md border border-fuchsia-400/20">
                     <Edit className="w-5 h-5 mr-1" />
                     Editar
                   </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Nombre</label>
-                    <input type="text" defaultValue="Tu Nombre" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" />
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-2">Nombre</label>
+                    <input type="text" defaultValue="Tu Nombre" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Apellidos</label>
-                    <input type="text" defaultValue="Tus Apellidos" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" />
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-2">Apellidos</label>
+                    <input type="text" defaultValue="Tus Apellidos" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Email</label>
-                    <input type="email" defaultValue={user.email} className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-100 text-gray-400" disabled />
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-2">Email</label>
+                    <input type="email" defaultValue={user.email} className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl bg-gray-900/30 text-fuchsia-400" disabled />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Teléfono</label>
-                    <input type="tel" defaultValue="+34 600 000 000" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" />
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-2">Teléfono</label>
+                    <input type="tel" defaultValue="+34 600 000 000" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
                   </div>
                 </div>
-                <div className="mt-8">
-                  <button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl w-full md:w-auto">
+                <div className="mt-10">
+                  <button className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 w-full md:w-auto animate-bounce-in">
                     Guardar Cambios
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Orders Tab */}
+            {/* Orders Tab mejorado */}
             {activeTab === 'orders' && (
-              <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <h2 className="text-2xl font-black text-slate-900 mb-6">Mis Pedidos</h2>
+              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-8">Mis Pedidos</h2>
                 {ordersLoading ? (
-                  <div className="text-center py-12 text-slate-500">Cargando...</div>
+                  <div className="text-center py-12 text-fuchsia-300 animate-pulse">Cargando...</div>
                 ) : ordersError ? (
-                  <div className="text-center py-12 text-red-500">{ordersError}</div>
+                  <div className="text-center py-12 text-red-400 animate-fade-in">{ordersError}</div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-12 text-slate-500">No tienes pedidos aún.</div>
+                  <div className="text-center py-12 text-fuchsia-200 animate-fade-in">No tienes pedidos aún.</div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg">
+                    <table className="min-w-full bg-white/10 backdrop-blur-md border border-fuchsia-400/20 rounded-xl shadow-lg">
                       <thead>
-                        <tr className="bg-gradient-to-r from-slate-100 to-gray-100">
-                          <th className="px-4 py-3 font-bold text-slate-700">#</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Fecha</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Total</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Estado</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Pago</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Tracking</th>
+                        <tr className="bg-gradient-to-r from-fuchsia-900/40 to-cyan-900/40">
+                          <th className="px-4 py-3 font-bold text-fuchsia-200">#</th>
+                          <th className="px-4 py-3 font-bold text-fuchsia-200">Fecha</th>
+                          <th className="px-4 py-3 font-bold text-fuchsia-200">Total</th>
+                          <th className="px-4 py-3 font-bold text-fuchsia-200">Estado</th>
+                          <th className="px-4 py-3 font-bold text-fuchsia-200">Pago</th>
+                          <th className="px-4 py-3 font-bold text-fuchsia-200">Tracking</th>
                         </tr>
                       </thead>
                       <tbody>
                         {orders.map((order) => (
-                          <tr key={order.id} className="border-t hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => handleOrderClick(order.id)}>
-                            <td className="px-4 py-3 font-mono font-bold">{order.order_number}</td>
-                            <td className="px-4 py-3">{new Date(order.created_at).toLocaleString()}</td>
-                            <td className="px-4 py-3 font-bold">{order.currency} {order.total.toFixed(2)}</td>
+                          <tr key={order.id} className="border-t border-fuchsia-400/10 hover:bg-fuchsia-900/10 cursor-pointer transition-colors animate-fade-in" onClick={() => handleOrderClick(order.id)}>
+                            <td className="px-4 py-3 font-mono font-bold text-yellow-300">{order.order_number}</td>
+                            <td className="px-4 py-3 text-fuchsia-100">{new Date(order.created_at).toLocaleString()}</td>
+                            <td className="px-4 py-3 font-bold text-fuchsia-200">{order.currency} {order.total.toFixed(2)}</td>
                             <td className="px-4 py-3">
-                              <span className={`px-3 py-1 rounded-full text-sm font-bold ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                              <span className={`px-3 py-1 rounded-full text-sm font-bold ${order.status === 'delivered' ? 'bg-green-200/20 text-green-400 border border-green-400/30' : order.status === 'shipped' ? 'bg-blue-200/20 text-blue-400 border border-blue-400/30' : order.status === 'pending' ? 'bg-yellow-200/20 text-yellow-400 border border-yellow-400/30' : order.status === 'cancelled' ? 'bg-red-200/20 text-red-400 border border-red-400/30' : 'bg-fuchsia-200/10 text-fuchsia-300 border border-fuchsia-400/10'}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
                             </td>
-                            <td className="px-4 py-3">{order.payment_status}</td>
-                            <td className="px-4 py-3">{order.tracking || '-'}</td>
+                            <td className="px-4 py-3 text-fuchsia-100">{order.payment_status}</td>
+                            <td className="px-4 py-3 text-fuchsia-100">{order.tracking || '-'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -501,385 +509,153 @@ export default function MiCuentaPage() {
               </div>
             )}
 
-            {/* Wishlist Tab */}
+            {/* Wishlist Tab mejorado */}
             {activeTab === 'wishlist' && (
-              <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
+              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-8 flex items-center gap-2">
                   <Heart className="w-7 h-7 text-red-500" fill="currentColor" /> Lista de Deseos
                 </h2>
                 {favLoading ? (
-                  <div className="text-center py-12 text-slate-500">Cargando...</div>
+                  <div className="text-center py-12 text-fuchsia-300 animate-pulse">Cargando...</div>
                 ) : favProducts.length === 0 ? (
                   <div className="text-center py-12">
-                    <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">Tu lista de deseos está vacía</h3>
-                    <p className="text-slate-500 mb-6">
+                    <Heart className="w-16 h-16 text-fuchsia-300 mx-auto mb-4 animate-bounce-in" />
+                    <h3 className="text-lg font-bold text-fuchsia-100 mb-2">Tu lista de deseos está vacía</h3>
+                    <p className="text-fuchsia-300 mb-6">
                       Guarda productos que te gusten para comprarlos más tarde
                     </p>
                     <Link 
                       href="/productos"
-                      className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                      className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-8 py-3 rounded-xl font-black shadow-lg hover:from-yellow-500 hover:to-fuchsia-500 transition-all animate-bounce-in"
                     >
                       Explorar Productos
                     </Link>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl shadow-lg">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-slate-100 to-gray-100">
-                          <th className="px-4 py-3 font-bold text-slate-700">Imagen</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Nombre</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Categoría</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Precio</th>
-                          <th className="px-4 py-3 font-bold text-slate-700">Acción</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {favProducts.filter(product => favorites.includes(product.id)).map((product) => (
-                          <tr key={product.id} className="border-t hover:bg-slate-50 transition-colors">
-                            <td className="px-4 py-3">
-                              <img src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : product.image_url) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='Arial' font-size='16'%3EImagen no disponible%3C/text%3E%3C/svg%3E"} alt={product.name} className="w-12 h-12 object-cover rounded-lg" />
-                            </td>
-                            <td className="px-4 py-3 font-bold">
-                              <Link href={`/productos/${product.id}`} className="text-violet-600 hover:text-violet-800">{product.name}</Link>
-                            </td>
-                            <td className="px-4 py-3">{product.category_name}</td>
-                            <td className="px-4 py-3 font-bold">${product.price.toFixed(2)}</td>
-                            <td className="px-4 py-3">
-                              <button
-                                onClick={() => removeFavorite(product.id)}
-                                className={`p-2 rounded-full transition-all ${isFavorite(product.id) ? 'text-red-500 bg-red-100' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'}`}
-                                aria-label="Quitar de favoritos"
-                              >
-                                <Heart className="w-5 h-5" fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {favProducts.map(product => (
+                      <div key={product.id} className="glass-premium rounded-2xl shadow-xl border border-fuchsia-400/20 p-6 flex flex-col items-center bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 animate-fade-in">
+                        <img src={product.image_url || '/file.svg'} alt={product.name} className="w-32 h-32 object-contain rounded-xl mb-4 shadow-lg bg-gradient-to-br from-fuchsia-400/10 to-indigo-400/10" />
+                        <h3 className="text-lg font-bold text-fuchsia-100 mb-2 text-center line-clamp-2">{product.name}</h3>
+                        <p className="text-fuchsia-300 text-sm mb-2 text-center line-clamp-2">{product.description}</p>
+                        <span className="text-2xl font-black text-yellow-300 mb-4">${product.price}</span>
+                        <div className="flex gap-2 w-full">
+                          <button
+                            onClick={() => removeFavorite(product.id)}
+                            className="flex-1 bg-gradient-to-r from-red-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-bold shadow-md hover:from-fuchsia-600 hover:to-red-600 transition-all animate-bounce-in"
+                          >
+                            Quitar
+                          </button>
+                          <Link
+                            href={`/productos/${product.id}`}
+                            className="flex-1 bg-gradient-to-r from-yellow-400 to-cyan-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-cyan-500 transition-all animate-bounce-in text-center"
+                          >
+                            Ver
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             )}
 
-            {/* Addresses Tab */}
+            {/* Addresses Tab mejorado */}
             {activeTab === 'addresses' && (
-              <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-black text-slate-900">Mis Direcciones</h2>
-                  <button 
-                    onClick={() => setShowAddressForm(true)}
-                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-2 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
-                  >
-                    + Nueva Dirección
-                  </button>
-                </div>
-
-                {/* Lista de direcciones existentes */}
-                <div className="mb-8">
-                  {addressesLoading ? (
-                    <div className="text-center py-8 text-slate-500">Cargando direcciones...</div>
-                  ) : addressesError ? (
-                    <div className="text-center py-8 text-red-500">{addressesError}</div>
-                  ) : addresses.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-bold text-slate-900 mb-2">No tienes direcciones guardadas</h3>
-                      <p className="text-slate-500 mb-6">
-                        Agrega tu primera dirección para facilitar tus compras
-                      </p>
-                      <button 
-                        onClick={() => setShowAddressForm(true)}
-                        className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
-                      >
-                        Agregar Primera Dirección
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {addresses.map((address) => (
-                        <div key={address.id} className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="font-bold text-slate-900 text-lg">
-                                {address.first_name} {address.last_name}
-                              </h3>
-                              {address.is_default && (
-                                <span className="inline-block bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full mt-1">
-                                  Predeterminada
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleEditAddress(address)}
-                                className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
-                                title="Editar"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteAddress(address.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Eliminar"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2 text-sm text-slate-700">
-                            <p>{address.address1}</p>
-                            {address.address2 && <p>{address.address2}</p>}
-                            <p>{address.city}, {address.state} {address.postal_code}</p>
-                            <p>{address.country}</p>
-                            <p className="font-medium">{address.phone}</p>
-                          </div>
-
+              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-8 flex items-center gap-2">
+                  <MapPin className="w-7 h-7 text-cyan-400" /> Direcciones Guardadas
+                </h2>
+                {addressesLoading ? (
+                  <div className="text-center py-12 text-fuchsia-300 animate-pulse">Cargando...</div>
+                ) : addressesError ? (
+                  <div className="text-center py-12 text-red-400 animate-fade-in">{addressesError}</div>
+                ) : addresses.length === 0 ? (
+                  <div className="text-center py-12 text-fuchsia-200 animate-fade-in">No tienes direcciones guardadas.</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {addresses.map(address => (
+                      <div key={address.id} className={`glass-premium rounded-2xl shadow-xl border ${address.is_default ? 'border-yellow-400' : 'border-fuchsia-400/20'} p-6 flex flex-col bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 animate-fade-in relative`}>
+                        {address.is_default && (
+                          <span className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 px-3 py-1 rounded-full font-bold text-xs shadow-md animate-bounce-in">Predeterminada</span>
+                        )}
+                        <div className="mb-2 text-fuchsia-100 font-bold text-lg flex items-center gap-2">
+                          <MapPin className="w-5 h-5 text-cyan-400" /> {address.address1}
+                        </div>
+                        <div className="text-fuchsia-300 text-sm mb-2">{address.city}, {address.state}, {address.country}</div>
+                        <div className="text-fuchsia-300 text-xs mb-2">{address.postal_code}</div>
+                        <div className="text-fuchsia-200 text-xs mb-4">{address.first_name} {address.last_name} - {address.phone}</div>
+                        <div className="flex gap-2 w-full">
+                          <button
+                            onClick={() => handleEditAddress(address)}
+                            className="flex-1 bg-gradient-to-r from-yellow-400 to-cyan-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-cyan-500 transition-all animate-bounce-in"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAddress(address.id)}
+                            className="flex-1 bg-gradient-to-r from-red-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-bold shadow-md hover:from-fuchsia-600 hover:to-red-600 transition-all animate-bounce-in"
+                          >
+                            Eliminar
+                          </button>
                           {!address.is_default && (
                             <button
                               onClick={() => handleSetDefaultAddress(address.id)}
-                              className="mt-4 w-full bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 px-4 py-2 rounded-lg font-bold hover:from-slate-200 hover:to-gray-200 transition-all"
+                              className="flex-1 bg-gradient-to-r from-fuchsia-400 to-yellow-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-fuchsia-500 transition-all animate-bounce-in"
                             >
-                              Establecer como Predeterminada
+                              Predeterminar
                             </button>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Formulario de nueva dirección */}
-                {showAddressForm && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
-                    <div className="glass-premium rounded-2xl shadow-2xl max-w-4xl w-full p-8 relative mx-4 animate-scale-in-premium max-h-[90vh] overflow-y-auto">
-                      <button 
-                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold" 
-                        onClick={() => {
-                          setShowAddressForm(false)
-                          setEditingAddress(null)
-                          setAddressForm({
-                            first_name: '',
-                            last_name: '',
-                            phone: '',
-                            address1: '',
-                            address2: '',
-                            city: '',
-                            state: '',
-                            postal_code: '',
-                            country: '',
-                            is_default: true,
-                          })
-                        }}
-                      >
-                        &times;
-                      </button>
-                      
-                      <h3 className="text-xl font-black text-slate-900 mb-6">
-                        {editingAddress ? 'Editar Dirección' : 'Nueva Dirección'}
-                      </h3>
-
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>
-                          <AddressMapPicker
-                            apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
-                            onChange={setSelectedAddress}
-                            defaultCenter={editingAddress ? { lat: editingAddress.lat, lng: editingAddress.lng } : undefined}
-                          />
-                          <div className="mt-2 text-xs text-slate-500">
-                            Selecciona la ubicación en el mapa o busca tu dirección exacta.
-                          </div>
-                        </div>
-                        
-                        <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700">Nombre</label>
-                              <input 
-                                type="text" 
-                                name="first_name" 
-                                value={addressForm.first_name} 
-                                onChange={handleFormChange} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                                required 
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700">Apellidos</label>
-                              <input 
-                                type="text" 
-                                name="last_name" 
-                                value={addressForm.last_name} 
-                                onChange={handleFormChange} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                                required 
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-bold text-slate-700">Teléfono</label>
-                            <input 
-                              type="tel" 
-                              name="phone" 
-                              value={addressForm.phone} 
-                              onChange={handleFormChange} 
-                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                              required 
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-bold text-slate-700">Dirección 2 (opcional)</label>
-                            <input 
-                              type="text" 
-                              name="address2" 
-                              value={addressForm.address2} 
-                              onChange={handleFormChange} 
-                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700">Ciudad</label>
-                              <input 
-                                type="text" 
-                                name="city" 
-                                value={addressForm.city} 
-                                onChange={handleFormChange} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                                required 
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700">Estado/Provincia</label>
-                              <input 
-                                type="text" 
-                                name="state" 
-                                value={addressForm.state} 
-                                onChange={handleFormChange} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                                required 
-                              />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700">Código Postal</label>
-                              <input 
-                                type="text" 
-                                name="postal_code" 
-                                value={addressForm.postal_code} 
-                                onChange={handleFormChange} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                                required 
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-bold text-slate-700">País</label>
-                              <input 
-                                type="text" 
-                                name="country" 
-                                value={addressForm.country} 
-                                onChange={handleFormChange} 
-                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
-                                required 
-                              />
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <input 
-                              type="checkbox" 
-                              name="is_default" 
-                              checked={addressForm.is_default} 
-                              onChange={handleFormChange} 
-                              className="rounded" 
-                            />
-                            <label className="text-sm font-bold">Marcar como dirección principal</label>
-                          </div>
-                          <div className="flex gap-4">
-                            <button
-                              type="submit"
-                              className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
-                              disabled={!selectedAddress}
-                            >
-                              {editingAddress ? 'Actualizar Dirección' : 'Guardar Dirección'}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowAddressForm(false)
-                                setEditingAddress(null)
-                                setAddressForm({
-                                  first_name: '',
-                                  last_name: '',
-                                  phone: '',
-                                  address1: '',
-                                  address2: '',
-                                  city: '',
-                                  state: '',
-                                  postal_code: '',
-                                  country: '',
-                                  is_default: true,
-                                })
-                              }}
-                              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
-                            >
-                              Cancelar
-                            </button>
-                          </div>
-                          {addressSaved && selectedAddress && !addressError && (
-                            <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-xl border border-green-200">
-                              Dirección guardada:<br />
-                              <strong>{selectedAddress.address}</strong><br />
-                              <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
-                            </div>
-                          )}
-                          {addressError && (
-                            <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 text-red-800 rounded-xl border border-red-200">
-                              {addressError}
-                            </div>
-                          )}
-                        </form>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 )}
+                <div className="mt-10 flex justify-center">
+                  <button
+                    onClick={() => { setShowAddressForm(true); setEditingAddress(null); }}
+                    className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in"
+                  >
+                    Agregar Nueva Dirección
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* Security Tab */}
+            {/* Security Tab mejorado */}
             {activeTab === 'security' && (
-              <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <h2 className="text-2xl font-black text-slate-900 mb-8">Seguridad</h2>
-                
+              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-8 flex items-center gap-2">
+                  <Shield className="w-7 h-7 text-yellow-400" /> Seguridad de la Cuenta
+                </h2>
                 <div className="space-y-8">
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-4">Cambiar Contraseña</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <input
-                        type="password"
-                        placeholder="Contraseña actual"
-                        className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80"
-                      />
-                      <input
-                        type="password"
-                        placeholder="Nueva contraseña"
-                        className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80"
-                      />
-                      <button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl">
-                        Actualizar
-                      </button>
-                    </div>
+                  {/* Cambiar contraseña */}
+                  <div className="bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-8 shadow-lg animate-fade-in">
+                    <h3 className="text-lg font-bold text-fuchsia-100 mb-4">Cambiar Contraseña</h3>
+                    <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-bold text-fuchsia-200 mb-2">Contraseña Actual</label>
+                        <input type="password" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-fuchsia-200 mb-2">Nueva Contraseña</label>
+                        <input type="password" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
+                      </div>
+                      <div className="md:col-span-2">
+                        <button className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 w-full md:w-auto animate-bounce-in">
+                          Cambiar Contraseña
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                  
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-4">Autenticación de Dos Factores</h3>
-                    <p className="text-slate-600 text-sm mb-4">
-                      Añade una capa extra de seguridad a tu cuenta
-                    </p>
-                    <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl">
+                  {/* 2FA y otras opciones */}
+                  <div className="bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-8 shadow-lg animate-fade-in">
+                    <h3 className="text-lg font-bold text-fuchsia-100 mb-4">Autenticación en Dos Pasos (2FA)</h3>
+                    <div className="flex items-center gap-4 mb-4">
+                      <span className="text-fuchsia-200 font-bold">Estado:</span>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 shadow-md">Desactivado</span>
+                    </div>
+                    <button className="bg-gradient-to-r from-fuchsia-400 to-yellow-400 text-slate-900 px-8 py-3 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-lg hover:shadow-fuchsia-500/25 animate-bounce-in">
                       Activar 2FA
                     </button>
                   </div>
@@ -887,47 +663,39 @@ export default function MiCuentaPage() {
               </div>
             )}
 
-            {/* Settings Tab */}
+            {/* Settings Tab mejorado */}
             {activeTab === 'settings' && (
-              <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
-                <h2 className="text-2xl font-black text-slate-900 mb-8">Configuración</h2>
-                
+              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-8 flex items-center gap-2">
+                  <Settings className="w-7 h-7 text-fuchsia-400" /> Configuración de la Cuenta
+                </h2>
                 <div className="space-y-8">
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-6">Notificaciones</h3>
-                    <div className="space-y-4">
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-3 rounded" defaultChecked />
-                        <span className="text-slate-700 font-medium">Notificaciones por email</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-3 rounded" />
-                        <span className="text-slate-700 font-medium">Notificaciones push</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-3 rounded" defaultChecked />
-                        <span className="text-slate-700 font-medium">Ofertas y promociones</span>
-                      </label>
+                  {/* Notificaciones */}
+                  <div className="bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-8 shadow-lg animate-fade-in">
+                    <h3 className="text-lg font-bold text-fuchsia-100 mb-4">Notificaciones</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-fuchsia-200 font-bold">Recibir emails de promociones</span>
+                      <input type="checkbox" className="w-6 h-6 rounded-full border-2 border-fuchsia-400 bg-white/10 checked:bg-fuchsia-400 transition-all" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-fuchsia-200 font-bold">Alertas de pedidos</span>
+                      <input type="checkbox" className="w-6 h-6 rounded-full border-2 border-yellow-400 bg-white/10 checked:bg-yellow-400 transition-all" />
                     </div>
                   </div>
-                  
-                  <div>
-                    <h3 className="font-bold text-slate-900 mb-6">Privacidad</h3>
-                    <div className="space-y-4">
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-3 rounded" defaultChecked />
-                        <span className="text-slate-700 font-medium">Compartir datos de uso</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="mr-3 rounded" />
-                        <span className="text-slate-700 font-medium">Perfil público</span>
-                      </label>
-                    </div>
+                  {/* Preferencias de idioma */}
+                  <div className="bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-8 shadow-lg animate-fade-in">
+                    <h3 className="text-lg font-bold text-fuchsia-100 mb-4">Idioma</h3>
+                    <select className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100">
+                      <option value="es">Español</option>
+                      <option value="en">English</option>
+                    </select>
                   </div>
-                  
-                  <button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl">
-                    Guardar Configuración
-                  </button>
+                  {/* Guardar cambios */}
+                  <div className="flex justify-end">
+                    <button className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in">
+                      Guardar Configuración
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -935,41 +703,287 @@ export default function MiCuentaPage() {
         </div>
       </div>
 
-      {/* Modal de detalle de pedido */}
+      {/* Modal de detalles de pedidos mejorado */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
-          <div className="glass-premium rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative mx-4 animate-scale-in-premium">
-            <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold" onClick={() => setSelectedOrder(null)}>&times;</button>
-            <h3 className="text-xl font-black text-slate-900 mb-4">Pedido #{selectedOrder.order_number}</h3>
-            <div className="mb-4 text-sm text-slate-500">Fecha: {new Date(selectedOrder.created_at).toLocaleString()}</div>
-            <div className="mb-4 text-sm">Estado: <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedOrder.status === 'delivered' ? 'bg-green-100 text-green-800' : selectedOrder.status === 'shipped' ? 'bg-blue-100 text-blue-800' : selectedOrder.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : selectedOrder.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{selectedOrder.status}</span></div>
-            <div className="mb-4 text-sm">Pago: {selectedOrder.payment_status}</div>
-            <div className="mb-4 text-sm">Tracking: {selectedOrder.tracking || '-'}</div>
-            <div className="mb-6 text-sm font-bold">Total: {selectedOrder.currency} {selectedOrder.total.toFixed(2)}</div>
-            <h4 className="font-bold text-slate-900 mb-4">Productos:</h4>
-            <ul className="mb-6 divide-y divide-gray-200">
-              {selectedOrder.items.map(item => (
-                <li key={item.id} className="py-4 flex items-center gap-4">
-                  {item.image_url && <img src={item.image_url.startsWith('http') ? item.image_url : item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />}
-                  <div>
-                    <div className="font-bold text-slate-900">{item.name}</div>
-                    <div className="text-xs text-slate-500">Cantidad: {item.quantity} &bull; Precio: {selectedOrder.currency} {item.price.toFixed(2)}</div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <div className="glass-premium rounded-3xl shadow-2xl max-w-4xl w-full p-8 relative mx-4 animate-scale-in-premium max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900/80 via-fuchsia-900/60 to-indigo-900/80 border border-fuchsia-400/30">
+            <button 
+              className="absolute top-4 right-4 text-fuchsia-300 hover:text-yellow-400 text-2xl font-bold transition-colors" 
+              onClick={() => setSelectedOrder(null)}
+            >
+              &times;
+            </button>
+            
+            <h3 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-6">
+              Pedido #{selectedOrder.order_number}
+            </h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Detalles del pedido */}
+              <div className="bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-6 shadow-lg animate-fade-in">
+                <h4 className="text-lg font-bold text-fuchsia-100 mb-4">Información del Pedido</h4>
+                <div className="space-y-3 text-fuchsia-200">
+                  <div className="flex justify-between">
+                    <span className="font-bold">Estado:</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${selectedOrder.status === 'delivered' ? 'bg-green-200/20 text-green-400 border border-green-400/30' : selectedOrder.status === 'shipped' ? 'bg-blue-200/20 text-blue-400 border border-blue-400/30' : selectedOrder.status === 'pending' ? 'bg-yellow-200/20 text-yellow-400 border border-yellow-400/30' : selectedOrder.status === 'cancelled' ? 'bg-red-200/20 text-red-400 border border-red-400/30' : 'bg-fuchsia-200/10 text-fuchsia-300 border border-fuchsia-400/10'}`}>
+                      {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                    </span>
                   </div>
-                </li>
-              ))}
-            </ul>
+                  <div className="flex justify-between">
+                    <span className="font-bold">Total:</span>
+                    <span className="text-yellow-300 font-bold">{selectedOrder.currency} {selectedOrder.total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-bold">Pago:</span>
+                    <span className="text-fuchsia-300">{selectedOrder.payment_status}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-bold">Fecha:</span>
+                    <span className="text-fuchsia-300">{new Date(selectedOrder.created_at).toLocaleString()}</span>
+                  </div>
+                  {selectedOrder.tracking && (
+                    <div className="flex justify-between">
+                      <span className="font-bold">Tracking:</span>
+                      <span className="text-cyan-300">{selectedOrder.tracking}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Productos del pedido */}
+              <div className="bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-6 shadow-lg animate-fade-in">
+                <h4 className="text-lg font-bold text-fuchsia-100 mb-4">Productos</h4>
+                <div className="space-y-4 max-h-64 overflow-y-auto">
+                  {selectedOrder.items.map(item => (
+                    <div key={item.id} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-fuchsia-400/10">
+                      <img src={item.image_url || '/file.svg'} alt={item.name} className="w-12 h-12 object-cover rounded-lg bg-gradient-to-br from-fuchsia-400/10 to-indigo-400/10" />
+                      <div className="flex-1">
+                        <h5 className="text-fuchsia-100 font-bold text-sm line-clamp-1">{item.name}</h5>
+                        <p className="text-fuchsia-300 text-xs">Cantidad: {item.quantity}</p>
+                      </div>
+                      <span className="text-yellow-300 font-bold text-sm">${item.price}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Dirección de envío */}
             {selectedOrder.shipping_address && (
-              <div className="mb-4 text-sm">
-                <div className="font-bold text-slate-900">Enviado a:</div>
-                <div>{selectedOrder.shipping_address.street}, {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state}, {selectedOrder.shipping_address.zip}, {selectedOrder.shipping_address.country}</div>
+              <div className="mt-8 bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-6 shadow-lg animate-fade-in">
+                <h4 className="text-lg font-bold text-fuchsia-100 mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-cyan-400" /> Dirección de Envío
+                </h4>
+                <div className="text-fuchsia-200">
+                  <p>{selectedOrder.shipping_address.street}</p>
+                  <p>{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.zip}</p>
+                  <p>{selectedOrder.shipping_address.country}</p>
+                </div>
               </div>
             )}
+
+            {/* Notas del pedido */}
             {selectedOrder.notes && (
-              <div className="mb-4 text-sm">
-                <div className="font-bold text-slate-900">Notas:</div>
-                <div>{selectedOrder.notes}</div>
+              <div className="mt-8 bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 rounded-2xl p-6 shadow-lg animate-fade-in">
+                <h4 className="text-lg font-bold text-fuchsia-100 mb-4">Notas</h4>
+                <p className="text-fuchsia-200">{selectedOrder.notes}</p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Formulario de direcciones mejorado */}
+      {showAddressForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+          <div className="glass-premium rounded-3xl shadow-2xl max-w-4xl w-full p-8 relative mx-4 animate-scale-in-premium max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900/80 via-fuchsia-900/60 to-indigo-900/80 border border-fuchsia-400/30">
+            <button 
+              className="absolute top-4 right-4 text-fuchsia-300 hover:text-yellow-400 text-2xl font-bold transition-colors" 
+              onClick={() => {
+                setShowAddressForm(false)
+                setEditingAddress(null)
+                setAddressForm({
+                  first_name: '',
+                  last_name: '',
+                  phone: '',
+                  address1: '',
+                  address2: '',
+                  city: '',
+                  state: '',
+                  postal_code: '',
+                  country: '',
+                  is_default: true,
+                })
+              }}
+            >
+              &times;
+            </button>
+            
+            <h3 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-6">
+              {editingAddress ? 'Editar Dirección' : 'Nueva Dirección'}
+            </h3>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div>
+                <AddressMapPicker
+                  apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
+                  onChange={setSelectedAddress}
+                  defaultCenter={editingAddress ? { lat: editingAddress.lat, lng: editingAddress.lng } : undefined}
+                />
+                <div className="mt-2 text-xs text-fuchsia-300">
+                  Selecciona la ubicación en el mapa o busca tu dirección exacta.
+                </div>
+              </div>
+              
+              <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-fuchsia-200">Nombre</label>
+                    <input 
+                      type="text" 
+                      name="first_name" 
+                      value={addressForm.first_name} 
+                      onChange={handleFormChange} 
+                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-fuchsia-200">Apellidos</label>
+                    <input 
+                      type="text" 
+                      name="last_name" 
+                      value={addressForm.last_name} 
+                      onChange={handleFormChange} 
+                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-fuchsia-200">Teléfono</label>
+                  <input 
+                    type="tel" 
+                    name="phone" 
+                    value={addressForm.phone} 
+                    onChange={handleFormChange} 
+                    className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                    required 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-fuchsia-200">Dirección 2 (opcional)</label>
+                  <input 
+                    type="text" 
+                    name="address2" 
+                    value={addressForm.address2} 
+                    onChange={handleFormChange} 
+                    className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-fuchsia-200">Ciudad</label>
+                    <input 
+                      type="text" 
+                      name="city" 
+                      value={addressForm.city} 
+                      onChange={handleFormChange} 
+                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-fuchsia-200">Estado/Provincia</label>
+                    <input 
+                      type="text" 
+                      name="state" 
+                      value={addressForm.state} 
+                      onChange={handleFormChange} 
+                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-fuchsia-200">Código Postal</label>
+                    <input 
+                      type="text" 
+                      name="postal_code" 
+                      value={addressForm.postal_code} 
+                      onChange={handleFormChange} 
+                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      required 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-fuchsia-200">País</label>
+                    <input 
+                      type="text" 
+                      name="country" 
+                      value={addressForm.country} 
+                      onChange={handleFormChange} 
+                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      required 
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    name="is_default" 
+                    checked={addressForm.is_default} 
+                    onChange={handleFormChange} 
+                    className="w-5 h-5 rounded border-2 border-fuchsia-400 bg-white/10 checked:bg-fuchsia-400 transition-all" 
+                  />
+                  <label className="text-sm font-bold text-fuchsia-200">Marcar como dirección principal</label>
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in"
+                    disabled={!selectedAddress}
+                  >
+                    {editingAddress ? 'Actualizar Dirección' : 'Guardar Dirección'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddressForm(false)
+                      setEditingAddress(null)
+                      setAddressForm({
+                        first_name: '',
+                        last_name: '',
+                        phone: '',
+                        address1: '',
+                        address2: '',
+                        city: '',
+                        state: '',
+                        postal_code: '',
+                        country: '',
+                        is_default: true,
+                      })
+                    }}
+                    className="px-6 py-3 border border-fuchsia-400/20 text-fuchsia-300 rounded-xl font-bold hover:bg-fuchsia-900/20 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                {addressSaved && selectedAddress && !addressError && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 text-green-400 rounded-xl border border-green-400/30 animate-fade-in">
+                    Dirección guardada:<br />
+                    <strong>{selectedAddress.address}</strong><br />
+                    <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
+                  </div>
+                )}
+                {addressError && (
+                  <div className="mt-4 p-4 bg-gradient-to-r from-red-900/40 to-pink-900/40 text-red-400 rounded-xl border border-red-400/30 animate-fade-in">
+                    {addressError}
+                  </div>
+                )}
+              </form>
+            </div>
           </div>
         </div>
       )}
