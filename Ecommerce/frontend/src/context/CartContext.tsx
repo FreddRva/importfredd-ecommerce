@@ -181,6 +181,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
         });
       }
+      clearLocalCart();
       await fetchCart();
     } catch (err: any) {
       setError("Failed to merge cart: " + err.message);
