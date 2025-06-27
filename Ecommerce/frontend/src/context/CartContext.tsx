@@ -225,18 +225,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchCart();
+      // Primero hacer merge si hay carrito local, luego obtener el carrito del backend
+      const localCart = getLocalCart();
+      if (localCart.length > 0) {
+        mergeLocalAndDbCart();
+      } else {
+        fetchCart();
+      }
     } else {
       setCart(getLocalCart());
       setLoading(false);
     }
-  }, [isAuthenticated, fetchCart]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      mergeLocalAndDbCart();
-    }
-  }, [isAuthenticated, mergeLocalAndDbCart]);
+  }, [isAuthenticated, fetchCart, mergeLocalAndDbCart]);
   
   // Asegurar que cart sea siempre un array antes de usar reduce
   const safeCart = Array.isArray(cart) ? cart : [];
