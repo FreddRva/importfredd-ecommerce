@@ -147,176 +147,122 @@ export default function AdminPage() {
         <div className="absolute top-1/3 left-20 w-2 h-2 bg-cyan-400/30 rounded-full animate-float-delayed"></div>
       </div>
 
-      <div className="flex relative z-10">
-        {/* Barra lateral */}
-        <aside className="w-80 bg-gradient-to-br from-slate-900/90 via-indigo-950/90 to-fuchsia-900/90 backdrop-blur-2xl border-r border-fuchsia-800/30 h-screen sticky top-0 flex flex-col p-8">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="w-12 h-12 bg-gradient-to-r from-fuchsia-600 to-yellow-400 rounded-2xl flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-slate-900" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent">
-                  Admin Panel
-                </h1>
-                <p className="text-fuchsia-300 text-sm">ImportFredd</p>
-              </div>
-            </div>
-            
-            <nav className="space-y-3 mb-8">
-              <NavLink href="/admin" icon={LayoutDashboard} isActive={true}>
-                Dashboard
-              </NavLink>
-              <NavLink href="/admin/products" icon={Package}>
-                Productos
-              </NavLink>
-              <NavLink href="/admin/orders" icon={ShoppingCart}>
-                Pedidos
-              </NavLink>
-              <NavLink href="/admin/users" icon={Users}>
-                Usuarios
-              </NavLink>
-              <NavLink href="/admin/categories" icon={Settings}>
-                Categorías
-              </NavLink>
-            </nav>
+      {/* Contenido Principal a ancho completo */}
+      <main className="flex-1 p-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4">
+              Dashboard
+            </h1>
+            <p className="text-xl text-fuchsia-200">
+              Bienvenido, <span className="text-yellow-400 font-bold">{user?.email}</span>. 
+              Aquí tienes un resumen completo de tu tienda.
+            </p>
           </div>
+
+          {/* Estadísticas */}
+          {error && (
+            <div className="bg-gradient-to-r from-red-900/40 to-fuchsia-900/40 border border-red-800/30 rounded-2xl p-4 mb-8 backdrop-blur-sm">
+              <p className="text-red-400 font-bold">{error}</p>
+            </div>
+          )}
           
-          <div className="space-y-3">
-            <Link 
-              href="/" 
-              className="flex items-center gap-4 text-fuchsia-200 hover:text-yellow-300 px-6 py-4 rounded-2xl hover:bg-gradient-to-r hover:from-fuchsia-600/10 hover:to-yellow-400/10 transition-all duration-300 font-bold"
-            >
-              <ArrowLeft size={20}/>
-              <span>Volver a la Tienda</span>
-            </Link>
-            <button 
-              onClick={logout} 
-              className="w-full flex items-center gap-4 text-red-400 hover:text-red-300 hover:bg-red-900/20 px-6 py-4 rounded-2xl transition-all duration-300 font-bold border border-red-800/30 hover:border-red-600/50"
-            >
-              <LogOut size={20} />
-              <span>Cerrar Sesión</span>
-            </button>
+          {stats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              <StatCard 
+                title="Ingresos Totales" 
+                value={`€${stats.total_revenue.toFixed(2)}`} 
+                icon={DollarSign} 
+                color="from-green-500/20 to-emerald-500/20"
+                trend="+12%"
+              />
+              <StatCard 
+                title="Pedidos Totales" 
+                value={stats.total_orders} 
+                icon={ShoppingCart} 
+                color="from-blue-500/20 to-cyan-500/20"
+                trend="+8%"
+              />
+              <StatCard 
+                title="Productos Activos" 
+                value={stats.active_products} 
+                icon={Package} 
+                color="from-fuchsia-500/20 to-purple-500/20"
+              />
+              <StatCard 
+                title="Pedidos Pendientes" 
+                value={stats.pending_orders} 
+                icon={Clock} 
+                color="from-yellow-500/20 to-orange-500/20"
+              />
+            </div>
+          )}
+
+          {/* Accesos directos */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent mb-6 flex items-center">
+              <Settings className="w-8 h-8 mr-3" />
+              Gestión Rápida
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <QuickActionCard
+                href="/admin/products"
+                icon={Package}
+                title="Gestionar Productos"
+                description="Añadir, editar y eliminar productos de tu catálogo."
+                color="from-fuchsia-500/20 to-purple-500/20"
+              />
+              <QuickActionCard
+                href="/admin/orders"
+                icon={ShoppingCart}
+                title="Ver Pedidos"
+                description="Revisar y gestionar todos los pedidos de clientes."
+                color="from-blue-500/20 to-cyan-500/20"
+              />
+              <QuickActionCard
+                href="/admin/users"
+                icon={Users}
+                title="Gestionar Usuarios"
+                description="Administrar roles y estado de los usuarios."
+                color="from-green-500/20 to-emerald-500/20"
+              />
+              <QuickActionCard
+                href="/admin/categories"
+                icon={Settings}
+                title="Gestionar Categorías"
+                description="Organizar productos en categorías y subcategorías."
+                color="from-yellow-500/20 to-orange-500/20"
+              />
+            </div>
           </div>
-        </aside>
 
-        {/* Contenido Principal */}
-        <main className="flex-1 p-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-                Dashboard
-              </h1>
-              <p className="text-xl text-fuchsia-200">
-                Bienvenido, <span className="text-yellow-400 font-bold">{user?.email}</span>. 
-                Aquí tienes un resumen completo de tu tienda.
-              </p>
-            </div>
-            
-            {/* Estadísticas */}
-            {error && (
-              <div className="bg-gradient-to-r from-red-900/40 to-fuchsia-900/40 border border-red-800/30 rounded-2xl p-4 mb-8 backdrop-blur-sm">
-                <p className="text-red-400 font-bold">{error}</p>
+          {/* Resumen de actividad reciente */}
+          <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8">
+            <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent mb-6 flex items-center">
+              <TrendingUp className="w-6 h-6 mr-3" />
+              Actividad Reciente
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-6 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-800/30 rounded-2xl backdrop-blur-sm">
+                <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-green-400 mb-1">Pedidos Completados</h3>
+                <p className="text-2xl font-black text-white">{stats?.completed_orders || 0}</p>
               </div>
-            )}
-            
-            {stats && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <StatCard 
-                  title="Ingresos Totales" 
-                  value={`€${stats.total_revenue.toFixed(2)}`} 
-                  icon={DollarSign} 
-                  color="from-green-500/20 to-emerald-500/20"
-                  trend="+12%"
-                />
-                <StatCard 
-                  title="Pedidos Totales" 
-                  value={stats.total_orders} 
-                  icon={ShoppingCart} 
-                  color="from-blue-500/20 to-cyan-500/20"
-                  trend="+8%"
-                />
-                <StatCard 
-                  title="Productos Activos" 
-                  value={stats.active_products} 
-                  icon={Package} 
-                  color="from-fuchsia-500/20 to-purple-500/20"
-                />
-                <StatCard 
-                  title="Pedidos Pendientes" 
-                  value={stats.pending_orders} 
-                  icon={Clock} 
-                  color="from-yellow-500/20 to-orange-500/20"
-                />
+              <div className="text-center p-6 bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border border-yellow-800/30 rounded-2xl backdrop-blur-sm">
+                <Clock className="w-12 h-12 text-yellow-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-yellow-400 mb-1">Pedidos Pendientes</h3>
+                <p className="text-2xl font-black text-white">{stats?.pending_orders || 0}</p>
               </div>
-            )}
-
-            {/* Accesos directos */}
-            <div className="mb-12">
-              <h2 className="text-3xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent mb-6 flex items-center">
-                <Settings className="w-8 h-8 mr-3" />
-                Gestión Rápida
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <QuickActionCard
-                  href="/admin/products"
-                  icon={Package}
-                  title="Gestionar Productos"
-                  description="Añadir, editar y eliminar productos de tu catálogo."
-                  color="from-fuchsia-500/20 to-purple-500/20"
-                />
-                <QuickActionCard
-                  href="/admin/orders"
-                  icon={ShoppingCart}
-                  title="Ver Pedidos"
-                  description="Revisar y gestionar todos los pedidos de clientes."
-                  color="from-blue-500/20 to-cyan-500/20"
-                />
-                <QuickActionCard
-                  href="/admin/users"
-                  icon={Users}
-                  title="Gestionar Usuarios"
-                  description="Administrar roles y estado de los usuarios."
-                  color="from-green-500/20 to-emerald-500/20"
-                />
-                <QuickActionCard
-                  href="/admin/categories"
-                  icon={Settings}
-                  title="Gestionar Categorías"
-                  description="Organizar productos en categorías y subcategorías."
-                  color="from-yellow-500/20 to-orange-500/20"
-                />
-              </div>
-            </div>
-
-            {/* Resumen de actividad reciente */}
-            <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-8">
-              <h2 className="text-2xl font-black bg-gradient-to-r from-yellow-400 to-fuchsia-400 bg-clip-text text-transparent mb-6 flex items-center">
-                <TrendingUp className="w-6 h-6 mr-3" />
-                Actividad Reciente
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-800/30 rounded-2xl backdrop-blur-sm">
-                  <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-bold text-green-400 mb-1">Pedidos Completados</h3>
-                  <p className="text-2xl font-black text-white">{stats?.completed_orders || 0}</p>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border border-yellow-800/30 rounded-2xl backdrop-blur-sm">
-                  <Clock className="w-12 h-12 text-yellow-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-bold text-yellow-400 mb-1">Pedidos Pendientes</h3>
-                  <p className="text-2xl font-black text-white">{stats?.pending_orders || 0}</p>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border border-cyan-800/30 rounded-2xl backdrop-blur-sm">
-                  <Eye className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-                  <h3 className="text-lg font-bold text-cyan-400 mb-1">Productos Totales</h3>
-                  <p className="text-2xl font-black text-white">{stats?.total_products || 0}</p>
-                </div>
+              <div className="text-center p-6 bg-gradient-to-r from-cyan-900/40 to-blue-900/40 border border-cyan-800/30 rounded-2xl backdrop-blur-sm">
+                <Eye className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-cyan-400 mb-1">Productos Totales</h3>
+                <p className="text-2xl font-black text-white">{stats?.total_products || 0}</p>
               </div>
             </div>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   )
 } 
