@@ -16,7 +16,7 @@ interface CartItem {
 }
 
 export default function CarritoPage() {
-  const { cart, updateQuantity, removeFromCart, clearCart, itemCount, totalPrice } = useCart();
+  const { cart, updateQuantity, removeFromCart, clearCart, clearLocalCart, itemCount, totalPrice } = useCart();
   const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
@@ -212,7 +212,7 @@ export default function CarritoPage() {
                           Cancelar
                         </button>
                         <button
-                          onClick={async () => { await clearCart(); setShowConfirmClear(false); }}
+                          onClick={async () => { await clearCart(); clearLocalCart(); setShowConfirmClear(false); }}
                           className="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-red-600 to-fuchsia-600 text-white shadow-lg hover:from-fuchsia-600 hover:to-red-600 transition-all duration-300"
                         >
                           Limpiar
