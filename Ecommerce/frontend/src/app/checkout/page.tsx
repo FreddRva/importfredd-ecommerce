@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CreditCard, Truck, CheckCircle, Lock, ShoppingBag, MapPin, User, Phone, Mail, Shield, Sparkles, Package, Clock, Star } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, CheckCircle, Lock, ShoppingBag, MapPin, User, Phone, Mail, Shield, Sparkles, Package, Clock, Star, ChevronDown, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import StripePayment from '@/components/StripePayment';
@@ -20,6 +20,22 @@ interface Address {
   postalCode: string;
   country: string;
   phone: string;
+}
+
+interface SavedAddress {
+  id: number;
+  first_name: string;
+  last_name: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  is_default: boolean;
+  lat: number;
+  lng: number;
 }
 
 interface Order {
@@ -59,11 +75,101 @@ export default function CheckoutPage() {
     phone: ''
   });
 
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedShippingAddressId, setSelectedShippingAddressId] = useState<number | null>(null);
+  const [selectedBillingAddressId, setSelectedBillingAddressId] = useState<number | null>(null);
+  const [showShippingAddressSelector, setShowShippingAddressSelector] = useState(false);
+  const [showBillingAddressSelector, setShowBillingAddressSelector] = useState(false);
+  const [addressesLoading, setAddressesLoading] = useState(false);
+
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'shipping' | 'payment' | 'review' | 'success'>('shipping');
   const [order, setOrder] = useState<Order | null>(null);
   const [notes, setNotes] = useState('');
+
+  // Cargar direcciones guardadas del usuario
+  const fetchSavedAddresses = async () => {
+    if (!token) return;
+    
+    setAddressesLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/addresses`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedAddresses(data.addresses || []);
+        
+        // Si hay direcciones guardadas, usar la predeterminada
+        const defaultAddress = data.addresses?.find((addr: SavedAddress) => addr.is_default);
+        if (defaultAddress) {
+          selectShippingAddress(defaultAddress);
+          if (useSameAddress) {
+            selectBillingAddress(defaultAddress);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching addresses:', err);
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  // Seleccionar dirección de envío
+  const selectShippingAddress = (address: SavedAddress) => {
+    setShippingAddress({
+      firstName: address.first_name,
+      lastName: address.last_name,
+      address1: address.address1,
+      address2: address.address2,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postal_code,
+      country: address.country,
+      phone: address.phone
+    });
+    setSelectedShippingAddressId(address.id);
+    setShowShippingAddressSelector(false);
+    
+    // Si está marcado "usar misma dirección", actualizar también facturación
+    if (useSameAddress) {
+      selectBillingAddress(address);
+    }
+  };
+
+  // Seleccionar dirección de facturación
+  const selectBillingAddress = (address: SavedAddress) => {
+    setBillingAddress({
+      firstName: address.first_name,
+      lastName: address.last_name,
+      address1: address.address1,
+      address2: address.address2,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postal_code,
+      country: address.country,
+      phone: address.phone
+    });
+    setSelectedBillingAddressId(address.id);
+    setShowBillingAddressSelector(false);
+  };
+
+  // Cargar direcciones al montar el componente
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchSavedAddresses();
+    }
+  }, [isAuthenticated, token]);
+
+  // Actualizar facturación cuando cambia "usar misma dirección"
+  useEffect(() => {
+    if (useSameAddress) {
+      setBillingAddress(shippingAddress);
+      setSelectedBillingAddressId(selectedShippingAddressId);
+    }
+  }, [useSameAddress, shippingAddress, selectedShippingAddressId]);
 
   const handleAddressChange = (type: 'shipping' | 'billing', field: keyof Address, value: string) => {
     if (type === 'shipping') {
@@ -326,6 +432,136 @@ export default function CheckoutPage() {
                     Información de Envío
                   </h2>
                   
+                  {/* Selector de Direcciones Guardadas */}
+                  {savedAddresses.length > 0 && (
+                    <div className="mb-8">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold text-fuchsia-200 flex items-center">
+                          <MapPin className="w-5 h-5 mr-2" />
+                          Direcciones Guardadas
+                        </h3>
+                        <button
+                          onClick={() => setShowShippingAddressSelector(!showShippingAddressSelector)}
+                          className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-600/20 to-yellow-600/20 backdrop-blur-md rounded-xl px-4 py-2 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-600/40 hover:to-yellow-600/40 hover:text-yellow-300 transition-all duration-300"
+                        >
+                          {showShippingAddressSelector ? 'Ocultar' : 'Seleccionar'}
+                          <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showShippingAddressSelector ? 'rotate-180' : ''}`} />
+                        </button>
+                      </div>
+                      
+                      {showShippingAddressSelector && (
+                        <div className="space-y-3">
+                          {savedAddresses.map((address) => (
+                            <div
+                              key={address.id}
+                              onClick={() => selectShippingAddress(address)}
+                              className={`relative p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                                selectedShippingAddressId === address.id
+                                  ? 'bg-gradient-to-r from-fuchsia-600/20 to-yellow-600/20 border-fuchsia-400 shadow-lg'
+                                  : 'bg-slate-900/60 border-fuchsia-800/30 hover:border-fuchsia-400/50'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-bold text-fuchsia-200">
+                                      {address.first_name} {address.last_name}
+                                    </span>
+                                    {address.is_default && (
+                                      <span className="px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 text-xs font-bold rounded-full border border-yellow-400/30">
+                                        Predeterminada
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-fuchsia-300 text-sm mb-1">
+                                    {address.address1}
+                                    {address.address2 && `, ${address.address2}`}
+                                  </p>
+                                  <p className="text-fuchsia-300 text-sm">
+                                    {address.city}, {address.state} {address.postal_code}
+                                  </p>
+                                  <p className="text-fuchsia-300 text-sm">
+                                    {address.phone}
+                                  </p>
+                                </div>
+                                {selectedShippingAddressId === address.id && (
+                                  <div className="w-6 h-6 bg-gradient-to-r from-fuchsia-600 to-yellow-400 rounded-full flex items-center justify-center">
+                                    <Check className="w-4 h-4 text-slate-900" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Indicador de carga de direcciones */}
+                  {addressesLoading && (
+                    <div className="mb-8 p-4 bg-gradient-to-r from-fuchsia-900/40 to-indigo-900/40 border border-fuchsia-800/30 rounded-2xl backdrop-blur-sm">
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-fuchsia-400 mr-3"></div>
+                        <span className="text-fuchsia-200 font-bold">Cargando direcciones guardadas...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mensaje cuando no hay direcciones guardadas */}
+                  {!addressesLoading && savedAddresses.length === 0 && (
+                    <div className="mb-8 p-4 bg-gradient-to-r from-slate-900/40 to-indigo-900/40 border border-fuchsia-800/30 rounded-2xl backdrop-blur-sm">
+                      <div className="flex items-center justify-center text-center">
+                        <div className="flex flex-col items-center">
+                          <MapPin className="w-8 h-8 text-fuchsia-400 mb-2" />
+                          <span className="text-fuchsia-200 font-bold mb-1">No tienes direcciones guardadas</span>
+                          <span className="text-fuchsia-300 text-sm">Puedes agregar direcciones en tu perfil para futuras compras</span>
+                          <Link 
+                            href="/mi-cuenta"
+                            className="mt-3 inline-flex items-center px-4 py-2 bg-gradient-to-r from-fuchsia-600/20 to-yellow-600/20 backdrop-blur-md rounded-xl font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-600/40 hover:to-yellow-600/40 hover:text-yellow-300 transition-all duration-300"
+                          >
+                            <User className="w-4 h-4 mr-2" />
+                            Ir a Mi Cuenta
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Indicador de dirección seleccionada */}
+                  {selectedShippingAddressId && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-800/30 rounded-2xl backdrop-blur-sm">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Check className="w-5 h-5 text-green-400 mr-3" />
+                          <div>
+                            <span className="text-green-200 font-bold">Dirección seleccionada</span>
+                            <p className="text-green-300 text-sm">
+                              {savedAddresses.find(addr => addr.id === selectedShippingAddressId)?.first_name} {savedAddresses.find(addr => addr.id === selectedShippingAddressId)?.last_name}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedShippingAddressId(null);
+                            setShippingAddress({
+                              firstName: '',
+                              lastName: '',
+                              address1: '',
+                              city: '',
+                              state: '',
+                              postalCode: '',
+                              country: 'España',
+                              phone: ''
+                            });
+                          }}
+                          className="text-green-300 hover:text-green-200 text-sm font-bold transition-colors duration-300"
+                        >
+                          Cambiar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Dirección de Envío */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -499,6 +735,107 @@ export default function CheckoutPage() {
                     {!useSameAddress && (
                       <div className="border-t border-fuchsia-800/30 pt-6">
                         <h3 className="text-lg font-bold text-yellow-400 mb-4">Dirección de Facturación</h3>
+                        
+                        {/* Selector de Direcciones Guardadas para Facturación */}
+                        {savedAddresses.length > 0 && (
+                          <div className="mb-6">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-md font-bold text-fuchsia-200 flex items-center">
+                                <MapPin className="w-4 h-4 mr-2" />
+                                Direcciones Guardadas
+                              </h4>
+                              <button
+                                onClick={() => setShowBillingAddressSelector(!showBillingAddressSelector)}
+                                className="flex items-center gap-2 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-md rounded-xl px-3 py-2 font-bold text-yellow-200 border border-yellow-400/30 shadow-lg hover:from-yellow-600/40 hover:to-orange-600/40 hover:text-orange-300 transition-all duration-300"
+                              >
+                                {showBillingAddressSelector ? 'Ocultar' : 'Seleccionar'}
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showBillingAddressSelector ? 'rotate-180' : ''}`} />
+                              </button>
+                            </div>
+                            
+                            {showBillingAddressSelector && (
+                              <div className="space-y-3">
+                                {savedAddresses.map((address) => (
+                                  <div
+                                    key={address.id}
+                                    onClick={() => selectBillingAddress(address)}
+                                    className={`relative p-4 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                                      selectedBillingAddressId === address.id
+                                        ? 'bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border-yellow-400 shadow-lg'
+                                        : 'bg-slate-900/60 border-fuchsia-800/30 hover:border-yellow-400/50'
+                                    }`}
+                                  >
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <span className="font-bold text-fuchsia-200">
+                                            {address.first_name} {address.last_name}
+                                          </span>
+                                          {address.is_default && (
+                                            <span className="px-2 py-1 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-300 text-xs font-bold rounded-full border border-yellow-400/30">
+                                              Predeterminada
+                                            </span>
+                                          )}
+                                        </div>
+                                        <p className="text-fuchsia-300 text-sm mb-1">
+                                          {address.address1}
+                                          {address.address2 && `, ${address.address2}`}
+                                        </p>
+                                        <p className="text-fuchsia-300 text-sm">
+                                          {address.city}, {address.state} {address.postal_code}
+                                        </p>
+                                        <p className="text-fuchsia-300 text-sm">
+                                          {address.phone}
+                                        </p>
+                                      </div>
+                                      {selectedBillingAddressId === address.id && (
+                                        <div className="w-6 h-6 bg-gradient-to-r from-yellow-600 to-orange-400 rounded-full flex items-center justify-center">
+                                          <Check className="w-4 h-4 text-slate-900" />
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Indicador de dirección de facturación seleccionada */}
+                        {selectedBillingAddressId && (
+                          <div className="mb-6 p-4 bg-gradient-to-r from-orange-900/40 to-yellow-900/40 border border-orange-800/30 rounded-2xl backdrop-blur-sm">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <Check className="w-5 h-5 text-orange-400 mr-3" />
+                                <div>
+                                  <span className="text-orange-200 font-bold">Dirección de facturación seleccionada</span>
+                                  <p className="text-orange-300 text-sm">
+                                    {savedAddresses.find(addr => addr.id === selectedBillingAddressId)?.first_name} {savedAddresses.find(addr => addr.id === selectedBillingAddressId)?.last_name}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedBillingAddressId(null);
+                                  setBillingAddress({
+                                    firstName: '',
+                                    lastName: '',
+                                    address1: '',
+                                    city: '',
+                                    state: '',
+                                    postalCode: '',
+                                    country: 'España',
+                                    phone: ''
+                                  });
+                                }}
+                                className="text-orange-300 hover:text-orange-200 text-sm font-bold transition-colors duration-300"
+                              >
+                                Cambiar
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <label className="block text-sm font-bold text-fuchsia-200">
