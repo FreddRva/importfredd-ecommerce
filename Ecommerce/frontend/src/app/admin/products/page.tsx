@@ -335,7 +335,7 @@ export default function AdminProductsPage() {
       <div className="relative z-10 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8 mt-8">
+          <div className="mb-8 mt-16">
             <Link 
               href="/admin"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-fuchsia-400/20 to-cyan-400/20 backdrop-blur-md rounded-full px-6 py-3 font-bold text-fuchsia-200 border border-fuchsia-400/30 shadow-lg hover:from-fuchsia-400/40 hover:to-cyan-400/40 hover:text-yellow-300 transition-all duration-300 mb-4"
@@ -376,16 +376,16 @@ export default function AdminProductsPage() {
           <div className="bg-gradient-to-br from-slate-900/80 via-indigo-950/80 to-fuchsia-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-fuchsia-800/30 p-6 mb-8">
             <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
               <div className="flex flex-col sm:flex-row gap-4 flex-1">
-                {/* Búsqueda */}
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fuchsia-400" />
+                {/* Búsqueda premium */}
+                <div className="relative flex-1 max-w-md group">
                   <input
                     type="text"
                     placeholder="Buscar productos..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 text-black placeholder-black focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300"
+                    className="w-full pr-12 pl-4 py-3 bg-gradient-to-r from-slate-900/70 via-fuchsia-900/60 to-indigo-900/70 backdrop-blur-md rounded-2xl border-2 border-fuchsia-800/40 text-black placeholder-black focus:border-fuchsia-400 focus:ring-2 focus:ring-fuchsia-400/20 transition-all duration-300 shadow-lg focus:shadow-xl outline-none"
                   />
+                  <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fuchsia-400 group-focus-within:text-yellow-400 transition-colors duration-300" />
                 </div>
 
                 {/* Filtros */}
