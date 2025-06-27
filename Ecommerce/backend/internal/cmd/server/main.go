@@ -104,6 +104,7 @@ func main() {
 			cart.POST("/items", h.AddToCart)
 			cart.PUT("/items/:itemID", h.UpdateCartItem)
 			cart.DELETE("/items/:itemID", h.RemoveCartItem)
+			cart.POST("/clear", h.ClearCartHandler)
 		}
 
 		// Pagos con Stripe

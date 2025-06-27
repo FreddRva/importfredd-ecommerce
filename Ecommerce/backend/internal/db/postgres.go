@@ -1510,3 +1510,16 @@ func SetDefaultAddress(db *pgxpool.Pool, addressID, userID int) error {
 
 	return nil
 }
+
+// ClearCart elimina todos los items del carrito de un usuario
+func ClearCart(db *pgxpool.Pool, userID int) error {
+	cartID, err := FindOrCreateCartByUserID(db, userID)
+	if err != nil {
+		return fmt.Errorf("error obteniendo carrito: %w", err)
+	}
+	_, err = db.Exec(context.Background(), "DELETE FROM cart_items WHERE cart_id = $1", cartID)
+	if err != nil {
+		return fmt.Errorf("error limpiando carrito: %w", err)
+	}
+	return nil
+}
