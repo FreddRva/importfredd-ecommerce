@@ -178,22 +178,29 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const backendProductIds = backendCart.map(item => item.product_id);
 
       // 2. Solo agregar productos del localCart que NO estén en el backend
-      for (const item of localCart) {
-        if (!backendProductIds.includes(item.product_id)) {
-          await fetch(`${API_BASE_URL}/api/cart/items`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
-          });
+      const itemsToAdd = localCart.filter(item => !backendProductIds.includes(item.product_id));
+      
+      for (const item of itemsToAdd) {
+        const addResponse = await fetch(`${API_BASE_URL}/api/cart/items`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
+        });
+        
+        if (!addResponse.ok) {
+          throw new Error(`Failed to add product ${item.product_id} to cart`);
         }
       }
+      
+      // 3. Solo limpiar localStorage si todo fue exitoso
       clearLocalCart();
       await fetchCart();
     } catch (err: any) {
       setError("Failed to merge cart: " + err.message);
+      // NO limpiar localStorage si hay error
     } finally {
       setLoading(false);
     }
