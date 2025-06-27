@@ -108,8 +108,9 @@ export default function AdminProductsPage() {
   // Filtrar y ordenar productos
   const filteredAndSortedProducts = products
     .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-                           product.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const matchesSearch =
+        (product.name?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) ||
+        (product.description?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || 
                            (statusFilter === "active" && product.is_active) ||
                            (statusFilter === "inactive" && !product.is_active);
