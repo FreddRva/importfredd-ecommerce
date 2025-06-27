@@ -105,7 +105,7 @@ export default function AdminPage() {
       })
       if (!res.ok) throw new Error('Error al cargar las estadísticas')
       const data = await res.json()
-      setStats(data.stats)
+      setStats(data)
     } catch (err: any) {
       setError(err.message)
     } finally {
