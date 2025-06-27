@@ -151,7 +151,7 @@ export default function AdminPage() {
       <main className="flex-1 p-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 mt-16">
             <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent mb-4">
               Dashboard
             </h1>
