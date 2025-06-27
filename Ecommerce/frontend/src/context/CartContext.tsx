@@ -175,27 +175,43 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const backendCart: CartItem[] = response.ok ? await response.json() : [];
-      const backendProductIds = backendCart.map(item => item.product_id);
-
-      // 2. Solo agregar productos del localCart que NO estén en el backend
-      const itemsToAdd = localCart.filter(item => !backendProductIds.includes(item.product_id));
       
-      for (const item of itemsToAdd) {
-        const addResponse = await fetch(`${API_BASE_URL}/api/cart/items`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
-        });
+      // 2. Crear un mapa de productos del backend para acceso rápido
+      const backendCartMap = new Map(backendCart.map(item => [item.product_id, item]));
+
+      // 3. Procesar cada item del localStorage
+      for (const localItem of localCart) {
+        const existingItem = backendCartMap.get(localItem.product_id);
         
-        if (!addResponse.ok) {
-          throw new Error(`Failed to add product ${item.product_id} to cart`);
+        if (existingItem) {
+          // Producto ya existe en backend: sumar cantidades
+          const newQuantity = existingItem.quantity + localItem.quantity;
+          await fetch(`${API_BASE_URL}/api/cart/items/${existingItem.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ quantity: newQuantity }),
+          });
+        } else {
+          // Producto no existe en backend: agregarlo
+          const addResponse = await fetch(`${API_BASE_URL}/api/cart/items`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ product_id: localItem.product_id, quantity: localItem.quantity }),
+          });
+          
+          if (!addResponse.ok) {
+            throw new Error(`Failed to add product ${localItem.product_id} to cart`);
+          }
         }
       }
       
-      // 3. Solo limpiar localStorage si todo fue exitoso
+      // 4. Solo limpiar localStorage si todo fue exitoso
       clearLocalCart();
       await fetchCart();
     } catch (err: any) {
