@@ -685,7 +685,7 @@ func ensureTrackingColumn(db *pgxpool.Pool) error {
 
 // CreateAddress inserta una nueva dirección para un usuario
 func CreateAddress(ctx context.Context, address *models.Address) error {
-	query := `INSERT INTO addresses (user_id, type, first_name, last_name, company, address1, address2, city, state, postal_code, country, phone, is_default, lat, lng) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id`
+	query := `INSERT INTO addresses (user_id, type, first_name, last_name, company, address1, address2, city, state, postal_code, country, phone, is_default, lat, lng, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW()) RETURNING id, created_at, updated_at`
 	return Pool.QueryRow(ctx, query,
 		address.UserID,
 		address.Type,
@@ -702,5 +702,5 @@ func CreateAddress(ctx context.Context, address *models.Address) error {
 		address.IsDefault,
 		address.Lat,
 		address.Lng,
-	).Scan(&address.ID)
+	).Scan(&address.ID, &address.CreatedAt, &address.UpdatedAt)
 }

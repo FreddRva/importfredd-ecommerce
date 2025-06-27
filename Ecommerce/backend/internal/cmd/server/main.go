@@ -140,6 +140,18 @@ func main() {
 			favorites.POST("", favoritesHandler.AddFavorite)
 			favorites.DELETE(":product_id", favoritesHandler.RemoveFavorite)
 		}
+
+		// Direcciones
+		addressHandler := handlers.NewAddressHandler(db.Pool)
+		addresses := api.Group("/addresses")
+		{
+			addresses.GET("", addressHandler.GetUserAddresses)
+			addresses.GET("/:id", addressHandler.GetAddressByID)
+			addresses.POST("", addressHandler.CreateAddress)
+			addresses.PUT("/:id", addressHandler.UpdateAddress)
+			addresses.DELETE("/:id", addressHandler.DeleteAddress)
+			addresses.PUT("/:id/set-default", addressHandler.SetDefaultAddress)
+		}
 	}
 
 	// --- Rutas de Administración ---

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, ShoppingBag, Settings, LogOut, Edit, Shield, Heart, MapPin } from 'lucide-react';
+import { User, ShoppingBag, Settings, LogOut, Edit, Shield, Heart, MapPin, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/context/FavoritesContext';
 import { API_BASE_URL } from '@/lib/api';
@@ -71,6 +71,7 @@ export default function MiCuentaPage() {
     first_name: '',
     last_name: '',
     phone: '',
+    address1: '',
     address2: '',
     city: '',
     state: '',
@@ -78,6 +79,11 @@ export default function MiCuentaPage() {
     country: '',
     is_default: true,
   });
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<{ id: number; first_name: string; last_name: string; phone: string; address1: string; address2: string; city: string; state: string; postal_code: string; country: string; is_default: boolean; lat: number; lng: number } | null>(null);
+  const [addresses, setAddresses] = useState<{ id: number; first_name: string; last_name: string; phone: string; address1: string; address2: string; city: string; state: string; postal_code: string; country: string; is_default: boolean; lat: number; lng: number }[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState(true);
+  const [addressesError, setAddressesError] = useState("");
 
   const handleLogout = () => {
     logout();
@@ -152,9 +158,16 @@ export default function MiCuentaPage() {
     setAddressError(null);
     setAddressSaved(false);
     if (!selectedAddress || !token) return;
+    
     try {
-      const res = await fetch(`${API_BASE_URL}/api/addresses`, {
-        method: 'POST',
+      const url = editingAddress 
+        ? `${API_BASE_URL}/api/addresses/${editingAddress.id}`
+        : `${API_BASE_URL}/api/addresses`;
+      
+      const method = editingAddress ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -176,14 +189,112 @@ export default function MiCuentaPage() {
           lng: selectedAddress.lng,
         }),
       });
+      
       if (!res.ok) {
         const errorText = await res.text();
         setAddressError('Error al guardar la dirección: ' + errorText);
         return;
       }
+      
       setAddressSaved(true);
+      
+      // Recargar direcciones y cerrar formulario
+      setTimeout(() => {
+        fetchAddresses();
+        setShowAddressForm(false);
+        setEditingAddress(null);
+        setAddressForm({
+          first_name: '',
+          last_name: '',
+          phone: '',
+          address1: '',
+          address2: '',
+          city: '',
+          state: '',
+          postal_code: '',
+          country: '',
+          is_default: true,
+        });
+        setSelectedAddress(null);
+      }, 1500);
+      
     } catch (err: any) {
       setAddressError('Error de red al guardar la dirección');
+    }
+  };
+
+  const fetchAddresses = async () => {
+    try {
+      if (!token) return;
+      setAddressesLoading(true);
+      setAddressesError("");
+      const res = await fetch(`${API_BASE_URL}/api/addresses`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAddresses(data.addresses || []);
+      } else {
+        setAddressesError("No se pudieron cargar las direcciones.");
+      }
+    } catch (err) {
+      setAddressesError("Error al cargar direcciones");
+      console.error('Error fetching addresses:', err);
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  const handleEditAddress = (address: { id: number; first_name: string; last_name: string; phone: string; address1: string; address2: string; city: string; state: string; postal_code: string; country: string; is_default: boolean; lat: number; lng: number }) => {
+    setEditingAddress(address);
+    setAddressForm({
+      first_name: address.first_name,
+      last_name: address.last_name,
+      phone: address.phone,
+      address1: address.address1,
+      address2: address.address2,
+      city: address.city,
+      state: address.state,
+      postal_code: address.postal_code,
+      country: address.country,
+      is_default: address.is_default,
+    });
+    setSelectedAddress({ address: `${address.address1}, ${address.city}, ${address.state} ${address.postal_code}`, lat: address.lat, lng: address.lng });
+  };
+
+  const handleDeleteAddress = async (addressId: number) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+      const res = await fetch(`${API_BASE_URL}/api/addresses/${addressId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        fetchAddresses();
+      } else {
+        console.error('Error deleting address:', res.statusText);
+      }
+    } catch (err) {
+      console.error('Error deleting address:', err);
+    }
+  };
+
+  const handleSetDefaultAddress = async (addressId: number) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+      const res = await fetch(`${API_BASE_URL}/api/addresses/${addressId}/set-default`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        fetchAddresses();
+      } else {
+        console.error('Error setting default address:', res.statusText);
+      }
+    } catch (err) {
+      console.error('Error setting default address:', err);
     }
   };
 
@@ -194,6 +305,11 @@ export default function MiCuentaPage() {
   useEffect(() => {
     if (!user || !token) return;
     fetchOrders();
+  }, [user, token]);
+
+  useEffect(() => {
+    if (!user || !token) return;
+    fetchAddresses();
   }, [user, token]);
 
   const handleOrderClick = async (orderId: number) => {
@@ -453,81 +569,283 @@ export default function MiCuentaPage() {
               <div className="glass-premium rounded-2xl shadow-xl border border-white/50 p-8 mb-6 animate-scale-in-premium">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-black text-slate-900">Mis Direcciones</h2>
+                  <button 
+                    onClick={() => setShowAddressForm(true)}
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-2 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    + Nueva Dirección
+                  </button>
                 </div>
-                <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <AddressMapPicker
-                      apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
-                      onChange={setSelectedAddress}
-                    />
-                    <div className="mt-2 text-xs text-slate-500">
-                      Selecciona la ubicación en el mapa o busca tu dirección exacta.
+
+                {/* Lista de direcciones existentes */}
+                <div className="mb-8">
+                  {addressesLoading ? (
+                    <div className="text-center py-8 text-slate-500">Cargando direcciones...</div>
+                  ) : addressesError ? (
+                    <div className="text-center py-8 text-red-500">{addressesError}</div>
+                  ) : addresses.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-bold text-slate-900 mb-2">No tienes direcciones guardadas</h3>
+                      <p className="text-slate-500 mb-6">
+                        Agrega tu primera dirección para facilitar tus compras
+                      </p>
+                      <button 
+                        onClick={() => setShowAddressForm(true)}
+                        className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                      >
+                        Agregar Primera Dirección
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {addresses.map((address) => (
+                        <div key={address.id} className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="font-bold text-slate-900 text-lg">
+                                {address.first_name} {address.last_name}
+                              </h3>
+                              {address.is_default && (
+                                <span className="inline-block bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full mt-1">
+                                  Predeterminada
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEditAddress(address)}
+                                className="p-2 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                                title="Editar"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAddress(address.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm text-slate-700">
+                            <p>{address.address1}</p>
+                            {address.address2 && <p>{address.address2}</p>}
+                            <p>{address.city}, {address.state} {address.postal_code}</p>
+                            <p>{address.country}</p>
+                            <p className="font-medium">{address.phone}</p>
+                          </div>
+
+                          {!address.is_default && (
+                            <button
+                              onClick={() => handleSetDefaultAddress(address.id)}
+                              className="mt-4 w-full bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 px-4 py-2 rounded-lg font-bold hover:from-slate-200 hover:to-gray-200 transition-all"
+                            >
+                              Establecer como Predeterminada
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Formulario de nueva dirección */}
+                {showAddressForm && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+                    <div className="glass-premium rounded-2xl shadow-2xl max-w-4xl w-full p-8 relative mx-4 animate-scale-in-premium max-h-[90vh] overflow-y-auto">
+                      <button 
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold" 
+                        onClick={() => {
+                          setShowAddressForm(false)
+                          setEditingAddress(null)
+                          setAddressForm({
+                            first_name: '',
+                            last_name: '',
+                            phone: '',
+                            address1: '',
+                            address2: '',
+                            city: '',
+                            state: '',
+                            postal_code: '',
+                            country: '',
+                            is_default: true,
+                          })
+                        }}
+                      >
+                        &times;
+                      </button>
+                      
+                      <h3 className="text-xl font-black text-slate-900 mb-6">
+                        {editingAddress ? 'Editar Dirección' : 'Nueva Dirección'}
+                      </h3>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                          <AddressMapPicker
+                            apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
+                            onChange={setSelectedAddress}
+                            defaultCenter={editingAddress ? { lat: editingAddress.lat, lng: editingAddress.lng } : undefined}
+                          />
+                          <div className="mt-2 text-xs text-slate-500">
+                            Selecciona la ubicación en el mapa o busca tu dirección exacta.
+                          </div>
+                        </div>
+                        
+                        <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700">Nombre</label>
+                              <input 
+                                type="text" 
+                                name="first_name" 
+                                value={addressForm.first_name} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                                required 
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700">Apellidos</label>
+                              <input 
+                                type="text" 
+                                name="last_name" 
+                                value={addressForm.last_name} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                                required 
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-slate-700">Teléfono</label>
+                            <input 
+                              type="tel" 
+                              name="phone" 
+                              value={addressForm.phone} 
+                              onChange={handleFormChange} 
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                              required 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-slate-700">Dirección 2 (opcional)</label>
+                            <input 
+                              type="text" 
+                              name="address2" 
+                              value={addressForm.address2} 
+                              onChange={handleFormChange} 
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700">Ciudad</label>
+                              <input 
+                                type="text" 
+                                name="city" 
+                                value={addressForm.city} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                                required 
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700">Estado/Provincia</label>
+                              <input 
+                                type="text" 
+                                name="state" 
+                                value={addressForm.state} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                                required 
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700">Código Postal</label>
+                              <input 
+                                type="text" 
+                                name="postal_code" 
+                                value={addressForm.postal_code} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                                required 
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-bold text-slate-700">País</label>
+                              <input 
+                                type="text" 
+                                name="country" 
+                                value={addressForm.country} 
+                                onChange={handleFormChange} 
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" 
+                                required 
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="checkbox" 
+                              name="is_default" 
+                              checked={addressForm.is_default} 
+                              onChange={handleFormChange} 
+                              className="rounded" 
+                            />
+                            <label className="text-sm font-bold">Marcar como dirección principal</label>
+                          </div>
+                          <div className="flex gap-4">
+                            <button
+                              type="submit"
+                              className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                              disabled={!selectedAddress}
+                            >
+                              {editingAddress ? 'Actualizar Dirección' : 'Guardar Dirección'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowAddressForm(false)
+                                setEditingAddress(null)
+                                setAddressForm({
+                                  first_name: '',
+                                  last_name: '',
+                                  phone: '',
+                                  address1: '',
+                                  address2: '',
+                                  city: '',
+                                  state: '',
+                                  postal_code: '',
+                                  country: '',
+                                  is_default: true,
+                                })
+                              }}
+                              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                          {addressSaved && selectedAddress && !addressError && (
+                            <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-xl border border-green-200">
+                              Dirección guardada:<br />
+                              <strong>{selectedAddress.address}</strong><br />
+                              <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
+                            </div>
+                          )}
+                          {addressError && (
+                            <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 text-red-800 rounded-xl border border-red-200">
+                              {addressError}
+                            </div>
+                          )}
+                        </form>
+                      </div>
                     </div>
                   </div>
-                  <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700">Nombre</label>
-                        <input type="text" name="first_name" value={addressForm.first_name} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700">Apellidos</label>
-                        <input type="text" name="last_name" value={addressForm.last_name} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700">Teléfono</label>
-                      <input type="tel" name="phone" value={addressForm.phone} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700">Dirección 2 (opcional)</label>
-                      <input type="text" name="address2" value={addressForm.address2} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700">Ciudad</label>
-                        <input type="text" name="city" value={addressForm.city} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700">Estado/Provincia</label>
-                        <input type="text" name="state" value={addressForm.state} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700">Código Postal</label>
-                        <input type="text" name="postal_code" value={addressForm.postal_code} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-slate-700">País</label>
-                        <input type="text" name="country" value={addressForm.country} onChange={handleFormChange} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white/80" required />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" name="is_default" checked={addressForm.is_default} onChange={handleFormChange} className="rounded" />
-                      <label className="text-sm font-bold">Marcar como dirección principal</label>
-                    </div>
-                    <button
-                      type="submit"
-                      className="mt-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl w-full"
-                      disabled={!selectedAddress}
-                    >
-                      Guardar Dirección
-                    </button>
-                    {addressSaved && selectedAddress && !addressError && (
-                      <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 rounded-xl border border-green-200">
-                        Dirección guardada:<br />
-                        <strong>{selectedAddress.address}</strong><br />
-                        <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
-                      </div>
-                    )}
-                    {addressError && (
-                      <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 text-red-800 rounded-xl border border-red-200">
-                        {addressError}
-                      </div>
-                    )}
-                  </form>
-                </div>
+                )}
               </div>
             )}
 

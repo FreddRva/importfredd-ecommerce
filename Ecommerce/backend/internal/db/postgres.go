@@ -296,6 +296,35 @@ func createTables() error {
 		return fmt.Errorf("error creating favorites table: %w", err)
 	}
 
+	// Crear tabla de direcciones
+	addressesTable := `
+	CREATE TABLE IF NOT EXISTS addresses (
+		id SERIAL PRIMARY KEY,
+		user_id INTEGER NOT NULL,
+		type VARCHAR(20) NOT NULL DEFAULT 'shipping',
+		first_name VARCHAR(100) NOT NULL,
+		last_name VARCHAR(100) NOT NULL,
+		company VARCHAR(100),
+		address1 VARCHAR(255) NOT NULL,
+		address2 VARCHAR(255),
+		city VARCHAR(100) NOT NULL,
+		state VARCHAR(100) NOT NULL,
+		postal_code VARCHAR(20) NOT NULL,
+		country VARCHAR(100) NOT NULL,
+		phone VARCHAR(30) NOT NULL,
+		is_default BOOLEAN DEFAULT FALSE,
+		lat DECIMAL(10, 8),
+		lng DECIMAL(11, 8),
+		created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+		updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+	);
+	`
+	_, err = Pool.Exec(context.Background(), addressesTable)
+	if err != nil {
+		return fmt.Errorf("error creating addresses table: %w", err)
+	}
+
 	// Crear índices para mejorar el rendimiento
 	indexes := []string{
 		"CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);",
@@ -1336,4 +1365,148 @@ func ReactivateUser(db *pgxpool.Pool, email, hashedCode string, expiresAt time.T
 func DeleteAllCredentialsForUser(db *pgxpool.Pool, userID int) error {
 	_, err := db.Exec(context.Background(), "DELETE FROM credentials WHERE user_id = $1", userID)
 	return err
+}
+
+// ===== FUNCIONES PARA DIRECCIONES =====
+
+// GetUserAddresses obtiene todas las direcciones de un usuario
+func GetUserAddresses(db *pgxpool.Pool, userID int) ([]models.Address, error) {
+	query := `
+		SELECT id, user_id, type, first_name, last_name, company, address1, address2, 
+		       city, state, postal_code, country, phone, is_default, lat, lng, created_at, updated_at
+		FROM addresses
+		WHERE user_id = $1
+		ORDER BY is_default DESC, created_at DESC
+	`
+
+	rows, err := db.Query(context.Background(), query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error obteniendo direcciones: %w", err)
+	}
+	defer rows.Close()
+
+	var addresses []models.Address
+	for rows.Next() {
+		var addr models.Address
+		err := rows.Scan(
+			&addr.ID, &addr.UserID, &addr.Type, &addr.FirstName, &addr.LastName, &addr.Company,
+			&addr.Address1, &addr.Address2, &addr.City, &addr.State, &addr.PostalCode,
+			&addr.Country, &addr.Phone, &addr.IsDefault, &addr.Lat, &addr.Lng,
+			&addr.CreatedAt, &addr.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error escaneando dirección: %w", err)
+		}
+		addresses = append(addresses, addr)
+	}
+
+	return addresses, nil
+}
+
+// GetAddressByID obtiene una dirección específica por su ID
+func GetAddressByID(db *pgxpool.Pool, addressID int) (*models.Address, error) {
+	query := `
+		SELECT id, user_id, type, first_name, last_name, company, address1, address2, 
+		       city, state, postal_code, country, phone, is_default, lat, lng, created_at, updated_at
+		FROM addresses
+		WHERE id = $1
+	`
+
+	var addr models.Address
+	err := db.QueryRow(context.Background(), query, addressID).Scan(
+		&addr.ID, &addr.UserID, &addr.Type, &addr.FirstName, &addr.LastName, &addr.Company,
+		&addr.Address1, &addr.Address2, &addr.City, &addr.State, &addr.PostalCode,
+		&addr.Country, &addr.Phone, &addr.IsDefault, &addr.Lat, &addr.Lng,
+		&addr.CreatedAt, &addr.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, fmt.Errorf("dirección no encontrada")
+		}
+		return nil, fmt.Errorf("error obteniendo dirección: %w", err)
+	}
+
+	return &addr, nil
+}
+
+// UpdateAddress actualiza una dirección existente
+func UpdateAddress(db *pgxpool.Pool, address *models.Address) error {
+	query := `
+		UPDATE addresses 
+		SET type = $1, first_name = $2, last_name = $3, company = $4, address1 = $5, address2 = $6,
+		    city = $7, state = $8, postal_code = $9, country = $10, phone = $11, is_default = $12,
+		    lat = $13, lng = $14, updated_at = NOW()
+		WHERE id = $15 AND user_id = $16
+	`
+
+	cmd, err := db.Exec(context.Background(), query,
+		address.Type, address.FirstName, address.LastName, address.Company,
+		address.Address1, address.Address2, address.City, address.State,
+		address.PostalCode, address.Country, address.Phone, address.IsDefault,
+		address.Lat, address.Lng, address.ID, address.UserID,
+	)
+
+	if err != nil {
+		return fmt.Errorf("error actualizando dirección: %w", err)
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return fmt.Errorf("dirección no encontrada o no pertenece al usuario")
+	}
+
+	return nil
+}
+
+// DeleteAddress elimina una dirección
+func DeleteAddress(db *pgxpool.Pool, addressID, userID int) error {
+	query := `DELETE FROM addresses WHERE id = $1 AND user_id = $2`
+
+	cmd, err := db.Exec(context.Background(), query, addressID, userID)
+	if err != nil {
+		return fmt.Errorf("error eliminando dirección: %w", err)
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return fmt.Errorf("dirección no encontrada o no pertenece al usuario")
+	}
+
+	return nil
+}
+
+// SetDefaultAddress establece una dirección como predeterminada y desmarca las demás
+func SetDefaultAddress(db *pgxpool.Pool, addressID, userID int) error {
+	// Iniciar transacción
+	tx, err := db.Begin(context.Background())
+	if err != nil {
+		return fmt.Errorf("error iniciando transacción: %w", err)
+	}
+	defer tx.Rollback(context.Background())
+
+	// Desmarcar todas las direcciones del usuario como no predeterminadas
+	_, err = tx.Exec(context.Background(),
+		"UPDATE addresses SET is_default = false WHERE user_id = $1", userID)
+	if err != nil {
+		return fmt.Errorf("error desmarcando direcciones predeterminadas: %w", err)
+	}
+
+	// Marcar la dirección específica como predeterminada
+	cmd, err := tx.Exec(context.Background(),
+		"UPDATE addresses SET is_default = true WHERE id = $1 AND user_id = $2",
+		addressID, userID)
+	if err != nil {
+		return fmt.Errorf("error marcando dirección como predeterminada: %w", err)
+	}
+
+	if cmd.RowsAffected() == 0 {
+		return fmt.Errorf("dirección no encontrada o no pertenece al usuario")
+	}
+
+	// Confirmar transacción
+	err = tx.Commit(context.Background())
+	if err != nil {
+		return fmt.Errorf("error confirmando transacción: %w", err)
+	}
+
+	return nil
 }
