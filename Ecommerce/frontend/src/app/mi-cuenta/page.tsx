@@ -261,6 +261,7 @@ export default function MiCuentaPage() {
       is_default: address.is_default,
     });
     setSelectedAddress({ address: `${address.address1}, ${address.city}, ${address.state} ${address.postal_code}`, lat: address.lat, lng: address.lng });
+    setShowAddressForm(true);
   };
 
   const handleDeleteAddress = async (addressId: number) => {
