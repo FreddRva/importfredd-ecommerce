@@ -168,25 +168,34 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const localCart = getLocalCart();
     if (localCart.length === 0) return;
 
-    // A simple merge: add all local items to the DB cart
     setLoading(true);
     try {
+      // 1. Obtener el carrito actual del backend
+      const response = await fetch(`${API_BASE_URL}/api/cart`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const backendCart: CartItem[] = response.ok ? await response.json() : [];
+      const backendProductIds = backendCart.map(item => item.product_id);
+
+      // 2. Solo agregar productos del localCart que NO estén en el backend
       for (const item of localCart) {
-        await fetch(`${API_BASE_URL}/api/cart/items`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
-        });
+        if (!backendProductIds.includes(item.product_id)) {
+          await fetch(`${API_BASE_URL}/api/cart/items`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ product_id: item.product_id, quantity: item.quantity }),
+          });
+        }
       }
       clearLocalCart();
       await fetchCart();
     } catch (err: any) {
       setError("Failed to merge cart: " + err.message);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   }, [isAuthenticated, token, fetchCart]);
 
