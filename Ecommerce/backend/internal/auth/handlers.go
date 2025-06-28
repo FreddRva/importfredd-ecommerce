@@ -382,6 +382,15 @@ func (h *AuthHandler) FinishRegistration(c *gin.Context) {
 		return
 	}
 
+	// Enviar notificación de seguridad sobre la nueva passkey agregada
+	passkeyEvent := "Nueva passkey agregada a tu cuenta"
+	if err := h.notificationSvc.CreateSecurityNotification(c.Request.Context(), user.ID, passkeyEvent); err != nil {
+		// Solo log del error, no fallar el registro
+		if isDevelopment {
+			log.Printf("Error enviando notificación de seguridad: %v", err)
+		}
+	}
+
 	// Enviar notificación a los administradores sobre el nuevo usuario
 	if err := h.notificationSvc.CreateNewUserAdminNotification(c.Request.Context(), user.Email); err != nil {
 		// Solo log del error, no fallar el registro
