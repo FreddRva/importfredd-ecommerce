@@ -371,7 +371,7 @@ export default function MiCuentaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-fuchsia-950 to-indigo-900 pt-40 relative overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-fuchsia-950 to-indigo-900 pt-20 sm:pt-32 md:pt-40 relative overflow-x-hidden">
       {/* Fondo animado premium */}
       <div className="absolute inset-0 pointer-events-none z-0 animate-gradient-x">
         <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-fuchsia-500/30 via-yellow-400/20 to-cyan-400/30 rounded-full blur-2xl animate-pulse"></div>
@@ -381,71 +381,71 @@ export default function MiCuentaPage() {
 
       <div className="relative max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 z-10">
         {/* Header premium */}
-        <div className="mb-10 flex flex-col items-center justify-center animate-fade-in-premium">
+        <div className="mb-6 sm:mb-10 flex flex-col items-center justify-center animate-fade-in-premium">
           <div className="relative mb-4">
-            <div className="w-32 h-32 bg-gradient-to-br from-fuchsia-600 via-yellow-400 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl border-4 border-fuchsia-400/30 animate-float">
-              <span className="text-white font-black text-5xl drop-shadow-xl">
+            <div className="w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-fuchsia-600 via-yellow-400 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl border-4 border-fuchsia-400/30 animate-float">
+              <span className="text-white font-black text-3xl sm:text-5xl drop-shadow-xl">
                 {user.email?.charAt(0).toUpperCase()}
               </span>
             </div>
-            <div className="absolute bottom-2 right-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 px-4 py-1 rounded-full font-bold text-xs shadow-lg animate-bounce-in">
+            <div className="absolute -bottom-1 -right-1 sm:bottom-2 sm:right-2 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 px-2 sm:px-4 py-1 rounded-full font-bold text-xs shadow-lg animate-bounce-in">
               ¡Bienvenido, {user.email?.split('@')[0]}!
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-2">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-2 text-center">
             Mi Cuenta
           </h1>
-          <p className="text-indigo-100 text-lg mb-2">Gestiona tu perfil, pedidos y configuraciones</p>
+          <p className="text-indigo-100 text-sm sm:text-lg mb-2 text-center">Gestiona tu perfil, pedidos y configuraciones</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation Premium mejorado */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
+          {/* Sidebar Navigation Premium mejorado para móvil */}
           <div className="lg:col-span-1 animate-slide-in-left-premium">
-            <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-8 sticky top-8 flex flex-row lg:flex-col gap-4 lg:gap-0 overflow-x-auto lg:overflow-visible backdrop-blur-xl bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+            <div className="glass-premium rounded-2xl sm:rounded-3xl shadow-2xl border border-fuchsia-400/30 p-4 sm:p-8 sticky top-4 sm:top-8 flex flex-row lg:flex-col gap-2 sm:gap-4 lg:gap-0 overflow-x-auto lg:overflow-visible backdrop-blur-xl bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
               {/* User Info mejorado */}
-              <div className="text-center mb-8 pb-8 border-b border-fuchsia-400/20">
-                <div className="w-24 h-24 bg-gradient-to-br from-fuchsia-600 via-yellow-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse-premium shadow-lg border-4 border-fuchsia-400/30">
-                  <span className="text-white font-black text-4xl">
+              <div className="text-center mb-4 sm:mb-8 pb-4 sm:pb-8 border-b border-fuchsia-400/20 flex-shrink-0 lg:flex-shrink">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-fuchsia-600 via-yellow-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4 animate-pulse-premium shadow-lg border-4 border-fuchsia-400/30">
+                  <span className="text-white font-black text-2xl sm:text-4xl">
                     {user.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <h3 className="font-bold text-fuchsia-100 text-lg">{user.email}</h3>
-                <p className="text-xs text-fuchsia-300">Cliente desde 2024</p>
+                <h3 className="font-bold text-fuchsia-100 text-sm sm:text-lg hidden lg:block">{user.email}</h3>
+                <p className="text-xs text-fuchsia-300 hidden lg:block">Cliente desde 2024</p>
               </div>
 
               {/* Navigation Tabs Premium */}
-              <nav className="flex flex-row lg:flex-col gap-2 w-full">
+              <nav className="flex flex-row lg:flex-col gap-1 sm:gap-2 w-full">
                 {[
-                  { key: 'profile', label: 'Perfil', icon: <User className="w-5 h-5 mr-3" /> },
-                  { key: 'orders', label: 'Mis Pedidos', icon: <ShoppingBag className="w-5 h-5 mr-3" /> },
-                  { key: 'wishlist', label: 'Lista de Deseos', icon: <Heart className="w-5 h-5 mr-3" /> },
-                  { key: 'addresses', label: 'Direcciones', icon: <MapPin className="w-5 h-5 mr-3" /> },
-                  { key: 'security', label: 'Seguridad', icon: <Shield className="w-5 h-5 mr-3" /> },
-                  { key: 'settings', label: 'Configuración', icon: <Settings className="w-5 h-5 mr-3" /> },
+                  { key: 'profile', label: 'Perfil', icon: <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> },
+                  { key: 'orders', label: 'Pedidos', icon: <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> },
+                  { key: 'wishlist', label: 'Deseos', icon: <Heart className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> },
+                  { key: 'addresses', label: 'Direcciones', icon: <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> },
+                  { key: 'security', label: 'Seguridad', icon: <Shield className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> },
+                  { key: 'settings', label: 'Config', icon: <Settings className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" /> },
                 ].map(tab => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`w-full flex items-center px-4 py-3 rounded-xl text-left font-bold transition-all duration-200 text-base ${
+                    className={`flex items-center px-2 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-left font-bold transition-all duration-200 text-xs sm:text-base whitespace-nowrap ${
                       activeTab === tab.key
                         ? 'bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 border border-fuchsia-200 shadow-md scale-105' 
                         : 'text-fuchsia-100 hover:bg-gradient-to-r hover:from-fuchsia-900/40 hover:to-cyan-900/40 hover:text-yellow-400'
                     }`}
                   >
                     {tab.icon}
-                    {tab.label}
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 ))}
               </nav>
 
               {/* Logout Button Premium */}
-              <div className="mt-8 pt-8 border-t border-fuchsia-400/20">
+              <div className="mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-fuchsia-400/20 flex-shrink-0">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center px-4 py-3 rounded-xl text-left text-red-400 font-bold hover:bg-red-900/20 hover:text-red-200 transition-all duration-200"
+                  className="flex items-center px-2 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-left text-red-400 font-bold hover:bg-red-900/20 hover:text-red-200 transition-all duration-200 text-xs sm:text-base"
                 >
-                  <LogOut className="w-5 h-5 mr-3" />
-                  Cerrar Sesión
+                  <LogOut className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
                 </button>
               </div>
             </div>
@@ -455,34 +455,34 @@ export default function MiCuentaPage() {
           <div className="lg:col-span-3 animate-fade-in-premium">
             {/* Profile Tab mejorado */}
             {activeTab === 'profile' && (
-              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
-                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl">Información del Perfil</h2>
-                  <button className="flex items-center text-fuchsia-300 hover:text-yellow-400 font-bold transition-colors bg-gradient-to-r from-fuchsia-900/40 to-cyan-900/40 px-4 py-2 rounded-xl shadow-md border border-fuchsia-400/20">
-                    <Edit className="w-5 h-5 mr-1" />
+              <div className="glass-premium rounded-2xl sm:rounded-3xl shadow-2xl border border-fuchsia-400/30 p-4 sm:p-6 lg:p-10 mb-6 sm:mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-10 gap-4">
+                  <h2 className="text-xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl">Información del Perfil</h2>
+                  <button className="flex items-center justify-center text-fuchsia-300 hover:text-yellow-400 font-bold transition-colors bg-gradient-to-r from-fuchsia-900/40 to-cyan-900/40 px-4 py-2 rounded-xl shadow-md border border-fuchsia-400/20">
+                    <Edit className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
                     Editar
                   </button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Nombre</label>
-                    <input type="text" defaultValue="Tu Nombre" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
+                    <input type="text" defaultValue="Tu Nombre" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300 text-sm sm:text-base" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Apellidos</label>
-                    <input type="text" defaultValue="Tus Apellidos" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
+                    <input type="text" defaultValue="Tus Apellidos" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300 text-sm sm:text-base" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Email</label>
-                    <input type="email" defaultValue={user.email} className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl bg-gray-900/30 text-fuchsia-400" disabled />
+                    <input type="email" defaultValue={user.email} className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl bg-gray-900/30 text-fuchsia-400 text-sm sm:text-base" disabled />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Teléfono</label>
-                    <input type="tel" defaultValue="+34 600 000 000" className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" />
+                    <input type="tel" defaultValue="+34 600 000 000" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300 text-sm sm:text-base" />
                   </div>
                 </div>
-                <div className="mt-10">
-                  <button className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 w-full md:w-auto animate-bounce-in">
+                <div className="mt-6 sm:mt-10">
+                  <button className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-6 sm:px-10 py-3 sm:py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 w-full sm:w-auto animate-bounce-in text-sm sm:text-base">
                     Guardar Cambios
                   </button>
                 </div>
@@ -587,9 +587,9 @@ export default function MiCuentaPage() {
 
             {/* Addresses Tab mejorado */}
             {activeTab === 'addresses' && (
-              <div className="glass-premium rounded-3xl shadow-2xl border border-fuchsia-400/30 p-10 mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
-                <h2 className="text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-8 flex items-center gap-2">
-                  <MapPin className="w-7 h-7 text-cyan-400" /> Direcciones Guardadas
+              <div className="glass-premium rounded-2xl sm:rounded-3xl shadow-2xl border border-fuchsia-400/30 p-4 sm:p-6 lg:p-10 mb-6 sm:mb-8 animate-scale-in-premium bg-gradient-to-br from-slate-900/60 via-fuchsia-900/40 to-indigo-900/60">
+                <h2 className="text-xl sm:text-3xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-6 sm:mb-8 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 sm:w-7 sm:h-7 text-cyan-400" /> Direcciones Guardadas
                 </h2>
                 {addressesLoading ? (
                   <div className="text-center py-12 text-fuchsia-300 animate-pulse">Cargando...</div>
@@ -598,35 +598,35 @@ export default function MiCuentaPage() {
                 ) : addresses.length === 0 ? (
                   <div className="text-center py-12 text-fuchsia-200 animate-fade-in">No tienes direcciones guardadas.</div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                     {addresses.map(address => (
-                      <div key={address.id} className={`glass-premium rounded-2xl shadow-xl border ${address.is_default ? 'border-yellow-400' : 'border-fuchsia-400/20'} p-6 flex flex-col bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 animate-fade-in relative`}>
+                      <div key={address.id} className={`glass-premium rounded-xl sm:rounded-2xl shadow-xl border ${address.is_default ? 'border-yellow-400' : 'border-fuchsia-400/20'} p-4 sm:p-6 flex flex-col bg-gradient-to-br from-fuchsia-900/30 via-slate-900/30 to-indigo-900/30 animate-fade-in relative`}>
                         {address.is_default && (
-                          <span className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 px-3 py-1 rounded-full font-bold text-xs shadow-md animate-bounce-in">Predeterminada</span>
+                          <span className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-gradient-to-r from-yellow-400 to-fuchsia-400 text-slate-900 px-2 sm:px-3 py-1 rounded-full font-bold text-xs shadow-md animate-bounce-in">Predeterminada</span>
                         )}
-                        <div className="mb-2 text-fuchsia-100 font-bold text-lg flex items-center gap-2">
-                          <MapPin className="w-5 h-5 text-cyan-400" /> {address.address1}
+                        <div className="mb-2 text-fuchsia-100 font-bold text-base sm:text-lg flex items-center gap-2">
+                          <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> {address.address1}
                         </div>
-                        <div className="text-fuchsia-300 text-sm mb-2">{address.city}, {address.state}, {address.country}</div>
+                        <div className="text-fuchsia-300 text-xs sm:text-sm mb-2">{address.city}, {address.state}, {address.country}</div>
                         <div className="text-fuchsia-300 text-xs mb-2">{address.postal_code}</div>
                         <div className="text-fuchsia-200 text-xs mb-4">{address.first_name} {address.last_name} - {address.phone}</div>
-                        <div className="flex gap-2 w-full">
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
                           <button
                             onClick={() => handleEditAddress(address)}
-                            className="flex-1 bg-gradient-to-r from-yellow-400 to-cyan-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-cyan-500 transition-all animate-bounce-in"
+                            className="flex-1 bg-gradient-to-r from-yellow-400 to-cyan-400 text-slate-900 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-cyan-500 transition-all animate-bounce-in text-xs sm:text-sm"
                           >
                             Editar
                           </button>
                           <button
                             onClick={() => handleDeleteAddress(address.id)}
-                            className="flex-1 bg-gradient-to-r from-red-500 to-fuchsia-500 text-white px-4 py-2 rounded-xl font-bold shadow-md hover:from-fuchsia-600 hover:to-red-600 transition-all animate-bounce-in"
+                            className="flex-1 bg-gradient-to-r from-red-500 to-fuchsia-500 text-white px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold shadow-md hover:from-fuchsia-600 hover:to-red-600 transition-all animate-bounce-in text-xs sm:text-sm"
                           >
                             Eliminar
                           </button>
                           {!address.is_default && (
                             <button
                               onClick={() => handleSetDefaultAddress(address.id)}
-                              className="flex-1 bg-gradient-to-r from-fuchsia-400 to-yellow-400 text-slate-900 px-4 py-2 rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-fuchsia-500 transition-all animate-bounce-in"
+                              className="flex-1 bg-gradient-to-r from-fuchsia-400 to-yellow-400 text-slate-900 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold shadow-md hover:from-yellow-500 hover:to-fuchsia-500 transition-all animate-bounce-in text-xs sm:text-sm"
                             >
                               Predeterminar
                             </button>
@@ -636,10 +636,10 @@ export default function MiCuentaPage() {
                     ))}
                   </div>
                 )}
-                <div className="mt-10 flex justify-center">
+                <div className="mt-6 sm:mt-10 flex justify-center">
                   <button
                     onClick={() => { setShowAddressForm(true); setEditingAddress(null); }}
-                    className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-10 py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in"
+                    className="bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-6 sm:px-10 py-3 sm:py-4 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in text-sm sm:text-base w-full sm:w-auto"
                   >
                     Agregar Nueva Dirección
                   </button>
@@ -820,10 +820,10 @@ export default function MiCuentaPage() {
 
       {/* Formulario de direcciones mejorado */}
       {showAddressForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
-          <div className="glass-premium rounded-3xl shadow-2xl max-w-4xl w-full p-8 relative mx-4 animate-scale-in-premium max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-900/80 via-fuchsia-900/60 to-indigo-900/80 border border-fuchsia-400/30">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-2 sm:p-4">
+          <div className="glass-premium rounded-2xl sm:rounded-3xl shadow-2xl max-w-4xl w-full p-4 sm:p-6 lg:p-8 relative mx-2 sm:mx-4 animate-scale-in-premium max-h-[95vh] overflow-y-auto bg-gradient-to-br from-slate-900/80 via-fuchsia-900/60 to-indigo-900/80 border border-fuchsia-400/30">
             <button 
-              className="absolute top-4 right-4 text-fuchsia-300 hover:text-yellow-400 text-2xl font-bold transition-colors" 
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-fuchsia-300 hover:text-yellow-400 text-2xl font-bold transition-colors z-10" 
               onClick={() => {
                 setShowAddressForm(false)
                 setEditingAddress(null)
@@ -844,11 +844,11 @@ export default function MiCuentaPage() {
               &times;
             </button>
             
-            <h3 className="text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-6">
+            <h3 className="text-xl sm:text-2xl font-black text-transparent bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 bg-clip-text drop-shadow-xl mb-4 sm:mb-6">
               {editingAddress ? 'Editar Dirección' : 'Nueva Dirección'}
             </h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
               <div>
                 <AddressMapPicker
                   apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}
@@ -860,96 +860,96 @@ export default function MiCuentaPage() {
                 </div>
               </div>
               
-              <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form className="space-y-3 sm:space-y-4" onSubmit={e => { e.preventDefault(); handleSaveAddress(); }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-fuchsia-200">Nombre</label>
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Nombre</label>
                     <input 
                       type="text" 
                       name="first_name" 
                       value={addressForm.first_name} 
                       onChange={handleFormChange} 
-                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                       required 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-fuchsia-200">Apellidos</label>
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Apellidos</label>
                     <input 
                       type="text" 
                       name="last_name" 
                       value={addressForm.last_name} 
                       onChange={handleFormChange} 
-                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                       required 
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-fuchsia-200">Teléfono</label>
+                  <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Teléfono</label>
                   <input 
                     type="tel" 
                     name="phone" 
                     value={addressForm.phone} 
                     onChange={handleFormChange} 
-                    className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                     required 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-fuchsia-200">Dirección 2 (opcional)</label>
+                  <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Dirección 2 (opcional)</label>
                   <input 
                     type="text" 
                     name="address2" 
                     value={addressForm.address2} 
                     onChange={handleFormChange} 
-                    className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-fuchsia-200">Ciudad</label>
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Ciudad</label>
                     <input 
                       type="text" 
                       name="city" 
                       value={addressForm.city} 
                       onChange={handleFormChange} 
-                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                       required 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-fuchsia-200">Estado/Provincia</label>
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Estado/Provincia</label>
                     <input 
                       type="text" 
                       name="state" 
                       value={addressForm.state} 
                       onChange={handleFormChange} 
-                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                       required 
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-fuchsia-200">Código Postal</label>
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">Código Postal</label>
                     <input 
                       type="text" 
                       name="postal_code" 
                       value={addressForm.postal_code} 
                       onChange={handleFormChange} 
-                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                       required 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-fuchsia-200">País</label>
+                    <label className="block text-sm font-bold text-fuchsia-200 mb-1 sm:mb-2">País</label>
                     <input 
                       type="text" 
                       name="country" 
                       value={addressForm.country} 
                       onChange={handleFormChange} 
-                      className="w-full px-4 py-3 border border-fuchsia-400/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -960,14 +960,14 @@ export default function MiCuentaPage() {
                     name="is_default" 
                     checked={addressForm.is_default} 
                     onChange={handleFormChange} 
-                    className="w-5 h-5 rounded border-2 border-fuchsia-400 bg-white/10 checked:bg-fuchsia-400 transition-all" 
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded border-2 border-fuchsia-400 bg-slate-800/50 checked:bg-fuchsia-400 transition-all" 
                   />
                   <label className="text-sm font-bold text-fuchsia-200">Marcar como dirección principal</label>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-6 py-3 rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in"
+                    className="flex-1 bg-gradient-to-r from-yellow-400 via-fuchsia-400 to-cyan-400 text-slate-900 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-black hover:from-yellow-500 hover:to-fuchsia-500 transition-all shadow-xl hover:shadow-fuchsia-500/25 animate-bounce-in text-sm sm:text-base"
                     disabled={!selectedAddress}
                   >
                     {editingAddress ? 'Actualizar Dirección' : 'Guardar Dirección'}
@@ -990,20 +990,20 @@ export default function MiCuentaPage() {
                         is_default: true,
                       })
                     }}
-                    className="px-6 py-3 border border-fuchsia-400/20 text-fuchsia-300 rounded-xl font-bold hover:bg-fuchsia-900/20 transition-all"
+                    className="px-4 sm:px-6 py-2 sm:py-3 border border-fuchsia-400/20 text-fuchsia-300 rounded-lg sm:rounded-xl font-bold hover:bg-fuchsia-900/20 transition-all text-sm sm:text-base"
                   >
                     Cancelar
                   </button>
                 </div>
                 {addressSaved && selectedAddress && !addressError && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 text-green-400 rounded-xl border border-green-400/30 animate-fade-in">
+                  <div className="mt-4 p-3 sm:p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 text-green-400 rounded-lg sm:rounded-xl border border-green-400/30 animate-fade-in text-sm">
                     Dirección guardada:<br />
                     <strong>{selectedAddress.address}</strong><br />
                     <small>Lat: {selectedAddress.lat}, Lng: {selectedAddress.lng}</small>
                   </div>
                 )}
                 {addressError && (
-                  <div className="mt-4 p-4 bg-gradient-to-r from-red-900/40 to-pink-900/40 text-red-400 rounded-xl border border-red-400/30 animate-fade-in">
+                  <div className="mt-4 p-3 sm:p-4 bg-gradient-to-r from-red-900/40 to-pink-900/40 text-red-400 rounded-lg sm:rounded-xl border border-red-400/30 animate-fade-in text-sm">
                     {addressError}
                   </div>
                 )}
