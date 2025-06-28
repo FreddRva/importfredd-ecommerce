@@ -96,28 +96,21 @@ func (ns *NotificationService) sendNotificationEmail(userID int, notification *m
 		return
 	}
 
-	// Determinar template según tipo
-	var template string
+	// Determinar asunto según tipo
 	var subject string
 
 	switch notification.Type {
 	case "order":
-		template = "order_notification.html"
 		subject = "Actualización de tu pedido"
 	case "payment":
-		template = "payment_notification.html"
 		subject = "Confirmación de pago"
 	case "stock":
-		template = "stock_notification.html"
 		subject = "Producto disponible"
 	case "security":
-		template = "security_notification.html"
 		subject = "Alerta de seguridad"
 	case "admin":
-		template = "admin_notification.html"
 		subject = "Notificación administrativa"
 	default:
-		template = "general_notification.html"
 		subject = notification.Title
 	}
 
