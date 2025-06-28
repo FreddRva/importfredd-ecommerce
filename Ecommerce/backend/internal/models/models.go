@@ -255,7 +255,6 @@ type Notification struct {
 
 // NotificationPreference representa las preferencias de notificación de un usuario
 type NotificationPreference struct {
-	ID           int       `json:"id" db:"id"`
 	UserID       int       `json:"user_id" db:"user_id"`
 	Type         string    `json:"type" db:"type"` // order, payment, marketing, security
 	EmailEnabled bool      `json:"email_enabled" db:"email_enabled"`

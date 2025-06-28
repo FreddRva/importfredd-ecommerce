@@ -849,7 +849,7 @@ func DeleteNotification(db *pgxpool.Pool, notificationID int) error {
 // GetNotificationPreferences obtiene las preferencias de notificación de un usuario
 func GetNotificationPreferences(db *pgxpool.Pool, userID int) ([]models.NotificationPreference, error) {
 	query := `
-		SELECT id, user_id, type, email_enabled, push_enabled, in_app_enabled, created_at, updated_at
+		SELECT user_id, type, email_enabled, push_enabled, in_app_enabled, created_at, updated_at
 		FROM notification_preferences 
 		WHERE user_id = $1`
 
@@ -863,7 +863,7 @@ func GetNotificationPreferences(db *pgxpool.Pool, userID int) ([]models.Notifica
 	for rows.Next() {
 		var p models.NotificationPreference
 		err := rows.Scan(
-			&p.ID, &p.UserID, &p.Type, &p.EmailEnabled, &p.PushEnabled, &p.InAppEnabled,
+			&p.UserID, &p.Type, &p.EmailEnabled, &p.PushEnabled, &p.InAppEnabled,
 			&p.CreatedAt, &p.UpdatedAt,
 		)
 		if err != nil {
