@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 )
 
 // Variable para controlar logs de debug
-var isDevelopment = os.Getenv("ENV") != "production"
+// var isDevelopment = os.Getenv("ENV") != "production"
 
 func JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
