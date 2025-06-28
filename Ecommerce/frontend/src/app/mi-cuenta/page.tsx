@@ -466,11 +466,11 @@ export default function MiCuentaPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Nombre</label>
-                    <input type="text" defaultValue="Tu Nombre" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300 text-sm sm:text-base" />
+                    <input type="text" defaultValue="Tu Nombre" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Apellidos</label>
-                    <input type="text" defaultValue="Tus Apellidos" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300 text-sm sm:text-base" />
+                    <input type="text" defaultValue="Tus Apellidos" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Email</label>
@@ -478,7 +478,7 @@ export default function MiCuentaPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-fuchsia-200 mb-2">Teléfono</label>
-                    <input type="tel" defaultValue="+34 600 000 000" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white/10 text-fuchsia-100 placeholder-fuchsia-300 text-sm sm:text-base" />
+                    <input type="tel" defaultValue="+34 600 000 000" className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" />
                   </div>
                 </div>
                 <div className="mt-6 sm:mt-10">
@@ -869,7 +869,7 @@ export default function MiCuentaPage() {
                       name="first_name" 
                       value={addressForm.first_name} 
                       onChange={handleFormChange} 
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -880,7 +880,7 @@ export default function MiCuentaPage() {
                       name="last_name" 
                       value={addressForm.last_name} 
                       onChange={handleFormChange} 
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -892,7 +892,7 @@ export default function MiCuentaPage() {
                     name="phone" 
                     value={addressForm.phone} 
                     onChange={handleFormChange} 
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -903,7 +903,7 @@ export default function MiCuentaPage() {
                     name="address2" 
                     value={addressForm.address2} 
                     onChange={handleFormChange} 
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -914,7 +914,7 @@ export default function MiCuentaPage() {
                       name="city" 
                       value={addressForm.city} 
                       onChange={handleFormChange} 
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -925,7 +925,7 @@ export default function MiCuentaPage() {
                       name="state" 
                       value={addressForm.state} 
                       onChange={handleFormChange} 
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -938,7 +938,7 @@ export default function MiCuentaPage() {
                       name="postal_code" 
                       value={addressForm.postal_code} 
                       onChange={handleFormChange} 
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -949,7 +949,7 @@ export default function MiCuentaPage() {
                       name="country" 
                       value={addressForm.country} 
                       onChange={handleFormChange} 
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-slate-800/50 text-white placeholder-fuchsia-300 text-sm sm:text-base" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-fuchsia-400/20 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-fuchsia-500 bg-white text-black placeholder-gray-500 text-sm sm:text-base" 
                       required 
                     />
                   </div>
@@ -960,7 +960,7 @@ export default function MiCuentaPage() {
                     name="is_default" 
                     checked={addressForm.is_default} 
                     onChange={handleFormChange} 
-                    className="w-4 h-4 sm:w-5 sm:h-5 rounded border-2 border-fuchsia-400 bg-slate-800/50 checked:bg-fuchsia-400 transition-all" 
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded border-2 border-fuchsia-400 bg-white/10 checked:bg-fuchsia-400 transition-all" 
                   />
                   <label className="text-sm font-bold text-fuchsia-200">Marcar como dirección principal</label>
                 </div>
