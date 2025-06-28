@@ -201,6 +201,39 @@ func (h *OrderHandler) CreateOrderFromCart(c *gin.Context) {
 				log.Printf("ADVERTENCIA: No se descontó stock para producto_id=%d (puede que el ID no exista o el stock ya sea 0)", orderItems[i].ProductID)
 			}
 		}
+
+		// Verificar stock después del descuento y enviar notificaciones si es necesario
+		var currentStock int
+		err = h.DB.QueryRow(context.Background(), "SELECT stock FROM products WHERE id = $1", orderItems[i].ProductID).Scan(&currentStock)
+		if err != nil {
+			log.Printf("Error obteniendo stock actual para producto %d: %v", orderItems[i].ProductID, err)
+		} else {
+			// Obtener información del producto para las notificaciones
+			product, err := db.GetProductByID(h.DB, orderItems[i].ProductID)
+			if err != nil {
+				log.Printf("Error obteniendo información del producto %d: %v", orderItems[i].ProductID, err)
+			} else {
+				// Enviar notificación si el stock está bajo (menos de 5 unidades)
+				if currentStock <= 5 && currentStock > 0 {
+					log.Printf("Stock bajo detectado: producto %d (%s) - %d unidades restantes", product.ID, product.Name, currentStock)
+
+					// Notificar a los admins sobre stock bajo
+					if err := h.NotificationSvc.CreateLowStockAdminNotification(context.Background(), product.ID, product.Name, currentStock); err != nil {
+						log.Printf("Error enviando notificación de stock bajo: %v", err)
+					}
+				}
+
+				// Enviar notificación si el producto se agotó
+				if currentStock == 0 {
+					log.Printf("Producto agotado: producto %d (%s)", product.ID, product.Name)
+
+					// Notificar a los admins sobre producto agotado
+					if err := h.NotificationSvc.CreateOutOfStockAdminNotification(context.Background(), product.ID, product.Name); err != nil {
+						log.Printf("Error enviando notificación de producto agotado: %v", err)
+					}
+				}
+			}
+		}
 	}
 
 	// Limpiar el carrito después de crear el pedido

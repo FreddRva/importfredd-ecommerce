@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"time"
@@ -10,16 +11,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tuusuario/ecommerce-backend/internal/db"
+	"github.com/tuusuario/ecommerce-backend/internal/email"
 	"github.com/tuusuario/ecommerce-backend/internal/lib"
 	"github.com/tuusuario/ecommerce-backend/internal/models"
 )
 
 type AdminHandler struct {
-	DB *pgxpool.Pool
+	DB              *pgxpool.Pool
+	NotificationSvc *email.NotificationService
 }
 
 func NewAdminHandler(db *pgxpool.Pool) *AdminHandler {
-	return &AdminHandler{DB: db}
+	notificationSvc := email.NewNotificationService(db, email.DefaultEmailService)
+	return &AdminHandler{
+		DB:              db,
+		NotificationSvc: notificationSvc,
+	}
 }
 
 // ===== PRODUCTOS =====
@@ -617,20 +624,56 @@ func (h *AdminHandler) UpdateOrder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Debes enviar al menos un campo a actualizar (status o tracking)"})
 		return
 	}
+
+	// Obtener el pedido antes de actualizarlo para tener el estado anterior
+	orderBefore, err := db.GetOrderByIDAdmin(h.DB, orderID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Pedido no encontrado"})
+		return
+	}
+
 	if req.Status != "" {
 		err = db.UpdateOrderStatus(h.DB, orderID, req.Status)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando estado: " + err.Error()})
 			return
 		}
+
+		// Enviar notificación al usuario sobre el cambio de estado
+		if req.Status != orderBefore.Status {
+			log.Printf("Enviando notificación de cambio de estado: pedido %d, estado %s -> %s", orderID, orderBefore.Status, req.Status)
+
+			// Enviar notificación al usuario
+			if err := h.NotificationSvc.CreateOrderNotification(context.Background(), orderBefore.UserID, orderID, req.Status, orderBefore.OrderNumber); err != nil {
+				log.Printf("Error enviando notificación de cambio de estado al usuario: %v", err)
+			}
+
+			// Si se agregó tracking, incluirlo en la notificación
+			if req.Tracking != "" {
+				if err := h.NotificationSvc.CreateOrderTrackingNotification(context.Background(), orderBefore.UserID, orderID, req.Status, orderBefore.OrderNumber, req.Tracking); err != nil {
+					log.Printf("Error enviando notificación de tracking: %v", err)
+				}
+			}
+		}
 	}
+
 	if req.Tracking != "" {
 		err = db.UpdateOrderTracking(h.DB, orderID, req.Tracking)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando tracking: " + err.Error()})
 			return
 		}
+
+		// Si solo se actualizó el tracking (sin cambiar estado), enviar notificación de tracking
+		if req.Status == "" && req.Tracking != orderBefore.Tracking {
+			log.Printf("Enviando notificación de tracking actualizado: pedido %d, tracking %s", orderID, req.Tracking)
+
+			if err := h.NotificationSvc.CreateOrderTrackingNotification(context.Background(), orderBefore.UserID, orderID, orderBefore.Status, orderBefore.OrderNumber, req.Tracking); err != nil {
+				log.Printf("Error enviando notificación de tracking: %v", err)
+			}
+		}
 	}
+
 	order, _ := db.GetOrderByIDAdmin(h.DB, orderID)
 	c.JSON(http.StatusOK, gin.H{"order": order, "message": "Pedido actualizado"})
 }

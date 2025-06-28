@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,8 +22,9 @@ import (
 
 // PaymentHandler maneja todas las operaciones relacionadas con pagos
 type PaymentHandler struct {
-	DB           *pgxpool.Pool
-	EmailService *email.EmailService
+	DB              *pgxpool.Pool
+	EmailService    *email.EmailService
+	NotificationSvc *email.NotificationService
 }
 
 // NewPaymentHandler crea una nueva instancia del handler de pagos
@@ -38,9 +41,12 @@ func NewPaymentHandler(db *pgxpool.Pool) *PaymentHandler {
 	// Inicializar servicio de email
 	emailService := email.NewEmailService()
 
+	notificationSvc := email.NewNotificationService(db, email.DefaultEmailService)
+
 	return &PaymentHandler{
-		DB:           db,
-		EmailService: emailService,
+		DB:              db,
+		EmailService:    emailService,
+		NotificationSvc: notificationSvc,
 	}
 }
 
@@ -430,6 +436,13 @@ func (h *PaymentHandler) handlePaymentFailed(pi *stripe.PaymentIntent) {
 		return
 	}
 
+	// Obtener el pedido para tener información del usuario
+	order, err := db.GetOrderByID(h.DB, payment.OrderID)
+	if err != nil {
+		log.Printf("Error obteniendo pedido %d para notificación: %v", payment.OrderID, err)
+		return
+	}
+
 	// Actualizar el pago como fallido
 	payment.Status = "failed"
 	payment.ErrorMessage = "Pago rechazado por el banco"
@@ -441,7 +454,29 @@ func (h *PaymentHandler) handlePaymentFailed(pi *stripe.PaymentIntent) {
 		return
 	}
 
+	// Actualizar el estado del pedido como fallido
+	err = db.UpdateOrderPaymentStatus(h.DB, payment.OrderID, "failed")
+	if err != nil {
+		log.Printf("Error actualizando estado del pedido: %v", err)
+	}
+
 	log.Printf("Pago fallido para PaymentIntent %s, OrderID %d", pi.ID, payment.OrderID)
+
+	// Enviar notificación al usuario sobre el problema de pago
+	amount := fmt.Sprintf("%.2f %s", payment.Amount, payment.Currency)
+	if err := h.NotificationSvc.CreatePaymentFailedNotification(context.Background(), order.UserID, payment.OrderID, amount, payment.Currency, payment.ErrorMessage); err != nil {
+		log.Printf("Error enviando notificación de pago fallido: %v", err)
+	}
+
+	// Enviar notificación a los admins sobre el pago fallido
+	user, err := db.GetUserByID(h.DB, order.UserID)
+	if err != nil {
+		log.Printf("Error obteniendo usuario para notificación admin: %v", err)
+	} else {
+		if err := h.NotificationSvc.CreatePaymentFailedAdminNotification(context.Background(), payment.OrderID, user.Email, amount, payment.ErrorMessage); err != nil {
+			log.Printf("Error enviando notificación admin de pago fallido: %v", err)
+		}
+	}
 }
 
 // TestEmailEndpoint endpoint de prueba para enviar emails

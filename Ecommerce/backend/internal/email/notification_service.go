@@ -232,6 +232,30 @@ func (ns *NotificationService) CreateOrderNotification(ctx context.Context, user
 	return ns.CreateNotification(ctx, userID, "order", title, message, data, priority, false)
 }
 
+// CreateOrderTrackingNotification crea una notificación específica de tracking
+func (ns *NotificationService) CreateOrderTrackingNotification(ctx context.Context, userID int, orderID int, status, orderNumber, tracking string) error {
+	var title, message string
+	var priority string
+
+	switch status {
+	case "shipped":
+		title = "¡Tu Pedido Está En Camino!"
+		message = fmt.Sprintf("Tu pedido #%s ha sido enviado y está en camino. Número de seguimiento: %s", orderNumber, tracking)
+		priority = "high"
+	default:
+		title = "Información de Seguimiento Actualizada"
+		message = fmt.Sprintf("Se ha actualizado la información de seguimiento de tu pedido #%s. Número de seguimiento: %s", orderNumber, tracking)
+		priority = "medium"
+	}
+
+	data := NotificationData{
+		OrderID:   &orderID,
+		ActionURL: stringPtr(fmt.Sprintf("/mi-cuenta?tab=orders")),
+	}
+
+	return ns.CreateNotification(ctx, userID, "order", title, message, data, priority, false)
+}
+
 // CreatePaymentNotification crea una notificación de pago
 func (ns *NotificationService) CreatePaymentNotification(ctx context.Context, userID int, orderID int, amount, currency string, status string) error {
 	title := "Confirmación de Pago"
@@ -246,6 +270,48 @@ func (ns *NotificationService) CreatePaymentNotification(ctx context.Context, us
 	return ns.CreateNotification(ctx, userID, "payment", title, message, data, "high", false)
 }
 
+// CreatePaymentFailedNotification crea una notificación de pago fallido
+func (ns *NotificationService) CreatePaymentFailedNotification(ctx context.Context, userID int, orderID int, amount, currency, errorMessage string) error {
+	title := "Problema con el Pago"
+	message := fmt.Sprintf("Hubo un problema con tu pago de %s %s. Error: %s. Por favor, verifica tu método de pago e intenta nuevamente.", currency, amount, errorMessage)
+
+	data := NotificationData{
+		OrderID:   &orderID,
+		Amount:    &amount,
+		ActionURL: stringPtr(fmt.Sprintf("/mi-cuenta?tab=orders")),
+	}
+
+	return ns.CreateNotification(ctx, userID, "payment", title, message, data, "urgent", false)
+}
+
+// CreatePaymentFailedAdminNotification notifica a los admins sobre un pago fallido
+func (ns *NotificationService) CreatePaymentFailedAdminNotification(ctx context.Context, orderID int, userEmail, amount, errorMessage string) error {
+	event := "Pago Fallido"
+	details := fmt.Sprintf("Pago fallido para pedido #%d de %s por %s. Error: %s", orderID, userEmail, amount, errorMessage)
+
+	data := NotificationData{
+		OrderID:   &orderID,
+		UserEmail: &userEmail,
+		Amount:    &amount,
+		ActionURL: stringPtr(fmt.Sprintf("/admin/orders")),
+	}
+
+	// Obtener todos los usuarios admin
+	admins, err := db.GetAdminUsers(ns.db)
+	if err != nil {
+		return fmt.Errorf("error obteniendo usuarios admin: %w", err)
+	}
+
+	// Crear notificación para cada admin
+	for _, admin := range admins {
+		if err := ns.CreateNotification(ctx, admin.ID, "admin", event, details, data, "urgent", true); err != nil {
+			log.Printf("Error creando notificación admin de pago fallido para usuario %d: %v", admin.ID, err)
+		}
+	}
+
+	return nil
+}
+
 // CreateStockNotification crea una notificación de stock
 func (ns *NotificationService) CreateStockNotification(ctx context.Context, userID int, productID int, productName string) error {
 	title := "Producto Disponible"
@@ -258,6 +324,60 @@ func (ns *NotificationService) CreateStockNotification(ctx context.Context, user
 	}
 
 	return ns.CreateNotification(ctx, userID, "stock", title, message, data, "medium", false)
+}
+
+// CreateLowStockAdminNotification notifica a los admins sobre stock bajo
+func (ns *NotificationService) CreateLowStockAdminNotification(ctx context.Context, productID int, productName string, currentStock int) error {
+	event := "Stock Bajo"
+	details := fmt.Sprintf("El producto '%s' tiene stock bajo: %d unidades restantes", productName, currentStock)
+
+	data := NotificationData{
+		ProductID:   &productID,
+		ProductName: &productName,
+		ActionURL:   stringPtr(fmt.Sprintf("/admin/products")),
+	}
+
+	// Obtener todos los usuarios admin
+	admins, err := db.GetAdminUsers(ns.db)
+	if err != nil {
+		return fmt.Errorf("error obteniendo usuarios admin: %w", err)
+	}
+
+	// Crear notificación para cada admin
+	for _, admin := range admins {
+		if err := ns.CreateNotification(ctx, admin.ID, "admin", event, details, data, "high", true); err != nil {
+			log.Printf("Error creando notificación de stock bajo para admin %d: %v", admin.ID, err)
+		}
+	}
+
+	return nil
+}
+
+// CreateOutOfStockAdminNotification notifica a los admins sobre producto agotado
+func (ns *NotificationService) CreateOutOfStockAdminNotification(ctx context.Context, productID int, productName string) error {
+	event := "Producto Agotado"
+	details := fmt.Sprintf("El producto '%s' se ha agotado completamente", productName)
+
+	data := NotificationData{
+		ProductID:   &productID,
+		ProductName: &productName,
+		ActionURL:   stringPtr(fmt.Sprintf("/admin/products")),
+	}
+
+	// Obtener todos los usuarios admin
+	admins, err := db.GetAdminUsers(ns.db)
+	if err != nil {
+		return fmt.Errorf("error obteniendo usuarios admin: %w", err)
+	}
+
+	// Crear notificación para cada admin
+	for _, admin := range admins {
+		if err := ns.CreateNotification(ctx, admin.ID, "admin", event, details, data, "urgent", true); err != nil {
+			log.Printf("Error creando notificación de producto agotado para admin %d: %v", admin.ID, err)
+		}
+	}
+
+	return nil
 }
 
 // CreateSecurityNotification crea una notificación de seguridad
