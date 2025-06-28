@@ -246,6 +246,34 @@ func (s *EmailService) SendTestEmail(to, subject, body string) error {
 	return nil
 }
 
+// SendEmail envía un email genérico con HTML personalizado
+func (s *EmailService) SendEmail(to, subject, htmlContent string) error {
+	if s.client == nil {
+		return fmt.Errorf("servicio de email no configurado")
+	}
+
+	fromEmail := os.Getenv("EMAIL_FROM")
+	if fromEmail == "" {
+		fromEmail = "noreply@axiora.pro"
+	}
+
+	params := &resend.SendEmailRequest{
+		From:    fromEmail,
+		To:      []string{to},
+		Subject: subject,
+		Html:    htmlContent,
+	}
+
+	_, err := s.client.Emails.Send(params)
+	if err != nil {
+		log.Printf("❌ Error enviando email: %v", err)
+		return err
+	}
+
+	log.Printf("✅ Email enviado a %s", to)
+	return nil
+}
+
 func SendVerificationEmail(to, token string) error {
 	if DefaultEmailService == nil {
 		return fmt.Errorf("servicio de email no inicializado")
