@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, X, Check, Trash2, Settings } from 'lucide-react';
 import { useNotifications, Notification } from '@/context/NotificationContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,13 +14,54 @@ const NotificationBell: React.FC = () => {
     markAsRead, 
     markAllAsRead, 
     deleteNotification,
+    fetchNotifications,
+    fetchUnreadCount,
+    fetchAdminUnreadCount,
     loading 
   } = useNotifications();
   
   const [isOpen, setIsOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const totalUnreadCount = user?.isAdmin ? unreadCount + adminUnreadCount : unreadCount;
+  // Calcular el contador real basado en las notificaciones no leídas
+  const actualUnreadCount = notifications.filter(n => !n.is_read && !n.is_admin).length;
+  const actualAdminUnreadCount = notifications.filter(n => !n.is_read && n.is_admin).length;
+  
+  // Usar el valor real si es menor que el contador del backend, sino usar el del backend
+  const displayUnreadCount = Math.min(unreadCount, actualUnreadCount);
+  const displayAdminUnreadCount = Math.min(adminUnreadCount, actualAdminUnreadCount);
+  
+  const totalUnreadCount = user?.isAdmin ? displayUnreadCount + displayAdminUnreadCount : displayUnreadCount;
+
+  // Función para abrir el panel y forzar actualización
+  const handleOpenPanel = async () => {
+    setIsOpen(true);
+    // Forzar actualización de notificaciones y contadores al abrir el panel
+    await Promise.all([
+      fetchNotifications(),
+      fetchUnreadCount(),
+      ...(user?.isAdmin ? [fetchAdminUnreadCount()] : [])
+    ]);
+  };
+
+  // Función para cerrar el panel
+  const handleClosePanel = () => {
+    setIsOpen(false);
+    setShowSettings(false);
+  };
+
+  // Efecto para sincronizar contadores cuando cambian las notificaciones
+  useEffect(() => {
+    if (notifications.length === 0) {
+      // Si no hay notificaciones, el contador debe ser 0
+      if (unreadCount > 0 || adminUnreadCount > 0) {
+        fetchUnreadCount();
+        if (user?.isAdmin) {
+          fetchAdminUnreadCount();
+        }
+      }
+    }
+  }, [notifications, unreadCount, adminUnreadCount, user?.isAdmin]);
 
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.is_read) {
@@ -40,7 +81,7 @@ const NotificationBell: React.FC = () => {
       }
     }
     
-    setIsOpen(false);
+    handleClosePanel();
   };
 
   const getPriorityColor = (priority: string) => {
@@ -90,7 +131,7 @@ const NotificationBell: React.FC = () => {
     <div className="relative">
       {/* Botón de la campana */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpenPanel}
         className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
         aria-label="Notificaciones"
       >
@@ -124,7 +165,7 @@ const NotificationBell: React.FC = () => {
                 <Settings className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClosePanel}
                 className="p-1 text-gray-500 hover:text-gray-700 transition-colors"
                 aria-label="Cerrar"
               >
@@ -229,7 +270,7 @@ const NotificationBell: React.FC = () => {
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClosePanel}
         />
       )}
     </div>
