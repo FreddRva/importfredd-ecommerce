@@ -7,10 +7,9 @@ import (
 	"log"
 	"time"
 
-	"Ecommerce/backend/internal/db"
-	"Ecommerce/backend/internal/models"
-
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/tuusuario/ecommerce-backend/internal/db"
+	"github.com/tuusuario/ecommerce-backend/internal/models"
 )
 
 // NotificationService maneja el envío de notificaciones

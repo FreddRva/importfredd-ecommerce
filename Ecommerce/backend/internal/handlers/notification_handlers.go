@@ -1,14 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
-	"Ecommerce/backend/internal/db"
-
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/tuusuario/ecommerce-backend/internal/db"
 )
 
 // NotificationHandlers maneja las rutas de notificaciones
@@ -22,20 +20,20 @@ func NewNotificationHandlers(db *pgxpool.Pool) *NotificationHandlers {
 }
 
 // GetNotifications obtiene las notificaciones del usuario
-func (nh *NotificationHandlers) GetNotifications(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+func (nh *NotificationHandlers) GetNotifications(c *gin.Context) {
+	userID := c.GetInt("user_id")
 
 	// Parámetros de paginación
 	limit := 20 // default
 	offset := 0
 
-	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
+	if limitStr := c.Query("limit"); limitStr != "" {
 		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 100 {
 			limit = l
 		}
 	}
 
-	if offsetStr := r.URL.Query().Get("offset"); offsetStr != "" {
+	if offsetStr := c.Query("offset"); offsetStr != "" {
 		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
 			offset = o
 		}
@@ -43,7 +41,7 @@ func (nh *NotificationHandlers) GetNotifications(w http.ResponseWriter, r *http.
 
 	notifications, err := db.GetNotificationsByUser(nh.db, userID, limit, offset)
 	if err != nil {
-		http.Error(w, "Error obteniendo notificaciones", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo notificaciones"})
 		return
 	}
 
@@ -55,17 +53,16 @@ func (nh *NotificationHandlers) GetNotifications(w http.ResponseWriter, r *http.
 		},
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusOK, response)
 }
 
 // GetAdminNotifications obtiene las notificaciones de administrador
-func (nh *NotificationHandlers) GetAdminNotifications(w http.ResponseWriter, r *http.Request) {
+func (nh *NotificationHandlers) GetAdminNotifications(c *gin.Context) {
 	// Verificar que el usuario es admin
-	userID := r.Context().Value("user_id").(int)
+	userID := c.GetInt("user_id")
 	user, err := db.GetUserByID(nh.db, userID)
 	if err != nil || !user.IsAdmin {
-		http.Error(w, "Acceso denegado", http.StatusForbidden)
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado"})
 		return
 	}
 
@@ -73,13 +70,13 @@ func (nh *NotificationHandlers) GetAdminNotifications(w http.ResponseWriter, r *
 	limit := 20
 	offset := 0
 
-	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
+	if limitStr := c.Query("limit"); limitStr != "" {
 		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 100 {
 			limit = l
 		}
 	}
 
-	if offsetStr := r.URL.Query().Get("offset"); offsetStr != "" {
+	if offsetStr := c.Query("offset"); offsetStr != "" {
 		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
 			offset = o
 		}
@@ -87,7 +84,7 @@ func (nh *NotificationHandlers) GetAdminNotifications(w http.ResponseWriter, r *
 
 	notifications, err := db.GetAdminNotifications(nh.db, limit, offset)
 	if err != nil {
-		http.Error(w, "Error obteniendo notificaciones admin", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo notificaciones admin"})
 		return
 	}
 
@@ -99,25 +96,22 @@ func (nh *NotificationHandlers) GetAdminNotifications(w http.ResponseWriter, r *
 		},
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusOK, response)
 }
 
 // MarkNotificationAsRead marca una notificación como leída
-func (nh *NotificationHandlers) MarkNotificationAsRead(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
-	vars := mux.Vars(r)
-
-	notificationID, err := strconv.Atoi(vars["id"])
+func (nh *NotificationHandlers) MarkNotificationAsRead(c *gin.Context) {
+	userID := c.GetInt("user_id")
+	notificationID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		http.Error(w, "ID de notificación inválido", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de notificación inválido"})
 		return
 	}
 
 	// Verificar que la notificación pertenece al usuario
 	notifications, err := db.GetNotificationsByUser(nh.db, userID, 1000, 0)
 	if err != nil {
-		http.Error(w, "Error verificando notificación", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error verificando notificación"})
 		return
 	}
 
@@ -130,39 +124,37 @@ func (nh *NotificationHandlers) MarkNotificationAsRead(w http.ResponseWriter, r 
 	}
 
 	if !found {
-		http.Error(w, "Notificación no encontrada", http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Notificación no encontrada"})
 		return
 	}
 
 	if err := db.MarkNotificationAsRead(nh.db, notificationID); err != nil {
-		http.Error(w, "Error marcando notificación como leída", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error marcando notificación como leída"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Notificación marcada como leída"})
+	c.JSON(http.StatusOK, gin.H{"message": "Notificación marcada como leída"})
 }
 
 // MarkAllNotificationsAsRead marca todas las notificaciones del usuario como leídas
-func (nh *NotificationHandlers) MarkAllNotificationsAsRead(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+func (nh *NotificationHandlers) MarkAllNotificationsAsRead(c *gin.Context) {
+	userID := c.GetInt("user_id")
 
 	if err := db.MarkAllNotificationsAsRead(nh.db, userID); err != nil {
-		http.Error(w, "Error marcando notificaciones como leídas", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error marcando notificaciones como leídas"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Todas las notificaciones marcadas como leídas"})
+	c.JSON(http.StatusOK, gin.H{"message": "Todas las notificaciones marcadas como leídas"})
 }
 
 // GetUnreadCount obtiene el número de notificaciones no leídas
-func (nh *NotificationHandlers) GetUnreadCount(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+func (nh *NotificationHandlers) GetUnreadCount(c *gin.Context) {
+	userID := c.GetInt("user_id")
 
 	count, err := db.GetUnreadNotificationCount(nh.db, userID)
 	if err != nil {
-		http.Error(w, "Error obteniendo conteo de notificaciones", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo conteo de notificaciones"})
 		return
 	}
 
@@ -170,23 +162,22 @@ func (nh *NotificationHandlers) GetUnreadCount(w http.ResponseWriter, r *http.Re
 		"unread_count": count,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusOK, response)
 }
 
 // GetAdminUnreadCount obtiene el número de notificaciones admin no leídas
-func (nh *NotificationHandlers) GetAdminUnreadCount(w http.ResponseWriter, r *http.Request) {
+func (nh *NotificationHandlers) GetAdminUnreadCount(c *gin.Context) {
 	// Verificar que el usuario es admin
-	userID := r.Context().Value("user_id").(int)
+	userID := c.GetInt("user_id")
 	user, err := db.GetUserByID(nh.db, userID)
 	if err != nil || !user.IsAdmin {
-		http.Error(w, "Acceso denegado", http.StatusForbidden)
+		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado"})
 		return
 	}
 
 	count, err := db.GetAdminUnreadNotificationCount(nh.db)
 	if err != nil {
-		http.Error(w, "Error obteniendo conteo de notificaciones admin", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo conteo de notificaciones admin"})
 		return
 	}
 
@@ -194,25 +185,22 @@ func (nh *NotificationHandlers) GetAdminUnreadCount(w http.ResponseWriter, r *ht
 		"unread_count": count,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusOK, response)
 }
 
 // DeleteNotification elimina una notificación
-func (nh *NotificationHandlers) DeleteNotification(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
-	vars := mux.Vars(r)
-
-	notificationID, err := strconv.Atoi(vars["id"])
+func (nh *NotificationHandlers) DeleteNotification(c *gin.Context) {
+	userID := c.GetInt("user_id")
+	notificationID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		http.Error(w, "ID de notificación inválido", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de notificación inválido"})
 		return
 	}
 
 	// Verificar que la notificación pertenece al usuario
 	notifications, err := db.GetNotificationsByUser(nh.db, userID, 1000, 0)
 	if err != nil {
-		http.Error(w, "Error verificando notificación", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error verificando notificación"})
 		return
 	}
 
@@ -225,26 +213,25 @@ func (nh *NotificationHandlers) DeleteNotification(w http.ResponseWriter, r *htt
 	}
 
 	if !found {
-		http.Error(w, "Notificación no encontrada", http.StatusNotFound)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Notificación no encontrada"})
 		return
 	}
 
 	if err := db.DeleteNotification(nh.db, notificationID); err != nil {
-		http.Error(w, "Error eliminando notificación", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error eliminando notificación"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Notificación eliminada"})
+	c.JSON(http.StatusOK, gin.H{"message": "Notificación eliminada"})
 }
 
 // GetNotificationPreferences obtiene las preferencias de notificación del usuario
-func (nh *NotificationHandlers) GetNotificationPreferences(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+func (nh *NotificationHandlers) GetNotificationPreferences(c *gin.Context) {
+	userID := c.GetInt("user_id")
 
 	preferences, err := db.GetNotificationPreferences(nh.db, userID)
 	if err != nil {
-		http.Error(w, "Error obteniendo preferencias", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo preferencias"})
 		return
 	}
 
@@ -252,13 +239,12 @@ func (nh *NotificationHandlers) GetNotificationPreferences(w http.ResponseWriter
 		"preferences": preferences,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusOK, response)
 }
 
 // UpdateNotificationPreferences actualiza las preferencias de notificación del usuario
-func (nh *NotificationHandlers) UpdateNotificationPreferences(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("user_id").(int)
+func (nh *NotificationHandlers) UpdateNotificationPreferences(c *gin.Context) {
+	userID := c.GetInt("user_id")
 
 	var request struct {
 		Type         string `json:"type"`
@@ -267,8 +253,8 @@ func (nh *NotificationHandlers) UpdateNotificationPreferences(w http.ResponseWri
 		InAppEnabled bool   `json:"in_app_enabled"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "Datos inválidos", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
 	}
 
@@ -281,15 +267,14 @@ func (nh *NotificationHandlers) UpdateNotificationPreferences(w http.ResponseWri
 	}
 
 	if !validTypes[request.Type] {
-		http.Error(w, "Tipo de notificación inválido", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Tipo de notificación inválido"})
 		return
 	}
 
 	if err := db.UpdateNotificationPreference(nh.db, userID, request.Type, request.EmailEnabled, request.PushEnabled, request.InAppEnabled); err != nil {
-		http.Error(w, "Error actualizando preferencias", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error actualizando preferencias"})
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Preferencias actualizadas"})
+	c.JSON(http.StatusOK, gin.H{"message": "Preferencias actualizadas"})
 }
