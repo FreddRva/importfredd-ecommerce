@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useContext,
   useCallback,
+  useRef,
   ReactNode,
 } from 'react';
 import { useRouter } from 'next/navigation';
@@ -29,13 +30,42 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Variable para controlar debug de autenticación
+const AUTH_DEBUG = process.env.NEXT_PUBLIC_AUTH_DEBUG === 'true';
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const prevAuthState = useRef<{ user: User | null; token: string | null; isLoading: boolean }>({
+    user: null,
+    token: null,
+    isLoading: true
+  });
 
-  console.log("DEBUG: AuthProvider montado", { user, isLoading, token });
+  // Debug inteligente - solo mostrar cambios importantes
+  useEffect(() => {
+    const currentState = { user, token, isLoading };
+    const prevState = prevAuthState.current;
+    
+    // Solo mostrar debug si está habilitado y hay cambios significativos
+    if (
+      AUTH_DEBUG &&
+      (prevState.user !== user || 
+       prevState.token !== token || 
+       prevState.isLoading !== isLoading)
+    ) {
+      console.log("🔐 Auth State Change:", {
+        user: user ? `${user.email} (ID: ${user.id})` : 'null',
+        token: token ? 'present' : 'null',
+        isLoading,
+        isAuthenticated: !isLoading && !!user && !!token
+      });
+    }
+    
+    prevAuthState.current = currentState;
+  }, [user, token, isLoading]);
 
   const clearSession = useCallback(() => {
     localStorage.removeItem('accessToken');
@@ -49,26 +79,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [router]);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('accessToken');
-    const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser) {
+    const initializeAuth = () => {
+      const storedToken = localStorage.getItem('accessToken');
+      const storedUser = localStorage.getItem('user');
+      
+      if (storedToken && storedUser) {
         try {
-            const payload = JSON.parse(atob(storedToken.split('.')[1]));
-            if (Date.now() < payload.exp * 1000) {
-                setToken(storedToken);
-                setUser(JSON.parse(storedUser));
-            } else {
-                 // El token de acceso ha expirado, no hacemos nada aquí.
-                 // fetchWithAuth se encargará de refrescarlo cuando sea necesario.
-                 // Podríamos limpiar solo el access token si quisiéramos ser proactivos.
-                 localStorage.removeItem('accessToken');
-            }
+          const payload = JSON.parse(atob(storedToken.split('.')[1]));
+          if (Date.now() < payload.exp * 1000) {
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+          } else {
+            // El token de acceso ha expirado, limpiar solo el access token
+            localStorage.removeItem('accessToken');
+          }
         } catch(e) {
-            console.error("Error al validar token inicial", e);
-            clearSession();
+          console.error("Error al validar token inicial", e);
+          clearSession();
         }
+      }
+      setIsLoading(false);
+    };
+
+    // Solo ejecutar en el cliente
+    if (typeof window !== 'undefined') {
+      initializeAuth();
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [clearSession]);
 
   const login = useCallback(

@@ -6,6 +6,7 @@ import { CartProvider } from '@/context/CartContext';
 import Navigation from '@/components/Navigation';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import DemoBanner from '@/components/DemoBanner';
+import AuthDebug from '@/components/AuthDebug';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,8 @@ export default function RootLayout({
                   {children}
                 </main>
               </div>
+              {/* Debug component - solo visible en desarrollo */}
+              <AuthDebug enabled={process.env.NODE_ENV === 'development'} />
             </FavoritesProvider>
           </CartProvider>
         </AuthProvider>
