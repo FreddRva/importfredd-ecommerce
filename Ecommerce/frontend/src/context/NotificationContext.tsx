@@ -20,7 +20,6 @@ export interface Notification {
 }
 
 export interface NotificationPreference {
-  id: number;
   user_id: number;
   type: string;
   email_enabled: boolean;
@@ -154,7 +153,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   const markAllAsRead = async () => {
     if (!token) return;
-    
     try {
       const response = await fetch(`${API_BASE_URL}/api/notifications/mark-all-read`, {
         method: 'PUT',
@@ -162,16 +160,16 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           'Authorization': `Bearer ${token}`,
         },
       });
-      
       if (response.ok) {
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(notification => ({
             ...notification,
             is_read: true,
             read_at: new Date().toISOString(),
           }))
         );
-        setUnreadCount(0);
+        // Forzar actualización real del contador desde el backend
+        fetchUnreadCount();
       }
     } catch (err) {
       setError('Error al marcar todas las notificaciones como leídas');
@@ -180,7 +178,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   const deleteNotification = async (id: number) => {
     if (!token) return;
-    
     try {
       const response = await fetch(`${API_BASE_URL}/api/notifications/${id}`, {
         method: 'DELETE',
@@ -188,14 +185,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           'Authorization': `Bearer ${token}`,
         },
       });
-      
       if (response.ok) {
         setNotifications(prev => prev.filter(notification => notification.id !== id));
-        // Si la notificación no estaba leída, reducir el contador
-        const notification = notifications.find(n => n.id === id);
-        if (notification && !notification.is_read) {
-          setUnreadCount(prev => Math.max(0, prev - 1));
-        }
+        // Forzar actualización real del contador desde el backend
+        fetchUnreadCount();
       }
     } catch (err) {
       setError('Error al eliminar notificación');
@@ -294,7 +287,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
             );
           } else {
             return [...prev, {
-              id: 0,
               user_id: user?.id || 0,
               type,
               email_enabled: emailEnabled,
@@ -343,6 +335,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     return () => clearInterval(interval);
   }, [user, token]);
+
+  useEffect(() => {
+    if (notifications.length === 0) {
+      setUnreadCount(0);
+    }
+  }, [notifications]);
 
   const value: NotificationContextType = {
     notifications,
