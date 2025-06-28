@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/context/CartContext';
 import { ShoppingCart, User, Menu, X, Settings, ChevronDown, LayoutDashboard, Package, Tag, Heart, Sparkles, Home, LogOut } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -146,6 +147,11 @@ export default function Navigation() {
                 </span>
               )}
             </Link>
+
+            {/* Notification Bell - Solo visible para usuarios autenticados */}
+            {isAuthenticated && (
+              <NotificationBell />
+            )}
 
             {/* User Menu - Mejorado */}
             {isAuthenticated ? (

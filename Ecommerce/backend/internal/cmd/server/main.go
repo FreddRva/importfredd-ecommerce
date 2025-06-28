@@ -153,6 +153,19 @@ func main() {
 			addresses.DELETE("/:id", addressHandler.DeleteAddress)
 			addresses.PUT("/:id/set-default", addressHandler.SetDefaultAddress)
 		}
+
+		// Notificaciones
+		notificationHandler := handlers.NewNotificationHandlers(db.Pool)
+		notifications := api.Group("/notifications")
+		{
+			notifications.GET("", notificationHandler.GetNotifications)
+			notifications.GET("/unread-count", notificationHandler.GetUnreadCount)
+			notifications.PUT("/:id/read", notificationHandler.MarkNotificationAsRead)
+			notifications.PUT("/mark-all-read", notificationHandler.MarkAllNotificationsAsRead)
+			notifications.DELETE("/:id", notificationHandler.DeleteNotification)
+			notifications.GET("/preferences", notificationHandler.GetNotificationPreferences)
+			notifications.PUT("/preferences", notificationHandler.UpdateNotificationPreferences)
+		}
 	}
 
 	// --- Rutas de Administración ---
@@ -195,6 +208,14 @@ func main() {
 		admin.GET("/users", adminHandler.GetAllUsers)
 		admin.PUT("/users/:id", adminHandler.UpdateUserStatus)
 		admin.DELETE("/users/:id", adminHandler.DeleteUser)
+
+		// Notificaciones de administrador
+		notificationHandler := handlers.NewNotificationHandlers(db.Pool)
+		adminNotifications := admin.Group("/notifications")
+		{
+			adminNotifications.GET("", notificationHandler.GetAdminNotifications)
+			adminNotifications.GET("/unread-count", notificationHandler.GetAdminUnreadCount)
+		}
 	}
 
 	// Servir archivos estáticos de /uploads

@@ -25,11 +25,16 @@ var sessionStore = make(map[string]*webauthn.SessionData)
 var isDevelopment = os.Getenv("ENV") != "production"
 
 type AuthHandler struct {
-	db *pgxpool.Pool
+	db              *pgxpool.Pool
+	notificationSvc *email.NotificationService
 }
 
 func NewAuthHandler(db *pgxpool.Pool) (*AuthHandler, error) {
-	return &AuthHandler{db: db}, nil
+	notificationSvc := email.NewNotificationService(db, email.DefaultEmailService)
+	return &AuthHandler{
+		db:              db,
+		notificationSvc: notificationSvc,
+	}, nil
 }
 
 // Validar email con regex más estricto
@@ -374,6 +379,14 @@ func (h *AuthHandler) FinishRegistration(c *gin.Context) {
 	if err := db.MarkUserAsVerified(h.db, user.ID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mark user as verified"})
 		return
+	}
+
+	// Enviar notificación a los administradores sobre el nuevo usuario
+	if err := h.notificationSvc.CreateNewUserAdminNotification(c.Request.Context(), user.Email); err != nil {
+		// Solo log del error, no fallar el registro
+		if isDevelopment {
+			log.Printf("Error enviando notificación de nuevo usuario: %v", err)
+		}
 	}
 
 	delete(sessionStore, user.Email)

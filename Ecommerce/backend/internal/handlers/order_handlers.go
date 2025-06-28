@@ -11,17 +11,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tuusuario/ecommerce-backend/internal/db"
+	"github.com/tuusuario/ecommerce-backend/internal/email"
 	"github.com/tuusuario/ecommerce-backend/internal/models"
 )
 
 // OrderHandler maneja todas las operaciones relacionadas con pedidos
 type OrderHandler struct {
-	DB *pgxpool.Pool
+	DB              *pgxpool.Pool
+	NotificationSvc *email.NotificationService
 }
 
 // NewOrderHandler crea una nueva instancia del handler de pedidos
 func NewOrderHandler(db *pgxpool.Pool) *OrderHandler {
-	return &OrderHandler{DB: db}
+	notificationSvc := email.NewNotificationService(db, email.DefaultEmailService)
+	return &OrderHandler{
+		DB:              db,
+		NotificationSvc: notificationSvc,
+	}
 }
 
 // CreateOrderRequest representa la solicitud para crear un pedido
@@ -203,6 +209,31 @@ func (h *OrderHandler) CreateOrderFromCart(c *gin.Context) {
 		err = db.RemoveItemFromCart(h.DB, item.ID)
 		if err != nil {
 			log.Printf("Error removiendo item del carrito: %v", err)
+		}
+	}
+
+	// Enviar notificaciones
+	log.Printf("Enviando notificaciones...")
+
+	// Notificación al usuario sobre el pedido creado
+	if err := h.NotificationSvc.CreateOrderNotification(context.Background(), userID, order.ID, "pending", order.OrderNumber); err != nil {
+		log.Printf("Error enviando notificación de pedido al usuario: %v", err)
+	}
+
+	// Obtener información del usuario para la notificación admin
+	user, err := db.GetUserByID(h.DB, userID)
+	if err != nil {
+		log.Printf("Error obteniendo información del usuario: %v", err)
+	} else {
+		// Notificación a los administradores sobre el nuevo pedido
+		userName := "Usuario"
+		if user.Nombre != nil {
+			userName = *user.Nombre
+		}
+		amount := fmt.Sprintf("%.2f %s", order.Total, order.Currency)
+
+		if err := h.NotificationSvc.CreateNewOrderAdminNotification(context.Background(), order.ID, user.Email, userName, amount); err != nil {
+			log.Printf("Error enviando notificación admin: %v", err)
 		}
 	}
 

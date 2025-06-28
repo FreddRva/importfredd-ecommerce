@@ -5,6 +5,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 import { CartProvider } from '@/context/CartContext';
 import Navigation from '@/components/Navigation';
 import { FavoritesProvider } from '@/context/FavoritesContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import DemoBanner from '@/components/DemoBanner';
 import AuthDebug from '@/components/AuthDebug';
 
@@ -35,15 +36,17 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <FavoritesProvider>
-              <div className="min-h-screen flex flex-col">
-                <DemoBanner />
-                <Navigation />
-                <main className="flex-1">
-                  {children}
-                </main>
-              </div>
-              {/* Debug component - solo visible en desarrollo */}
-              <AuthDebug enabled={process.env.NODE_ENV === 'development'} />
+              <NotificationProvider>
+                <div className="min-h-screen flex flex-col">
+                  <DemoBanner />
+                  <Navigation />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                </div>
+                {/* Debug component - solo visible en desarrollo */}
+                <AuthDebug enabled={process.env.NODE_ENV === 'development'} />
+              </NotificationProvider>
             </FavoritesProvider>
           </CartProvider>
         </AuthProvider>

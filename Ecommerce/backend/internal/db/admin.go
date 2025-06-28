@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tuusuario/ecommerce-backend/internal/models"
@@ -703,4 +704,218 @@ func CreateAddress(ctx context.Context, address *models.Address) error {
 		address.Lat,
 		address.Lng,
 	).Scan(&address.ID, &address.CreatedAt, &address.UpdatedAt)
+}
+
+// ===== NOTIFICACIONES =====
+
+// CreateNotification crea una nueva notificación
+func CreateNotification(db *pgxpool.Pool, notification *models.Notification) error {
+	query := `
+		INSERT INTO notifications (user_id, type, title, message, data, is_read, is_admin, priority, created_at, expires_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		RETURNING id, created_at`
+
+	return db.QueryRow(context.Background(), query,
+		notification.UserID,
+		notification.Type,
+		notification.Title,
+		notification.Message,
+		notification.Data,
+		notification.IsRead,
+		notification.IsAdmin,
+		notification.Priority,
+		time.Now(),
+		notification.ExpiresAt,
+	).Scan(&notification.ID, &notification.CreatedAt)
+}
+
+// GetNotificationsByUser obtiene las notificaciones de un usuario
+func GetNotificationsByUser(db *pgxpool.Pool, userID int, limit, offset int) ([]models.Notification, error) {
+	query := `
+		SELECT id, user_id, type, title, message, data, is_read, is_admin, priority, created_at, expires_at, read_at
+		FROM notifications 
+		WHERE user_id = $1 
+		ORDER BY created_at DESC 
+		LIMIT $2 OFFSET $3`
+
+	rows, err := db.Query(context.Background(), query, userID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notifications []models.Notification
+	for rows.Next() {
+		var n models.Notification
+		err := rows.Scan(
+			&n.ID, &n.UserID, &n.Type, &n.Title, &n.Message, &n.Data,
+			&n.IsRead, &n.IsAdmin, &n.Priority, &n.CreatedAt, &n.ExpiresAt, &n.ReadAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		notifications = append(notifications, n)
+	}
+
+	return notifications, nil
+}
+
+// GetAdminNotifications obtiene las notificaciones de administrador
+func GetAdminNotifications(db *pgxpool.Pool, limit, offset int) ([]models.Notification, error) {
+	query := `
+		SELECT id, user_id, type, title, message, data, is_read, is_admin, priority, created_at, expires_at, read_at
+		FROM notifications 
+		WHERE is_admin = true 
+		ORDER BY created_at DESC 
+		LIMIT $1 OFFSET $2`
+
+	rows, err := db.Query(context.Background(), query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notifications []models.Notification
+	for rows.Next() {
+		var n models.Notification
+		err := rows.Scan(
+			&n.ID, &n.UserID, &n.Type, &n.Title, &n.Message, &n.Data,
+			&n.IsRead, &n.IsAdmin, &n.Priority, &n.CreatedAt, &n.ExpiresAt, &n.ReadAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		notifications = append(notifications, n)
+	}
+
+	return notifications, nil
+}
+
+// MarkNotificationAsRead marca una notificación como leída
+func MarkNotificationAsRead(db *pgxpool.Pool, notificationID int) error {
+	query := `
+		UPDATE notifications 
+		SET is_read = true, read_at = $1 
+		WHERE id = $2`
+
+	_, err := db.Exec(context.Background(), query, time.Now(), notificationID)
+	return err
+}
+
+// MarkAllNotificationsAsRead marca todas las notificaciones de un usuario como leídas
+func MarkAllNotificationsAsRead(db *pgxpool.Pool, userID int) error {
+	query := `
+		UPDATE notifications 
+		SET is_read = true, read_at = $1 
+		WHERE user_id = $2 AND is_read = false`
+
+	_, err := db.Exec(context.Background(), query, time.Now(), userID)
+	return err
+}
+
+// GetUnreadNotificationCount obtiene el número de notificaciones no leídas
+func GetUnreadNotificationCount(db *pgxpool.Pool, userID int) (int, error) {
+	query := `
+		SELECT COUNT(*) 
+		FROM notifications 
+		WHERE user_id = $1 AND is_read = false`
+
+	var count int
+	err := db.QueryRow(context.Background(), query, userID).Scan(&count)
+	return count, err
+}
+
+// GetAdminUnreadNotificationCount obtiene el número de notificaciones admin no leídas
+func GetAdminUnreadNotificationCount(db *pgxpool.Pool) (int, error) {
+	query := `
+		SELECT COUNT(*) 
+		FROM notifications 
+		WHERE is_admin = true AND is_read = false`
+
+	var count int
+	err := db.QueryRow(context.Background(), query).Scan(&count)
+	return count, err
+}
+
+// DeleteNotification elimina una notificación
+func DeleteNotification(db *pgxpool.Pool, notificationID int) error {
+	query := `DELETE FROM notifications WHERE id = $1`
+	_, err := db.Exec(context.Background(), query, notificationID)
+	return err
+}
+
+// ===== PREFERENCIAS DE NOTIFICACIÓN =====
+
+// GetNotificationPreferences obtiene las preferencias de notificación de un usuario
+func GetNotificationPreferences(db *pgxpool.Pool, userID int) ([]models.NotificationPreference, error) {
+	query := `
+		SELECT id, user_id, type, email_enabled, push_enabled, in_app_enabled, created_at, updated_at
+		FROM notification_preferences 
+		WHERE user_id = $1`
+
+	rows, err := db.Query(context.Background(), query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var preferences []models.NotificationPreference
+	for rows.Next() {
+		var p models.NotificationPreference
+		err := rows.Scan(
+			&p.ID, &p.UserID, &p.Type, &p.EmailEnabled, &p.PushEnabled, &p.InAppEnabled,
+			&p.CreatedAt, &p.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		preferences = append(preferences, p)
+	}
+
+	return preferences, nil
+}
+
+// UpdateNotificationPreference actualiza una preferencia de notificación
+func UpdateNotificationPreference(db *pgxpool.Pool, userID int, notificationType string, emailEnabled, pushEnabled, inAppEnabled bool) error {
+	query := `
+		INSERT INTO notification_preferences (user_id, type, email_enabled, push_enabled, in_app_enabled, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $6)
+		ON CONFLICT (user_id, type) 
+		DO UPDATE SET 
+			email_enabled = $3, 
+			push_enabled = $4, 
+			in_app_enabled = $5, 
+			updated_at = $6`
+
+	_, err := db.Exec(context.Background(), query, userID, notificationType, emailEnabled, pushEnabled, inAppEnabled, time.Now())
+	return err
+}
+
+// GetAdminUsers obtiene todos los usuarios administradores
+func GetAdminUsers(db *pgxpool.Pool) ([]models.User, error) {
+	query := `
+		SELECT id, email, nombre, apellido, is_admin, created_at, updated_at
+		FROM users 
+		WHERE is_admin = true`
+
+	rows, err := db.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(
+			&user.ID, &user.Email, &user.Nombre, &user.Apellido,
+			&user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }

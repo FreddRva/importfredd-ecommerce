@@ -236,3 +236,31 @@ type Review struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 	User       *User     `json:"user,omitempty"`
 }
+
+// Notification representa una notificación en el sistema
+type Notification struct {
+	ID        int        `json:"id" db:"id"`
+	UserID    int        `json:"user_id" db:"user_id"`
+	Type      string     `json:"type" db:"type"` // order, payment, stock, security, admin
+	Title     string     `json:"title" db:"title"`
+	Message   string     `json:"message" db:"message"`
+	Data      string     `json:"data" db:"data"` // JSON string con datos adicionales
+	IsRead    bool       `json:"is_read" db:"is_read"`
+	IsAdmin   bool       `json:"is_admin" db:"is_admin"` // true si es notificación de admin
+	Priority  string     `json:"priority" db:"priority"` // low, medium, high, urgent
+	CreatedAt time.Time  `json:"created_at" db:"created_at"`
+	ExpiresAt *time.Time `json:"expires_at" db:"expires_at"`
+	ReadAt    *time.Time `json:"read_at" db:"read_at"`
+}
+
+// NotificationPreference representa las preferencias de notificación de un usuario
+type NotificationPreference struct {
+	ID           int       `json:"id" db:"id"`
+	UserID       int       `json:"user_id" db:"user_id"`
+	Type         string    `json:"type" db:"type"` // order, payment, marketing, security
+	EmailEnabled bool      `json:"email_enabled" db:"email_enabled"`
+	PushEnabled  bool      `json:"push_enabled" db:"push_enabled"`
+	InAppEnabled bool      `json:"in_app_enabled" db:"in_app_enabled"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
