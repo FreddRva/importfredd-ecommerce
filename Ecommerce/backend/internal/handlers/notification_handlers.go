@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -22,6 +23,7 @@ func NewNotificationHandlers(db *pgxpool.Pool) *NotificationHandlers {
 // GetNotifications obtiene las notificaciones del usuario
 func (nh *NotificationHandlers) GetNotifications(c *gin.Context) {
 	userID := c.GetInt("user_id")
+	log.Printf("GetNotifications llamado para usuario ID: %d", userID)
 
 	// Parámetros de paginación
 	limit := 20 // default
@@ -39,9 +41,11 @@ func (nh *NotificationHandlers) GetNotifications(c *gin.Context) {
 		}
 	}
 
+	log.Printf("Obteniendo notificaciones con limit: %d, offset: %d", limit, offset)
 	notifications, err := db.GetNotificationsByUser(nh.db, userID, limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo notificaciones"})
+		log.Printf("Error en GetNotificationsByUser: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo notificaciones: " + err.Error()})
 		return
 	}
 
@@ -53,6 +57,7 @@ func (nh *NotificationHandlers) GetNotifications(c *gin.Context) {
 		},
 	}
 
+	log.Printf("GetNotifications exitoso, %d notificaciones encontradas", len(notifications))
 	c.JSON(http.StatusOK, response)
 }
 
@@ -169,15 +174,26 @@ func (nh *NotificationHandlers) GetUnreadCount(c *gin.Context) {
 func (nh *NotificationHandlers) GetAdminUnreadCount(c *gin.Context) {
 	// Verificar que el usuario es admin
 	userID := c.GetInt("user_id")
+	log.Printf("GetAdminUnreadCount llamado para usuario ID: %d", userID)
+
 	user, err := db.GetUserByID(nh.db, userID)
-	if err != nil || !user.IsAdmin {
+	if err != nil {
+		log.Printf("Error obteniendo usuario: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error verificando usuario"})
+		return
+	}
+
+	if !user.IsAdmin {
+		log.Printf("Usuario %d no es admin", userID)
 		c.JSON(http.StatusForbidden, gin.H{"error": "Acceso denegado"})
 		return
 	}
 
+	log.Printf("Obteniendo conteo de notificaciones admin no leídas")
 	count, err := db.GetAdminUnreadNotificationCount(nh.db)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo conteo de notificaciones admin"})
+		log.Printf("Error en GetAdminUnreadNotificationCount: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo conteo de notificaciones admin: " + err.Error()})
 		return
 	}
 
@@ -185,6 +201,7 @@ func (nh *NotificationHandlers) GetAdminUnreadCount(c *gin.Context) {
 		"unread_count": count,
 	}
 
+	log.Printf("GetAdminUnreadCount exitoso, %d notificaciones no leídas", count)
 	c.JSON(http.StatusOK, response)
 }
 
@@ -228,10 +245,12 @@ func (nh *NotificationHandlers) DeleteNotification(c *gin.Context) {
 // GetNotificationPreferences obtiene las preferencias de notificación del usuario
 func (nh *NotificationHandlers) GetNotificationPreferences(c *gin.Context) {
 	userID := c.GetInt("user_id")
+	log.Printf("GetNotificationPreferences llamado para usuario ID: %d", userID)
 
 	preferences, err := db.GetNotificationPreferences(nh.db, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo preferencias"})
+		log.Printf("Error en GetNotificationPreferences: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error obteniendo preferencias: " + err.Error()})
 		return
 	}
 
@@ -239,6 +258,7 @@ func (nh *NotificationHandlers) GetNotificationPreferences(c *gin.Context) {
 		"preferences": preferences,
 	}
 
+	log.Printf("GetNotificationPreferences exitoso, %d preferencias encontradas", len(preferences))
 	c.JSON(http.StatusOK, response)
 }
 
