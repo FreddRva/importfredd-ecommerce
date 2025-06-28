@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -133,10 +134,77 @@ func (ns *NotificationService) sendNotificationEmail(userID int, notification *m
 		"Amount":      data.Amount,
 	}
 
+	// Generar HTML del email
+	htmlContent := generateNotificationEmailHTML(notification, templateData)
+
 	// Enviar email
-	if err := ns.emailSvc.SendEmail(user.Email, subject, template, templateData); err != nil {
+	if err := ns.emailSvc.SendEmail(user.Email, subject, htmlContent); err != nil {
 		log.Printf("Error enviando notificación por email: %v", err)
 	}
+}
+
+// generateNotificationEmailHTML genera el HTML del email de notificación
+func generateNotificationEmailHTML(notification *models.Notification, data map[string]interface{}) string {
+	priorityColor := "blue"
+	switch notification.Priority {
+	case "urgent":
+		priorityColor = "red"
+	case "high":
+		priorityColor = "orange"
+	case "medium":
+		priorityColor = "blue"
+	case "low":
+		priorityColor = "green"
+	}
+
+	actionButton := ""
+	if actionURL, ok := data["ActionURL"].(*string); ok && actionURL != nil {
+		actionButton = fmt.Sprintf(`
+			<div style="text-align: center; margin: 20px 0;">
+				<a href="%s" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+					Ver Detalles
+				</a>
+			</div>
+		`, *actionURL)
+	}
+
+	return fmt.Sprintf(`
+		<!DOCTYPE html>
+		<html>
+		<head>
+			<meta charset="utf-8">
+			<title>%s</title>
+			<style>
+				body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+				.container { max-width: 600px; margin: 0 auto; background: #f9f9f9; }
+				.header { background: %s; color: white; padding: 20px; text-align: center; }
+				.content { padding: 20px; background: white; margin: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+				.priority { display: inline-block; padding: 4px 8px; background: %s; color: white; border-radius: 3px; font-size: 12px; margin-bottom: 10px; }
+				.footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+			</style>
+		</head>
+		<body>
+			<div class="container">
+				<div class="header">
+					<h1>%s</h1>
+				</div>
+				<div class="content">
+					<div class="priority">%s</div>
+					<h2>Hola,</h2>
+					<p>%s</p>
+					%s
+					<p><strong>Fecha:</strong> %s</p>
+				</div>
+				<div class="footer">
+					<p>Este es un email automático, por favor no respondas a este mensaje.</p>
+					<p>Si tienes preguntas, contacta con nuestro soporte.</p>
+				</div>
+			</div>
+		</body>
+		</html>
+	`, notification.Title, priorityColor, priorityColor, notification.Title,
+		strings.Title(notification.Priority), notification.Message, actionButton,
+		data["CreatedAt"].(string))
 }
 
 // CreateOrderNotification crea una notificación de pedido
