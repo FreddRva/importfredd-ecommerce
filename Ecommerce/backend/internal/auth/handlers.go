@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -20,6 +21,9 @@ import (
 
 var sessionStore = make(map[string]*webauthn.SessionData)
 
+// Variable para controlar logs de debug
+var isDevelopment = os.Getenv("ENV") != "production"
+
 type AuthHandler struct {
 	db *pgxpool.Pool
 }
@@ -28,32 +32,74 @@ func NewAuthHandler(db *pgxpool.Pool) (*AuthHandler, error) {
 	return &AuthHandler{db: db}, nil
 }
 
+// Validar email con regex más estricto
+func isValidEmail(email string) bool {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return emailRegex.MatchString(email) && len(email) <= 254
+}
+
+// Validar código de verificación
+func isValidVerificationCode(code string) bool {
+	codeRegex := regexp.MustCompile(`^[0-9]{6}$`)
+	return codeRegex.MatchString(code)
+}
+
 func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	var req struct {
 		Email string `json:"email" binding:"required,email"`
 		Mode  string `json:"mode"` // 'register' o 'recover'
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Printf("[ERROR] Error en ShouldBindJSON: %v", err)
+		if isDevelopment {
+			log.Printf("[ERROR] Error en ShouldBindJSON: %v", err)
+		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email no válido."})
+		return
+	}
+
+	// Validación más estricta del email
+	if !isValidEmail(req.Email) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de email inválido."})
+		return
+	}
+
+	// Rate limiting por IP y email
+	clientIP := c.ClientIP()
+	rateLimitKey := clientIP + ":" + req.Email
+
+	if !VerificationCodeLimiter.IsAllowed(rateLimitKey) {
+		resetTime := VerificationCodeLimiter.GetResetTime(rateLimitKey)
+
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"error":       "Demasiados intentos. Intenta de nuevo más tarde.",
+			"retry_after": resetTime.Format(time.RFC3339),
+		})
 		return
 	}
 
 	code, err := generateNumericCode(6)
 	if err != nil {
-		log.Printf("[ERROR] Error generando código: %v", err)
+		if isDevelopment {
+			log.Printf("[ERROR] Error generando código: %v", err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo generar el código."})
 		return
 	}
+
 	// Enviar el código por email
 	if emailErr := email.SendVerificationCodeEmail(req.Email, code); emailErr != nil {
-		log.Printf("[ERROR] Error enviando código de verificación a %s: %v", req.Email, emailErr)
+		if isDevelopment {
+			log.Printf("[ERROR] Error enviando código de verificación a %s: %v", req.Email, emailErr)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo enviar el código de verificación."})
 		return
 	}
+
 	hashedCode, err := HashPassword(code)
 	if err != nil {
-		log.Printf("[ERROR] Error hasheando código: %v", err)
+		if isDevelopment {
+			log.Printf("[ERROR] Error hasheando código: %v", err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error de seguridad."})
 		return
 	}
@@ -62,28 +108,40 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	user, err := db.GetUserByEmail(h.db, req.Email)
 	if err == nil && user != nil {
 		if user.IsActive && req.Mode != "recover" {
-			log.Printf("[ERROR] Usuario ya registrado y activo: %s", req.Email)
+			if isDevelopment {
+				log.Printf("[ERROR] Usuario ya registrado y activo: %s", req.Email)
+			}
 			c.JSON(http.StatusConflict, gin.H{"error": "Este correo ya está registrado."})
 			return
 		} else {
 			// Reactivar usuario y actualizar token (o recuperación)
 			err = db.ReactivateUser(h.db, req.Email, hashedCode, expiresAt)
 			if err != nil {
-				log.Printf("[ERROR] Error reactivando usuario: %v", err)
+				if isDevelopment {
+					log.Printf("[ERROR] Error reactivando usuario: %v", err)
+				}
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo reactivar el usuario."})
 				return
 			}
-			log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
+
+			// Solo mostrar código en desarrollo
+			if isDevelopment {
+				log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
+			}
+
 			var msg string
 			if req.Mode == "recover" {
 				msg = "Código de recuperación generado."
 			} else {
 				msg = "Código generado y usuario reactivado."
 			}
-			c.JSON(http.StatusOK, gin.H{
-				"message":    msg,
-				"debug_code": code,
-			})
+
+			response := gin.H{"message": msg}
+			if isDevelopment {
+				response["debug_code"] = code
+			}
+
+			c.JSON(http.StatusOK, response)
 			return
 		}
 	}
@@ -92,19 +150,30 @@ func (h *AuthHandler) RequestVerificationCode(c *gin.Context) {
 	_, err = db.CreateUser(h.db, req.Email, hashedCode, expiresAt)
 	if err != nil {
 		if err.Error() == "user already exists and is verified" {
-			log.Printf("[ERROR] Usuario ya existe y está verificado: %s", req.Email)
+			if isDevelopment {
+				log.Printf("[ERROR] Usuario ya existe y está verificado: %s", req.Email)
+			}
 			c.JSON(http.StatusConflict, gin.H{"error": "Este correo ya está registrado."})
 			return
 		}
-		log.Printf("[ERROR] Error creando usuario: %v", err)
+		if isDevelopment {
+			log.Printf("[ERROR] Error creando usuario: %v", err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error guardando información."})
 		return
 	}
-	log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
-	c.JSON(http.StatusOK, gin.H{
-		"message":    "Código generado.",
-		"debug_code": code,
-	})
+
+	// Solo mostrar código en desarrollo
+	if isDevelopment {
+		log.Printf("MODO DEBUG: Código para %s: %s", req.Email, code)
+	}
+
+	response := gin.H{"message": "Código generado."}
+	if isDevelopment {
+		response["debug_code"] = code
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // Nueva función para obtener la instancia de WebAuthn según el Origin
@@ -150,7 +219,9 @@ func getWebAuthnByOrigin(origin string) (*webauthn.WebAuthn, error) {
 		}
 	}
 
-	log.Printf("WebAuthn config - Origin: %s, RPID: %s, RPOrigin: %s", origin, rpID, rpOrigin)
+	if isDevelopment {
+		log.Printf("WebAuthn config - Origin: %s, RPID: %s, RPOrigin: %s", origin, rpID, rpOrigin)
+	}
 
 	waconfig := &webauthn.Config{
 		RPDisplayName: "Axiora E-commerce",
@@ -168,6 +239,31 @@ func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email y código son requeridos."})
+		return
+	}
+
+	// Validación más estricta
+	if !isValidEmail(req.Email) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de email inválido."})
+		return
+	}
+
+	if !isValidVerificationCode(req.Code) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Código de verificación inválido."})
+		return
+	}
+
+	// Rate limiting para registro
+	clientIP := c.ClientIP()
+	rateLimitKey := clientIP + ":register:" + req.Email
+
+	if !RegistrationLimiter.IsAllowed(rateLimitKey) {
+		resetTime := RegistrationLimiter.GetResetTime(rateLimitKey)
+
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"error":       "Demasiados intentos de registro. Intenta de nuevo más tarde.",
+			"retry_after": resetTime.Format(time.RFC3339),
+		})
 		return
 	}
 
@@ -211,7 +307,9 @@ func (h *AuthHandler) BeginRegistration(c *gin.Context) {
 
 	options, sessionData, err := webAuthn.BeginRegistration(user)
 	if err != nil {
-		log.Printf("Failed to begin registration: %v", err)
+		if isDevelopment {
+			log.Printf("Failed to begin registration: %v", err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo iniciar el registro de Passkey."})
 		return
 	}
@@ -340,6 +438,26 @@ func (h *AuthHandler) BeginLogin(c *gin.Context) {
 		return
 	}
 
+	// Validación más estricta del email
+	if !isValidEmail(email) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de email inválido."})
+		return
+	}
+
+	// Rate limiting para login
+	clientIP := c.ClientIP()
+	rateLimitKey := clientIP + ":login:" + email
+
+	if !LoginLimiter.IsAllowed(rateLimitKey) {
+		resetTime := LoginLimiter.GetResetTime(rateLimitKey)
+
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"error":       "Demasiados intentos de login. Intenta de nuevo más tarde.",
+			"retry_after": resetTime.Format(time.RFC3339),
+		})
+		return
+	}
+
 	user, err := db.GetUserByEmailWithPassword(h.db, email)
 	if err != nil || user == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
@@ -348,7 +466,9 @@ func (h *AuthHandler) BeginLogin(c *gin.Context) {
 
 	credentials, err := db.GetCredentialsByUser(h.db, user.ID)
 	if err != nil {
-		log.Printf("could not get credentials for user %d: %v", user.ID, err)
+		if isDevelopment {
+			log.Printf("could not get credentials for user %d: %v", user.ID, err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not get user credentials"})
 		return
 	}
@@ -363,7 +483,9 @@ func (h *AuthHandler) BeginLogin(c *gin.Context) {
 
 	options, sessionData, err := webAuthn.BeginLogin(user)
 	if err != nil {
-		log.Printf("Failed to begin login: %v", err)
+		if isDevelopment {
+			log.Printf("Failed to begin login: %v", err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to begin login"})
 		return
 	}
@@ -379,6 +501,12 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 		return
 	}
 
+	// Validación más estricta del email
+	if !isValidEmail(email) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de email inválido."})
+		return
+	}
+
 	user, err := db.GetUserByEmailWithPassword(h.db, email)
 	if err != nil || user == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
@@ -387,7 +515,9 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 
 	credentials, err := db.GetCredentialsByUser(h.db, user.ID)
 	if err != nil {
-		log.Printf("could not get credentials for user %d: %v", user.ID, err)
+		if isDevelopment {
+			log.Printf("could not get credentials for user %d: %v", user.ID, err)
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not get user credentials"})
 		return
 	}
@@ -414,7 +544,9 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 
 	_, err = webAuthn.ValidateLogin(user, *sessionData, parsedResponse)
 	if err != nil {
-		log.Printf("Failed to validate login: %v", err)
+		if isDevelopment {
+			log.Printf("Failed to validate login: %v", err)
+		}
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login failed"})
 		return
 	}

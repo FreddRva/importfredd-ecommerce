@@ -4,23 +4,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Variable para controlar logs de debug
+var isDevelopment = os.Getenv("ENV") != "production"
+
 func JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			log.Printf("Token requerido - Header: %s", authHeader)
+			if isDevelopment {
+				log.Printf("Token requerido - Header: %s", authHeader)
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token requerido"})
 			return
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		log.Printf("Validando token: %s...", tokenString[:min(len(tokenString), 20)])
+		if isDevelopment {
+			log.Printf("Validando token: %s...", tokenString[:min(len(tokenString), 20)])
+		}
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			// Verificar que el método de firma sea el esperado
@@ -31,20 +39,26 @@ func JWTMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil {
-			log.Printf("Error parseando token: %v", err)
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token inválido", "details": err.Error()})
+			if isDevelopment {
+				log.Printf("Error parseando token: %v", err)
+			}
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token inválido"})
 			return
 		}
 
 		if !token.Valid {
-			log.Printf("Token no válido")
+			if isDevelopment {
+				log.Printf("Token no válido")
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token inválido"})
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			log.Printf("Claims no válidos")
+			if isDevelopment {
+				log.Printf("Claims no válidos")
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "sin claims válidos"})
 			return
 		}
@@ -52,7 +66,9 @@ func JWTMiddleware() gin.HandlerFunc {
 		// Convertir user_id a int de forma segura
 		userIDFloat, ok := claims["user_id"].(float64)
 		if !ok {
-			log.Printf("user_id inválido en claims: %v", claims["user_id"])
+			if isDevelopment {
+				log.Printf("user_id inválido en claims: %v", claims["user_id"])
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id inválido"})
 			return
 		}
@@ -60,12 +76,16 @@ func JWTMiddleware() gin.HandlerFunc {
 
 		email, ok := claims["email"].(string)
 		if !ok {
-			log.Printf("email inválido en claims: %v", claims["email"])
+			if isDevelopment {
+				log.Printf("email inválido en claims: %v", claims["email"])
+			}
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "email inválido"})
 			return
 		}
 
-		log.Printf("Token válido para usuario: %s (ID: %d)", email, userID)
+		if isDevelopment {
+			log.Printf("Token válido para usuario: %s (ID: %d)", email, userID)
+		}
 		c.Set("user_id", userID)
 		c.Set("email", email)
 		c.Next()

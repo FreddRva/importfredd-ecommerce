@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowRight, LogIn, Key, Shield, MessageSquareQuote, Info, Sparkles, CheckCircle, AlertCircle, Zap, Star, Fingerprint, Smartphone, Laptop, UserPlus, Rocket } from 'lucide-react';
 import { requestVerificationCode, registerPasskey } from '@/lib/webauthn';
+import { validateAndSanitizeEmail, validateAndSanitizeCode } from '@/lib/validation';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,34 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [debugCode, setDebugCode] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState('');
+  const [codeError, setCodeError] = useState('');
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    
+    // Validar email en tiempo real
+    if (value) {
+      const validation = validateAndSanitizeEmail(value);
+      setEmailError(validation.error || '');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCode(value);
+    
+    // Validar código en tiempo real
+    if (value) {
+      const validation = validateAndSanitizeCode(value);
+      setCodeError(validation.error || '');
+    } else {
+      setCodeError('');
+    }
+  };
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,8 +52,16 @@ export default function RegisterPage() {
     setSuccess('');
     setDebugCode(null);
 
+    // Validar email antes de enviar
+    const emailValidation = validateAndSanitizeEmail(email);
+    if (!emailValidation.isValid) {
+      setError(emailValidation.error || 'Email inválido');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await requestVerificationCode(email);
+      const result = await requestVerificationCode(emailValidation.sanitized);
       setSuccess(result.message);
       setStep('code');
     } catch (error: any) {
@@ -40,8 +77,16 @@ export default function RegisterPage() {
     setError('');
     setSuccess('');
 
+    // Validar código antes de enviar
+    const codeValidation = validateAndSanitizeCode(code);
+    if (!codeValidation.isValid) {
+      setError(codeValidation.error || 'Código inválido');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await registerPasskey(email, code);
+      const result = await registerPasskey(email, codeValidation.sanitized);
       setSuccess(result || '¡Registro completado! Tu Passkey ha sido configurada. Ya puedes iniciar sesión.');
       setStep('success');
     } catch (error: any) {
@@ -59,9 +104,15 @@ export default function RegisterPage() {
         </label>
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+          <div className={`relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg ${
+            emailError 
+              ? 'border-red-400/50 focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-400/20' 
+              : 'border-fuchsia-800/30 focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-400/20'
+          }`}>
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-fuchsia-400 group-hover:text-green-400 transition-colors duration-300" />
+              <Mail className={`h-5 w-5 transition-colors duration-300 ${
+                emailError ? 'text-red-400' : 'text-fuchsia-400 group-hover:text-green-400'
+              }`} />
             </div>
             <input
               id="email"
@@ -70,11 +121,16 @@ export default function RegisterPage() {
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               className="block w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 sm:text-sm bg-transparent"
               placeholder="tu@email.com"
             />
           </div>
+          {emailError && (
+            <div className="mt-2 text-sm text-red-400 animate-fade-in">
+              {emailError}
+            </div>
+          )}
         </div>
       </div>
       
@@ -121,9 +177,15 @@ export default function RegisterPage() {
         </label>
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-fuchsia-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+          <div className={`relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg ${
+            codeError 
+              ? 'border-red-400/50 focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-400/20' 
+              : 'border-fuchsia-800/30 focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-400/20'
+          }`}>
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <MessageSquareQuote className="h-5 w-5 text-fuchsia-400 group-hover:text-green-400 transition-colors duration-300" />
+              <MessageSquareQuote className={`h-5 w-5 transition-colors duration-300 ${
+                codeError ? 'text-red-400' : 'text-fuchsia-400 group-hover:text-green-400'
+              }`} />
             </div>
             <input
               id="code"
@@ -132,11 +194,16 @@ export default function RegisterPage() {
               maxLength={6}
               required
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={handleCodeChange}
               className="block w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 sm:text-sm bg-transparent text-center text-2xl font-bold tracking-widest"
               placeholder="_ _ _ _ _ _"
             />
           </div>
+          {codeError && (
+            <div className="mt-2 text-sm text-red-400 animate-fade-in">
+              {codeError}
+            </div>
+          )}
         </div>
       </div>
       

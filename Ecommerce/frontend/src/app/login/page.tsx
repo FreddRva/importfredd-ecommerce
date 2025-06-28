@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, UserPlus, Key, Shield, Sparkles, Zap, CheckCircle, AlertCircle, X, Fingerprint, Smartphone, Laptop } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { loginPasskey } from '@/lib/webauthn';
+import { validateAndSanitizeEmail } from '@/lib/validation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showResend, setShowResend] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const router = useRouter();
   const { login } = useAuth();
 
@@ -26,14 +28,35 @@ export default function LoginPage() {
     }, 2000);
   };
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    
+    // Validar email en tiempo real
+    if (value) {
+      const validation = validateAndSanitizeEmail(value);
+      setEmailError(validation.error || '');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setShowResend(false);
 
+    // Validar email antes de enviar
+    const emailValidation = validateAndSanitizeEmail(email);
+    if (!emailValidation.isValid) {
+      setError(emailValidation.error || 'Email inválido');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await loginPasskey(email);
+      const result = await loginPasskey(emailValidation.sanitized);
       
       if (result.access_token && result.refresh_token && result.user) {
         console.log('Guardando token en contexto...');
@@ -125,9 +148,15 @@ export default function LoginPage() {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/20 to-yellow-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20 transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg">
+                  <div className={`relative bg-slate-900/60 backdrop-blur-sm rounded-2xl border transition-all duration-300 group-hover:bg-slate-900/80 group-hover:shadow-lg ${
+                    emailError 
+                      ? 'border-red-400/50 focus-within:border-red-400 focus-within:ring-2 focus-within:ring-red-400/20' 
+                      : 'border-fuchsia-800/30 focus-within:border-fuchsia-400 focus-within:ring-2 focus-within:ring-fuchsia-400/20'
+                  }`}>
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-fuchsia-400 group-hover:text-yellow-400 transition-colors duration-300" />
+                      <Mail className={`h-5 w-5 transition-colors duration-300 ${
+                        emailError ? 'text-red-400' : 'text-fuchsia-400 group-hover:text-yellow-400'
+                      }`} />
                     </div>
                     <input
                       id="email"
@@ -136,11 +165,16 @@ export default function LoginPage() {
                       autoComplete="email"
                       required
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
                       className="block w-full pl-12 pr-4 py-4 border-0 rounded-2xl text-white placeholder-fuchsia-300/50 focus:ring-0 sm:text-sm bg-transparent"
                       placeholder="tu@email.com"
                     />
                   </div>
+                  {emailError && (
+                    <div className="mt-2 text-sm text-red-400 animate-fade-in">
+                      {emailError}
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFavorites } from '@/context/FavoritesContext';
 import { API_BASE_URL } from '@/lib/api';
 import AddressMapPicker from '@/components/AddressMapPicker';
+import { validateAddressForm, sanitizeText } from '@/lib/validation';
 import './premium-animations.css';
 
 interface Product {
@@ -149,9 +150,13 @@ export default function MiCuentaPage() {
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    const sanitizedValue = type === 'checkbox' && e.target instanceof HTMLInputElement 
+      ? e.target.checked 
+      : sanitizeText(value);
+    
     setAddressForm(prev => ({
       ...prev,
-      [name]: type === 'checkbox' && e.target instanceof HTMLInputElement ? e.target.checked : value,
+      [name]: sanitizedValue,
     }));
   };
 
@@ -159,6 +164,23 @@ export default function MiCuentaPage() {
     setAddressError(null);
     setAddressSaved(false);
     if (!selectedAddress || !token) return;
+    
+    // Validar formulario antes de enviar
+    const validation = validateAddressForm({
+      first_name: addressForm.first_name,
+      last_name: addressForm.last_name,
+      phone: addressForm.phone,
+      address1: selectedAddress.address,
+      city: addressForm.city,
+      state: addressForm.state,
+      postal_code: addressForm.postal_code,
+      country: addressForm.country,
+    });
+    
+    if (!validation.isValid) {
+      setAddressError('Por favor corrige los errores en el formulario: ' + Object.values(validation.errors).join(', '));
+      return;
+    }
     
     try {
       const url = editingAddress 
