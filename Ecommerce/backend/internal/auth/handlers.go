@@ -2,7 +2,6 @@ package auth
 
 import (
 	"crypto/rand"
-	"fmt"
 	"log"
 	"math/big"
 	"net/http"
@@ -575,11 +574,10 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 	}
 
 	// Enviar notificación de seguridad sobre el nuevo login
-	clientIP := c.ClientIP()
-	location := "Ubicación desconocida" // En el futuro se podría usar un servicio de geolocalización
-
-	loginEvent := fmt.Sprintf("Nuevo inicio de sesión desde %s - %s", clientIP, location)
 	// Comentado temporalmente para evitar spam de notificaciones en logins normales
+	// clientIP := c.ClientIP()
+	// location := "Ubicación desconocida" // En el futuro se podría usar un servicio de geolocalización
+	// loginEvent := fmt.Sprintf("Nuevo inicio de sesión desde %s - %s", clientIP, location)
 	// if err := h.notificationSvc.CreateSecurityNotification(c.Request.Context(), user.ID, loginEvent); err != nil {
 	// 	// Solo log del error, no fallar el login
 	// 	if isDevelopment {
