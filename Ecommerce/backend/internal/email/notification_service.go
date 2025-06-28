@@ -382,14 +382,22 @@ func (ns *NotificationService) CreateOutOfStockAdminNotification(ctx context.Con
 
 // CreateSecurityNotification crea una notificación de seguridad
 func (ns *NotificationService) CreateSecurityNotification(ctx context.Context, userID int, event string) error {
-	title := "Alerta de Seguridad"
-	message := fmt.Sprintf("Se detectó actividad inusual en tu cuenta: %s. Si no fuiste tú, cambia tu contraseña inmediatamente.", event)
+	var title, message string
+
+	// Detectar si es un login normal vs actividad sospechosa
+	if strings.Contains(event, "Nuevo inicio de sesión") {
+		title = "Inicio de Sesión Exitoso"
+		message = fmt.Sprintf("Se ha iniciado sesión en tu cuenta desde: %s. Si no fuiste tú, contacta con soporte.", strings.TrimPrefix(event, "Nuevo inicio de sesión desde "))
+	} else {
+		title = "Alerta de Seguridad"
+		message = fmt.Sprintf("Se detectó actividad inusual en tu cuenta: %s. Si no fuiste tú, cambia tu contraseña inmediatamente.", event)
+	}
 
 	data := NotificationData{
 		ActionURL: stringPtr("/mi-cuenta?tab=security"),
 	}
 
-	return ns.CreateNotification(ctx, userID, "security", title, message, data, "urgent", false)
+	return ns.CreateNotification(ctx, userID, "security", title, message, data, "medium", false)
 }
 
 // CreateAdminNotification crea una notificación para administradores

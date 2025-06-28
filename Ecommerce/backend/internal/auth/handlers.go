@@ -579,12 +579,13 @@ func (h *AuthHandler) FinishLogin(c *gin.Context) {
 	location := "Ubicación desconocida" // En el futuro se podría usar un servicio de geolocalización
 
 	loginEvent := fmt.Sprintf("Nuevo inicio de sesión desde %s - %s", clientIP, location)
-	if err := h.notificationSvc.CreateSecurityNotification(c.Request.Context(), user.ID, loginEvent); err != nil {
-		// Solo log del error, no fallar el login
-		if isDevelopment {
-			log.Printf("Error enviando notificación de seguridad: %v", err)
-		}
-	}
+	// Comentado temporalmente para evitar spam de notificaciones en logins normales
+	// if err := h.notificationSvc.CreateSecurityNotification(c.Request.Context(), user.ID, loginEvent); err != nil {
+	// 	// Solo log del error, no fallar el login
+	// 	if isDevelopment {
+	// 		log.Printf("Error enviando notificación de seguridad: %v", err)
+	// 	}
+	// }
 
 	accessToken, refreshToken, err := GenerateTokens(user.ID, user.Email, user.IsAdmin)
 	if err != nil {
